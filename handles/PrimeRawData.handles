@@ -1,0 +1,24 @@
+hdf5_filename: /var/folders/7_/tqn1hw4d4nl6t17kcrg7v7jw0000gq/T/test.tmp
+
+
+input:
+
+    DapiFilename: 
+        hdf5_location: /Dapi
+
+    CelltraceFilename:
+        hdf5_location: /Celltrace
+
+    doPlot:
+        parameter: Yes
+
+
+output:
+
+    DapiImage:
+        hdf5_location: /PrimeRawData/DapiImage
+        class: ndarray
+
+    CelltraceImage:
+        hdf5_location: /PrimeRawData/CelltraceImage
+        class: ndarray

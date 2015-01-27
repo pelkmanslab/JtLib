@@ -1,0 +1,78 @@
+# JTERATOR PIPELINE DESCRIPTOR FILE
+# =================================
+# 
+# The working directory is by default the directory where the .pipe file 
+# is located. You can provide absolute or relative paths in your pipeline 
+# description.
+#
+# To run this pipeline in iterative mode, do:
+#   $ jt run
+#
+# To run this pipeline for individual jobs (parallel mode), do:
+#   $ jt joblist
+#   $ jt run --job [n]
+# Note: If you change the pipeline, do not forget to call 'jt joblist' again!
+#
+# To run individual modules (e.g. for debugging), do:
+#   $ cat [handles_filename] | [executable] [module_filename]
+
+
+# Define your project:
+project:
+
+  name: test
+  description: example pipeline for testing purposes
+
+
+# Define the items ("jobs") you want to process:
+# Note: Jterator writes the corresponding filenames
+# into the temporary pipeline HDF5 file, so that they will
+# can be retrieved by modules.
+jobs:
+
+    folder: TIFF
+    pattern: 
+      - name: Dapi
+        expression: .*C01\.(png|tiff?)
+      - name: Celltrace
+        expression: .*C03\.(png|tiff?)
+
+
+# Define the path to modules (executable files) and handles (YAML files)
+# and the interpreter program (full path or command for /usr/bin/env):
+pipeline:
+
+  - name: PrimeRawData
+    module: modules/PrimeRawData.py
+    handles: handles/PrimeRawData.handles
+    interpreter: python
+
+  - name: IllumCorrDapi
+    module: modules/IllumCorr.jl
+    handles: handles/IllumCorrDapi.handles
+    interpreter: julia
+
+  - name: IdentifyNuclei
+    module: modules/IdentifyNuclei.m
+    handles: handles/IdentifyNuclei.handles
+    interpreter: Mscript
+
+  - name: IllumCorrCelltrace
+    module: modules/IllumCorr.jl
+    handles: handles/IllumCorrCelltrace.handles
+    interpreter: julia
+
+  - name: IdentifyCells
+    module: modules/IdentifyCells.m
+    handles: handles/IdentifyCells.handles
+    interpreter: Mscript
+
+  - name: MeasureCells
+    module: modules/MeasureObjects.py
+    handles: handles/MeasureCells.handles
+    interpreter: python
+
+  - name: Correlation
+    module: modules/Correlation.R
+    handles: handles/Correlation.handles
+    interpreter: Rscript

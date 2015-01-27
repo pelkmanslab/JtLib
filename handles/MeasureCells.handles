@@ -1,0 +1,25 @@
+hdf5_filename: /var/folders/7_/tqn1hw4d4nl6t17kcrg7v7jw0000gq/T/test.tmp
+
+input:
+
+    Image:
+        hdf5_location: /IllumCorr/CorrImageCelltrace
+        class: ndarray
+
+    Objects: 
+        hdf5_location: /IdentifyCells/Cells
+        class: ndarray
+
+    ObjectName:
+        parameter: Cells
+
+    doPlot:
+        parameter: Yes
+
+output:
+
+    Area:
+        hdf5_location: /MeasureObjects/Cells_AreaShape_Area
+
+    Intensity:
+        hdf5_location: /MeasureObjects/Cells_Intensity_TotalIntensity

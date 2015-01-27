@@ -1,0 +1,117 @@
+hdf5_filename: /var/folders/7_/tqn1hw4d4nl6t17kcrg7v7jw0000gq/T/test.tmp
+
+# Identify nuclei
+# ===============
+
+# The module identifies 'nuclei' objects by intensity thresholding and 
+# subsequent separation of clumped objects along watershed lines.
+# 
+# Clumped objects are selected based on area/shape features.
+# The selected clumped objects are then subjected to perimeter analysis in order
+# to identify concave regions. Then watershed lines, which connect two concave 
+# regions with each other, are identified the optimal separation line is chosen
+# for each clump.
+#
+# Authors:
+#  Markus Herrmann (PerimeterWatershedSegmentation.m and Jterator module implementation)
+#  Nicolas Battich (CP module SeparatePrimary.m)
+#  Anatol Schwab (PerimeterAnaylsis.m)
+
+input:
+
+  CorrImage:
+    hdf5_location: /IllumCorr/CorrImageDapi
+    class: double
+
+  # Preprocessing: smooth intensity image by median filtering
+  # ---------------------------------------------------------
+
+  doSmooth:
+    parameter: Yes
+
+  SmoothingFilterSize:
+    parameter: 3
+
+
+  # Identify objects by intensity thresholding
+  # ------------------------------------------
+
+  ThresholdCorrection:
+    parameter: 1
+
+  ThresholdMethod:
+    parameter: Otsu Global
+
+  ThresholdRange:
+    parameter: [0,1]
+    class: double
+
+  pObject:
+    parameter: 10
+
+
+  # Separate (cut) clumped objects based on perimeter/watershed analysis
+  # --------------------------------------------------------------------
+
+  CuttingPasses:
+    parameter: 2
+
+  MaxSolidity:
+    parameter: 0.91
+
+  MinFormFactor:
+    parameter: 0.45
+
+  MaxArea:
+    parameter: 50000
+
+  MinArea:
+    parameter: 7000
+
+  MinCutArea:
+    parameter: 2500
+
+  SlidingWindow:
+    parameter: 8
+
+  FilterSize:
+    parameter: 1
+
+  MaxConcaveRadius:
+    parameter: 30
+
+  CircularSegment:
+    parameter: 6
+
+
+  # Plot results
+  # ------------
+
+  doPlot:
+    parameter: Yes
+
+  doTestModePerimeter:
+    parameter: No
+
+  doTestModeShape:
+    parameter: No
+
+
+  # Store results
+  # -------------
+
+  doSaveSegmentedImage:
+    parameter: Yes
+
+  OrigImageFilename:
+    hdf5_location: /Dapi
+
+  SegmentationPath:
+    parameter: SEGMENTATION
+
+
+output:
+
+  Nuclei:
+    hdf5_location: /IdentifyNuclei/Nuclei
+    class: double

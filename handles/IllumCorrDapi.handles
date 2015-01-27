@@ -1,0 +1,42 @@
+hdf5_filename: /var/folders/7_/tqn1hw4d4nl6t17kcrg7v7jw0000gq/T/test.tmp
+
+# Illumination correction
+# =======================
+
+# The module corrects fluorescence microscopy images for illumination artifacts.
+# 
+# This module calculates the mean and std values for the intensity of each
+# pixel position in a set of images from the same wave length. Such
+# fuctions can later be used to to correct the intensity values of each
+# pixel by substracting the mean function and normalizing with the std
+# function. Such proceedure sould not only normalize for the background
+# intensities but also for amplitude differences whic result from optical
+# aberrances or differences in illumination.
+# Note: this module uses only a precalculated illumination correction
+# files (from iBrain) that can be placed in the default output folder.
+#
+# Authors:
+#  Nicolas Battich (CP module NYB_IlluminationCorrection.m)
+#  Yauhen Yakimovich (CP module NYB_IlluminationCorrection.m)
+#  Berend Snijder (CP module NYB_IlluminationCorrection.m)
+#  Markus Herrmann (Jterator module implementation)
+
+input:
+
+  OrigImage:
+    hdf5_location: /PrimeRawData/DapiImage
+
+  StatsDirectory:
+    parameter: BATCH
+
+  StatsFilename:
+    parameter: Measurements_batch_illcor_channel001_zstack000.mat
+
+  doPlot:
+    parameter: Yes
+
+output:
+
+  CorrImage:
+    hdf5_location: /IllumCorr/CorrImageDapi
+
