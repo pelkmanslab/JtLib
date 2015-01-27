@@ -24,7 +24,7 @@ hdf5_filename: /var/folders/7_/tqn1hw4d4nl6t17kcrg7v7jw0000gq/T/test.tmp
 input:
 
   OrigImage:
-    hdf5_location: /PrimeRawData/DapiImage
+    hdf5_location: /FixBadPixels/FixedDapiImage
 
   StatsDirectory:
     parameter: BATCH
@@ -33,7 +33,7 @@ input:
     parameter: Measurements_batch_illcor_channel001_zstack000.mat
 
   doPlot:
-    parameter: Yes
+    parameter: No
 
 output:
 

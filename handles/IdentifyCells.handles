@@ -34,7 +34,7 @@ input:
   # ---------------------------------------------------------
 
   doSmooth:
-    parameter: Yes
+    parameter: No
 
   SmoothingFilterSize:
     parameter: 3

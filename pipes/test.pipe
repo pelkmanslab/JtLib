@@ -33,9 +33,9 @@ jobs:
     folder: TIFF
     pattern: 
       - name: Dapi
-        expression: .*C01\.(png|tiff?)
+        expression: .*C01\.png
       - name: Celltrace
-        expression: .*C03\.(png|tiff?)
+        expression: .*C03\.png
 
 
 # Define the path to modules (executable files) and handles (YAML files)
@@ -47,6 +47,11 @@ pipeline:
     handles: handles/PrimeRawData.handles
     interpreter: python
 
+  - name: FixBadPixelsDapi
+    module: modules/FixBadPixels.m
+    handles: handles/FixBadPixelsDapi.handles
+    interpreter: Mscript
+
   - name: IllumCorrDapi
     module: modules/IllumCorr.jl
     handles: handles/IllumCorrDapi.handles
@@ -55,6 +60,11 @@ pipeline:
   - name: IdentifyNuclei
     module: modules/IdentifyNuclei.m
     handles: handles/IdentifyNuclei.handles
+    interpreter: Mscript
+
+  - name: FixBadPixelsCelltrace
+    module: modules/FixBadPixels.m
+    handles: handles/FixBadPixelsCelltrace.handles
     interpreter: Mscript
 
   - name: IllumCorrCelltrace
@@ -72,7 +82,7 @@ pipeline:
     handles: handles/MeasureCells.handles
     interpreter: python
 
-  - name: Correlation
-    module: modules/Correlation.R
-    handles: handles/Correlation.handles
-    interpreter: Rscript
+  - name: MeasureNuclei
+    module: modules/MeasureNuclei.py
+    handles: handles/MeasureNuclei.handles
+    interpreter: python

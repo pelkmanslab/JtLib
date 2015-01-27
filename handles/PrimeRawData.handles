@@ -10,7 +10,7 @@ input:
         hdf5_location: /Celltrace
 
     doPlot:
-        parameter: Yes
+        parameter: No
 
 
 output:
