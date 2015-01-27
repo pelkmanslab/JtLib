@@ -43,10 +43,10 @@ maxSigmaBlur = 5;
 bwBadPixels = isinf(InputImage) | isnan(InputImage);
 
 if ~any(bwBadPixels(:)) % no bad pixel
-    return
+    FixedImage = InputImage;
 elseif ~any(~bwBadPixels) % all bad pixels
-    fprintf('%s: no pixel has a numerical value \n',mfilename)
-    return
+    warning('No pixel has a numerical value')
+    FixedImage = InputImage;
 else % some bad pixels
     
     % Estimate size of artifacts
@@ -107,9 +107,9 @@ else % some bad pixels
         H = fspecial('gaussian',[SmoothingSize SmoothingSize],SmoothingSize./SmoothingSigma);
         SmoothenedImage(N:S,W:E) = imfilter(CurrCropImage,H,'symmetric');
     end
-end
 
-FixedImage(bwBadPixels) = SmoothenedImage(bwBadPixels);
+    FixedImage(bwBadPixels) = SmoothenedImage(bwBadPixels);
+end
 
 
 %%%%%%%%%%%%%%%%%%%%
