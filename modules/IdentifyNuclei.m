@@ -37,7 +37,7 @@ SmoothingFilterSize = input_args.SmoothingFilterSize;
 %%% Input arguments for identifying objects by intensity threshold
 ThresholdCorrection = input_args.ThresholdCorrection;
 ThresholdMethod = input_args.ThresholdMethod;
-ThresholdRange = input_args.ThresholdRange;
+MinimumThreshold = input_args.MinimumThreshold;
 pObject = input_args.pObject;
 
 %%% Input arguments for cutting clumped objects
@@ -75,8 +75,7 @@ else
 end
 
 %% Threshold image
-MinimumThreshold = ThresholdRange(1) .* 2^16;
-MaximumThreshold = ThresholdRange(2) .* 2^16;
+MaximumThreshold = 2^16;
 
 %%% Calculate threshold
 threshhold = ImageThreshold(ThresholdMethod, ...
@@ -166,17 +165,17 @@ if ~isempty(FillImage)
     
     AllCut = logical(sum(ObjectsCut, 3));
     
-    if ~isempty(AllCut)
-        imErodeMask = bwmorph(AllCut, 'shrink', inf);
-        imDilatedMask = IdentifySecPropagateSubfunction(double(imErodeMask), ...
-                                                        InputImage, ...
-                                                        AllCut, ...
-                                                        1);
-    end
+    % if ~isempty(AllCut)
+    %     imErodeMask = bwmorph(AllCut, 'shrink', inf);
+    %     imDilatedMask = IdentifySecPropagateSubfunction(double(imErodeMask), ...
+    %                                                     InputImage, ...
+    %                                                     AllCut, ...
+    %                                                     1);
+    % end
     
-    %%% Retrieve objects that were not cut
+    %%% Retrieve objects that were not cut (or already cut)
     AllNotCut = logical(sum(ObjectsNotCut, 3));
-    IdentifiedNuclei = bwlabel(logical(AllCut + AllNotCut));
+    IdentifiedNuclei = bwlabel(AllCut + AllNotCut);
 
 else
 
@@ -224,7 +223,7 @@ if doPlot
     hold on
     redOutline = cat(3, ones(size(AllSelected)), zeros(size(AllSelected)), zeros(size(AllSelected)));
     h = imagesc(redOutline);
-    set(h, 'AlphaData', logical(sum(CutMask, 3)))
+    set(h, 'AlphaData', imdilate(logical(sum(CutMask, 3)), strel('disk', 12)))
     hold off
     freezeColors
 
@@ -252,6 +251,9 @@ if doPlot
     figure_filename = sprintf('figures/%s_%.5d.pdf', mfilename, jobid);
     set(fig, 'PaperPosition', [0 0 7 7], 'PaperSize', [7 7]);
     saveas(fig, figure_filename);
+
+    %%% Save Matlab figure
+    savefig(fig, strrep(figure_filename, '.pdf', '.fig'));
 
 end
 

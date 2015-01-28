@@ -38,7 +38,7 @@ SmoothingFilterSize = input_args.SmoothingFilterSize;
 
 %%% Input arguments for identifying objects by iterative intensity thresholding
 ThresholdCorrection = input_args.ThresholdCorrection;
-ThresholdRange = input_args.ThresholdRange;
+MinimumThreshold = input_args.MinimumThreshold;
 pObject = input_args.pObject;
 
 %%% Input arguments for plotting segmentation results
@@ -63,8 +63,7 @@ end
 
 ThresholdMethod = 'Otsu Global';
 
-MinimumThreshold = ThresholdRange(1) .* 2^16;
-MaximumThreshold = ThresholdRange(2) .* 2^16;
+MaximumThreshold = 2^16;
 
 numThresholdsToTest = length(ThresholdCorrection);
 ThresholdArray = cell(numThresholdsToTest,1);
@@ -637,6 +636,9 @@ if doPlot
     figure_filename = sprintf('figures/%s_%.5d.pdf', mfilename, jobid);
     set(fig, 'PaperPosition', [0 0 7 7], 'PaperSize', [7 7]);
     saveas(fig, figure_filename);
+
+    %%% Save Matlab figure
+    savefig(fig, strrep(figure_filename, '.pdf', '.fig'));
 
 end
 

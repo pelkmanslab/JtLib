@@ -49,14 +49,11 @@ input:
     parameter: [1.2, 1.15, 1.1, 1.05, 1, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5, 0.45, 0.4, 0.35, 0.3, 0.25, 0.2, 0.15]
     class: double
 
-  ThresholdRange:
-    # These values correspond to the minimal and maximal values that a
-    # threshold is allowed to have. They have the format
-    # [SmallestThreshold, HighestThreshold].
+  MinimumThreshold:
     # Setting a minimal value will prevent recognition of background as object.
     # To set SmallestThreshold, pick a pixel value at the border of sparse cells,
-    # which still lies above background. The maximal value should be set to 1.
-    parameter: [0.0022, 1]
+    # which still lies above background.
+    parameter: 120
     class: double
 
   pObject:
