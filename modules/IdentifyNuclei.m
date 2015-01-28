@@ -267,7 +267,7 @@ if doSaveSegmentedImage
     if ~isdir(SegmentationPath)
         mkdir(SegmentationPath)
     end
-    imwrite(IdentifiedNuclei, SegmentationFilename);
+    imwrite(uint16(IdentifiedNuclei), SegmentationFilename);
     fprintf('%s: Segmented ''nuclei'' were saved to file: "%s"\n', ...
             mfilename, SegmentationFilename)
 end

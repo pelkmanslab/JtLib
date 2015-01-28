@@ -86,11 +86,11 @@ if doPlot=="Yes"
     figure
 
     subplot(221)
-    imshow(orig_image, cmap="gray", vmin=orig_vmin, vmax=orig_vmax)
+    imshow(orig_image', cmap="gray", vmin=orig_vmin, vmax=orig_vmax)
     title("Original image")
 
     subplot(222)
-    imshow(corr_image, cmap="gray", vmin=corr_vmin, vmax=corr_vmax)
+    imshow(corr_image', cmap="gray", vmin=corr_vmin, vmax=corr_vmax)
     title("Corrected image")
 
     subplot(223)
@@ -104,7 +104,6 @@ if doPlot=="Yes"
     fig = gcf()
 
     jobid = h5read(handles["hdf5_filename"], "jobid")
-    savefig(@sprintf("figures/%s_%05d.pdf", mfilename, jobid))
 
     mousepos = mpld3.plugins[:MousePosition](fontsize=14)
     mpld3.plugins[:connect](fig, mousepos)

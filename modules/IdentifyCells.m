@@ -568,7 +568,7 @@ if any(patchForPrimaryObject)
    % [TS]: note the conservative behavior to track individual missing
    % objects; this is intended for backward compatibility, while a simple
    % query for missing IDs would be faster, it would be more general and
-   % thus potentially conflict with the segementation results of prior
+   % thus potentially conflict with the segmentation results of prior
    % pipelines (in other regions than the objects lost by prior / default
    % behavior of segmentation modules)
    IDsOfObjectsToPatch = find(patchForPrimaryObject);
@@ -649,7 +649,7 @@ if doSaveSegmentedImage
     if ~isdir(SegmentationPath)
         mkdir(SegmentationPath)
     end
-    imwrite(IdentifiedCells, SegmentationFilename);
+    imwrite(uint16(IdentifiedCells), SegmentationFilename);
     fprintf('%s: Segmented ''cells'' were saved to file: "%s"\n', ...
             mfilename, SegmentationFilename)
 end

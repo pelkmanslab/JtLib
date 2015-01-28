@@ -58,7 +58,7 @@ if doPlot:
     ax1 = fig.add_subplot(1, 2, 1, adjustable='box', aspect=1)
     ax2 = fig.add_subplot(1, 2, 2, adjustable='box', aspect=1)
 
-    im1 = ax1.imshow(dapi_image,
+    im1 = ax1.imshow(dapi_image.T,
                      vmin=np.percentile(dapi_image, 0.1),
                      vmax=np.percentile(dapi_image, 99.9),
                      cmap='gray')
@@ -67,7 +67,7 @@ if doPlot:
     fig.colorbar(im1, cax=cax1)
     ax1.set_title('Dapi', size=20)
 
-    im2 = ax2.imshow(celltrace_image,
+    im2 = ax2.imshow(celltrace_image.T,
                      vmin=np.percentile(celltrace_image, 0.1),
                      vmax=np.percentile(celltrace_image, 99.9),
                      cmap='gray')
@@ -77,8 +77,6 @@ if doPlot:
     ax2.set_title('Celltrace', size=20)
 
     fig.tight_layout()
-
-    fig.savefig('test.pdf')
 
     # Save figure as html file and open it in the browser
     fid = h5py.File(handles['hdf5_filename'], 'r')
