@@ -564,16 +564,18 @@ IdentifiedCells(end,:)= IdentifiedCells((end-1),:);
 % sometimes small 1 -pixel objects, which are lost, are sitting at the
 % border of an image (and thus would be overwritten)
 
-if any(patchForPrimaryObject)
-   % [TS]: note the conservative behavior to track individual missing
-   % objects; this is intended for backward compatibility, while a simple
-   % query for missing IDs would be faster, it would be more general and
-   % thus potentially conflict with the segmentation results of prior
-   % pipelines (in other regions than the objects lost by prior / default
-   % behavior of segmentation modules)
-   IDsOfObjectsToPatch = find(patchForPrimaryObject);
-   needsToIncludePrimary = ismember(Nuclei,IDsOfObjectsToPatch);
-   IdentifiedCells(needsToIncludePrimary) = Nuclei(needsToIncludePrimary);
+if numObjects >= 1
+    if any(patchForPrimaryObject)
+        % [TS]: note the conservative behavior to track individual missing
+        % objects; this is intended for backward compatibility, while a simple
+        % query for missing IDs would be faster, it would be more general and
+        % thus potentially conflict with the segementation results of prior
+        % pipelines (in other regions than the objects lost by prior / default
+        % behavior of segmentation modules)
+        IDsOfObjectsToPatch = find(patchForPrimaryObject);
+        needsToIncludePrimary = ismember(EditedPrimaryLabelMatrixImage,IDsOfObjectsToPatch);
+        FinalLabelMatrixImage(needsToIncludePrimary) =  EditedPrimaryLabelMatrixImage(needsToIncludePrimary);
+    end
 end
 
 %%%% [TS] %%%%%%%%%% ABSOLUTE SEGEMENTATION  End  %%%%%%%%%%%
