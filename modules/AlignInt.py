@@ -74,11 +74,11 @@ upper = shift_descriptor['upperOverlap']
 lower = shift_descriptor['lowerOverlap']
 left = shift_descriptor['leftOverlap']
 right = shift_descriptor['rightOverlap']
-y = shift['yShift'][index][0]
-x = shift['xShift'][index][0]
+y = shift['yShift'][index]
+x = shift['xShift'][index]
 aligned_images = list()
 for image in input_images:
-    if shift_descriptor['noShiftIndex'][index][0] == 1:
+    if shift_descriptor['noShiftIndex'][index] == 1:
         aligned_images.append(np.zeros(image[lower:-upper, right:-left].shape))
     else:
         aligned_images.append(image[lower-y:-(upper+y), right-x:-(left+x)])
