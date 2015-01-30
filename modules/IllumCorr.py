@@ -36,6 +36,7 @@ input_args = checkinputargs(input_args)
 ####################
 
 orig_image = np.array(input_args['OrigImage'], dtype='float64')
+image_name = input_args['ImageName']
 stats_directory = input_args['StatsDirectory']
 stats_filename = input_args['StatsFilename']
 doPlot = input_args['doPlot']
@@ -116,14 +117,14 @@ if doPlot:
     im4 = ax6.imshow(std_image, cmap='jet')
     ax6.set_title('Illumination std', size=20)
 
-    mousepos = mpld3.plugins.MousePosition(fontsize=14)
+    mousepos = mpld3.plugins.MousePosition(fontsize=20)
     mpld3.plugins.connect(fig, mousepos)
 
     fid = h5py.File(handles['hdf5_filename'], 'r')
     jobid = fid['jobid'][()]
     fid.close()
 
-    figure_name = 'figures/%s_%05d.html' % (mfilename, jobid)
+    figure_name = 'figures/%s_%s_%05d.html' % (mfilename, image_name, jobid)
     mpld3.save_html(fig, figure_name)
     figure2browser(os.path.abspath(figure_name))
 

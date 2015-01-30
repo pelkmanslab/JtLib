@@ -35,8 +35,8 @@ input_args = checkinputargs(input_args)
 ## input handling ##
 ####################
 
-image = np.array(input_args['Image'])
-objects = np.array(input_args['Objects'])
+image = np.array(input_args['Image'], dtype='float64')
+objects = np.array(input_args['Objects'], dtype='float64')
 object_name = input_args['ObjectName']
 
 doPlot = input_args['doPlot']
@@ -120,7 +120,7 @@ data['%s_AreaShape_Area' % object_name] = object_area
 data['%s_AreaShape_Eccentricity' % object_name] = object_eccentricity
 data['%s_AreaShape_Solidity' % object_name] = object_solidity
 data['%s_AreaShape_Perimeter' % object_name] = object_solidity
-data['%s_AreaShape_FromFactor' % object_name] = object_formfactor
+data['%s_AreaShape_FormFactor' % object_name] = object_formfactor
 data['%s_Intensity_MaxIntensity' % object_name] = object_max_int
 data['%s_Intensity_MeanIntensity' % object_name] = object_mean_int
 data['%s_Intensity_MinIntensity' % object_name] = object_min_int

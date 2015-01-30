@@ -35,6 +35,7 @@ input_args = checkinputargs(input_args)
 ####################
 
 orig_image = input_args["OrigImage"]
+image_name = input_args["ImageName"]
 
 stats_directory = input_args["StatsDirectory"]
 stats_filename = input_args["StatsFilename"]
@@ -117,7 +118,7 @@ if doPlot=="Yes"
     mousepos = mpld3.plugins[:MousePosition](fontsize=14)
     mpld3.plugins[:connect](fig, mousepos)
 
-    figure_name = @sprintf("figures/%s_%05d.html", mfilename, jobid)
+    figure_name = @sprintf("figures/%s_%s_%05d.html", mfilename, image_name, jobid)
     mpld3.save_html(fig, figure_name)
     figure2browser(abspath(figure_name))
 
