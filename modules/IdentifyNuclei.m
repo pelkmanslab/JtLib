@@ -184,6 +184,9 @@ for i = 1:length(area)
     end
 end
 
+%%% Re-label objects
+IdentifiedNuclei = bwlabel(logical(IdentifiedNuclei))
+
 
 %% Make some default measurements
 
