@@ -33,7 +33,7 @@ input_args = checkinputargs(input_args)
 ## input handling ##
 ####################
 
-orig_image = np.array(input_args['OrigImage'])
+orig_image = np.array(input_args['OrigImage'], dtype='float64')
 stats_directory = input_args['StatsDirectory']
 stats_filename = input_args['StatsFilename']
 doPlot = input_args['doPlot']
