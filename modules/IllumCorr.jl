@@ -4,6 +4,8 @@ using HDF5
 using PyPlot
 using PyCall
 @pyimport mpld3
+@pyimport scipy.ndimage as ndi
+@pyimport numpy as np
 
 
 mfilename = match(r"([^/]+)\.jl$", @__FILE__()).captures[1]
@@ -67,6 +69,14 @@ std_image = float64(stats["stat_values"]["std"])
 
 ### correct intensity image for illumination artifact
 corr_image = correct(orig_image, mean_image, std_image)
+
+### fix "bad" pixels
+ix_bad = ~(isfinite(corr_image))
+print('IllumCorr: identified %d bad pixels' % len(ix_bad))
+# med_filt_image = ndi.filters[:median_filter](corr_image, 3)
+med_filt_image = ndi.filters[:generic_filter](corr_image, np.nanmedian, size=3)
+corr_image[ix_bad] = med_filt_image[ix_bad]
+corr_image[ix_bad] = med_filt_image[ix_bad]
 
 
 
