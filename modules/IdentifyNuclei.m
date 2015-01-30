@@ -183,6 +183,9 @@ else
      
 end
 
+%%% Remove small objects
+IdentifiedNuclei[IdentifiedNuclei < MinCutArea] = 0
+
 
 %% Make some default measurements
 
