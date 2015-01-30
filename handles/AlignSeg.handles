@@ -1,0 +1,33 @@
+hdf5_filename: None
+
+
+input:
+
+    InputImage1:
+        hdf5_location: /IdentifyNuclei/Nuclei
+        class: ndarray
+
+    InputImage2:
+        hdf5_location: /IdentifyCells/Cells
+
+    ShiftDescriptor:
+        parameter: ALIGNCYCLES/shiftDescriptor.json
+
+    ReferenceFilename: 
+    # We use the filename of the image, which was used for image registration
+    # in order to double-check that we are using the correct index.
+        hdf5_location: /Dapi
+
+    doPlot:
+        parameter: No
+
+
+output:
+
+    AlignedImage1:
+        hdf5_location: /AlignSeg/AlignNuclei
+        class: ndarray
+
+    AlignedImage2:
+        hdf5_location: /AlignSeg/AlignCells
+        class: ndarray

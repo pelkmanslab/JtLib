@@ -110,10 +110,10 @@ if doPlot:
                   histtype='stepfilled')
     ax5.set_title('Corrected histogram', size=20)
 
-    im3 = ax3.imshow(mean_image, cmap='gray')
+    im3 = ax3.imshow(mean_image, cmap='jet')
     ax3.set_title('Illumination mean', size=20)
 
-    im4 = ax6.imshow(std_image, cmap='gray')
+    im4 = ax6.imshow(std_image, cmap='jet')
     ax6.set_title('Illumination std', size=20)
 
     mousepos = mpld3.plugins.MousePosition(fontsize=14)

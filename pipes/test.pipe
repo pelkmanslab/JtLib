@@ -47,30 +47,25 @@ pipeline:
     handles: handles/PrimeRawData.handles
     interpreter: python
 
-  - name: FixBadPixelsDapi
-    module: modules/FixBadPixels.m
-    handles: handles/FixBadPixelsDapi.handles
-    interpreter: Mscript
-
   - name: IllumCorrDapi
-    module: modules/IllumCorr.jl
+    module: modules/IllumCorr.py
     handles: handles/IllumCorrDapi.handles
-    interpreter: julia
+    interpreter: python
 
   - name: IdentifyNuclei
     module: modules/IdentifyNuclei.m
     handles: handles/IdentifyNuclei.handles
     interpreter: Mscript
 
-  - name: FixBadPixelsCelltrace
-    module: modules/FixBadPixels.m
-    handles: handles/FixBadPixelsCelltrace.handles
-    interpreter: Mscript
+  - name: MeasureNuclei
+    module: modules/MeasureNuclei.py
+    handles: handles/MeasureNuclei.handles
+    interpreter: python
 
   - name: IllumCorrCelltrace
-    module: modules/IllumCorr.jl
+    module: modules/IllumCorr.py
     handles: handles/IllumCorrCelltrace.handles
-    interpreter: julia
+    interpreter: python
 
   - name: IdentifyCells
     module: modules/IdentifyCells.m
@@ -80,9 +75,4 @@ pipeline:
   - name: MeasureCells
     module: modules/MeasureObjects.py
     handles: handles/MeasureCells.handles
-    interpreter: python
-
-  - name: MeasureNuclei
-    module: modules/MeasureNuclei.py
-    handles: handles/MeasureNuclei.handles
     interpreter: python

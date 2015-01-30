@@ -44,7 +44,6 @@ input:
 
   MinimumThreshold:
     parameter: 120
-    class: double
 
   pObject:
     parameter: 10

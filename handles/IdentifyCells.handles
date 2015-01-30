@@ -54,7 +54,6 @@ input:
     # To set SmallestThreshold, pick a pixel value at the border of sparse cells,
     # which still lies above background.
     parameter: 120
-    class: double
 
   pObject:
     parameter: 10
