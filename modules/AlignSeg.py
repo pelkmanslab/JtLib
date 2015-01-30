@@ -3,6 +3,7 @@ import os
 import sys
 import re
 import json
+import numpy as np
 from pysubfunctions import microscope_type
 
 
@@ -32,8 +33,8 @@ input_args = checkinputargs(input_args)
 ## input handling ##
 ####################
 
-input_image_1 = input_args.InputImage1
-input_image_2 = input_args.InputImage2
+input_image_1 = np.array(input_args.InputImage1, dtype='float64')
+input_image_2 = np.array(input_args.InputImage2, dtype='float64')
 input_images = [input_image_1, input_image_2]
 
 shift_descriptor_filename = input_args.ShiftDescriptor
@@ -69,25 +70,43 @@ elif len(index) > 1:
 else:
     index = index[0]
 
-### align image
+### align image (shift and crop)
 upper = shift_descriptor['upperOverlap']
 lower = shift_descriptor['lowerOverlap']
 left = shift_descriptor['leftOverlap']
 right = shift_descriptor['rightOverlap']
-y = shift['yShift'][index]
-x = shift['xShift'][index]
+y = shift_descriptor['yShift'][index]
+x = shift_descriptor['xShift'][index]
 aligned_images = list()
 for image in input_images:
     if shift_descriptor['noShiftIndex'][index] == 1:
         aligned_images.append(np.zeros(image[lower:-upper, right:-left].shape))
     else:
-        aligned_images.append(image[lower-y:-(upper+y), right-x:-(left+x)])
+        aligned_images.append(image[(lower-y):-(upper+y), (right-x):-(left+x)])
 
-### ensure that object counts are identical that that object ids match
-object_counts = [sum(np.unique(image[image != 0])) for image in input_images]
+# Cutting can result in inconsistent object counts, for example because a nucleus
+# is removed, but there is still some part of the cell present.
+# Therefore, we have to correct for such artifacts.
+
+### ensure that object counts are identical and that object ids match.
+object_ids = [np.unique(image[image != 0]) for image in input_images]
+object_counts = [sum(objects) for objects in object_ids]
 ix_order = np.argsort(object_counts)
 
-# TODO
+# get common objects in image with highest object count and
+# image with second highest object count
+# (usually this corresponds to 'cells' and 'nuclei' objects, respectively)
+a = in1d(object_ids[ix_order[1]], object_ids[ix_order[0]])
+b = in1d(object_ids[ix_order[0]], object_ids[ix_order[1]][a])
+
+# assign new common, continuous labels
+a_ix = a[b]
+b_ix = b[a]
+for label in range(len(b_ix)):
+    for image in input_images[ix_order[1:-1]]:
+        image[image == b_ix[label]] = label
+    input_images[0][input_images[0] == a_ix[label]] = label
+
 
 
 #####################

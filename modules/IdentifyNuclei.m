@@ -54,8 +54,8 @@ MinFormFactor = input_args.MinFormFactor;
 
 %%% Input arguments for plotting segmentation results
 doPlot = input_args.doPlot;
-doTestModePerimeter = input_args.doTestModePerimeter;
-doTestModeShape = input_args.doTestModeShape;
+% doTestModePerimeter = input_args.doTestModePerimeter;
+% doTestModeShape = input_args.doTestModeShape;
 
 %%% Input arguments for saving segmented images
 doSaveSegmentedImage = input_args.doSaveSegmentedImage;
@@ -162,20 +162,12 @@ if ~isempty(FillImage)
     %----------------------------------------------
     % Combine objects from different cutting passes
     %----------------------------------------------
-    
-    AllCut = logical(sum(ObjectsCut, 3));
-    
-    % if ~isempty(AllCut)
-    %     imErodeMask = bwmorph(AllCut, 'shrink', inf);
-    %     imDilatedMask = IdentifySecPropagateSubfunction(double(imErodeMask), ...
-    %                                                     InputImage, ...
-    %                                                     AllCut, ...
-    %                                                     1);
-    % end
+
+    AllCut = logical(ObjectsCut(:,:,end) + sum(ObjectsNotCut(:,:,2:end)))
     
     %%% Retrieve objects that were not cut (or already cut)
     AllNotCut = logical(sum(ObjectsNotCut, 3));
-    IdentifiedNuclei = bwlabel(AllCut + AllNotCut);
+    IdentifiedNuclei = bwlabel(logical(ObjectsCut(:,:,end) + AllNotCut));
 
 else
 
@@ -183,8 +175,14 @@ else
      
 end
 
-%%% Remove small objects
-IdentifiedNuclei(IdentifiedNuclei < MinCutArea) = 0;
+%%% Remove small objects that fall below area threshold
+area = regionprops(IdentifiedNuclei, 'Area');
+area = cat(1, area.Area);
+for i = 1:length(area)
+    if area(i) < MinCutArea
+        IdentifiedNuclei(IdentifiedNuclei == i) = 0;
+    end
+end
 
 
 %% Make some default measurements
@@ -255,7 +253,7 @@ if doPlot
     set(fig, 'PaperPosition', [0 0 7 7], 'PaperSize', [7 7]);
     saveas(fig, figure_filename);
 
-    %%% Save Matlab figure
+    %%% Save also as Matlab figure to explore details
     savefig(fig, strrep(figure_filename, '.pdf', '.fig'));
 
 end
@@ -266,7 +264,7 @@ end
 %%%%%%%%%%%%%%%%%%
 
 if doSaveSegmentedImage
-    SegmentationFilename = strrep(os.path.basename(OrigImageFilename'), ...
+    SegmentationFilename = strrep(os.path.basename(OrigImageFilename), ...
                                   '.png', '_segmentedNuclei.png');
     SegmentationFilename = fullfile(SegmentationPath, SegmentationFilename);
     if ~isdir(SegmentationPath)

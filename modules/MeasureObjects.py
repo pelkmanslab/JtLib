@@ -61,10 +61,10 @@ object_eccentricity = np.array([regions[i].eccentricity for i in range(object_nu
 object_perimeter = np.array([regions[i].perimeter for i in range(object_num)])
 object_solidity = np.array([regions[i].solidity for i in range(object_num)])
 object_equidiameter = np.array([regions[i].equivalent_diameter for i in range(object_num)])
-object_formfactor = 4.0 * np.pi * object_area / object_perimeter**2
+object_formfactor = (4.0 * np.pi * object_area) / (object_perimeter**2)
 
 ### extract intensity measurements
-object_total_int = [sum(image[objects_labeled == i]) for i in object_ids]  # np.sum gives wrong results!?
+object_total_int = [np.nansum(image[objects_labeled == i]) for i in object_ids]  # np.sum gives wrong results!?
 object_max_int = np.array([regions[i].max_intensity for i in range(object_num)])
 object_mean_int = np.array([regions[i].mean_intensity for i in range(object_num)])
 object_min_int = np.array([regions[i].min_intensity for i in range(object_num)])

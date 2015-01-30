@@ -3,6 +3,8 @@ import sys
 import re
 import h5py
 import numpy as np
+import matplotlib.pyplot as plt
+import mpld3
 import scipy.ndimage as ndi
 from jterator.api import *
 
@@ -49,24 +51,26 @@ if not os.path.isabs(stats_path):
     stats_path = os.path.join(os.getcwd(), stats_path)
 
 ### load illumination correction file and extract statistics
+# Matlab '-v7.3' files are HDF5 files
 stats = h5py.File(stats_path, 'r')
 stats = stats['stat_values']
-mean_image = np.array(stats['mean'][()], dtype='float64')
-std_image = np.array(stats['std'][()], dtype='float64')
+# Matlab apparently doesn't transpose arrays before saving them to HDF5
+mean_image = np.array(stats['mean'][()], dtype='float64').conj().T
+std_image = np.array(stats['std'][()], dtype='float64').conj().T
 
 ### correct intensity image for illumination artifact
 orig_image[orig_image == 0] = 1
 corr_image = (np.log10(orig_image) - mean_image) / std_image
-corr_image = (corr_image * mean(std_image)) + mean(mean_image)
+corr_image = (corr_image * np.mean(std_image)) + np.mean(mean_image)
 corr_image = 10 ** corr_image
 
 ### fix "bad" pixels with non numeric values (NaN or Inf)
 ix_bad = np.logical_not(np.isfinite(corr_image))
-print('IllumCorr: identified %d bad pixels' % len(ix_bad))
-# med_filt_image = ndi.filters.median_filter(corr_image, 3)
-med_filt_image = ndi.filters.generic_filter(corr_image, np.nanmedian, size=3)
-corr_image[ix_bad] = med_filt_image[ix_bad]
-corr_image[ix_bad] = med_filt_image[ix_bad]
+if ix_bad.sum() > 0:
+    print('IllumCorr: identified %d bad pixels' % ix_bad.sum())
+    med_filt_image = ndi.filters.median_filter(corr_image, 3)
+    corr_image[ix_bad] = med_filt_image[ix_bad]
+    corr_image[ix_bad] = med_filt_image[ix_bad]
 
 
 #####################
@@ -76,33 +80,39 @@ corr_image[ix_bad] = med_filt_image[ix_bad]
 if doPlot:
 
     # Using 'PyPlot'
-    orig_vmin = np.percentile(orig_image, 0.001)
-    orig_vmax = np.percentile(orig_image, 0.999)
+    orig_vmin = np.percentile(orig_image, 0.1)
+    orig_vmax = np.percentile(orig_image, 99.9)
 
-    corr_vmin = np.percentile(corr_image, 0.001)
-    corr_vmax = np.percentile(corr_image, 0.999)
+    corr_vmin = np.percentile(corr_image, 0.1)
+    corr_vmax = np.percentile(corr_image, 99.9)
 
-    figure
+    fig = plt.figure()
+    ax1 = fig.add_subplot(2, 3, 1, adjustable='box', aspect=1)
+    ax2 = fig.add_subplot(2, 3, 2, adjustable='box', aspect=1)
+    ax3 = fig.add_subplot(2, 3, 3, adjustable='box', aspect=1)
+    ax4 = fig.add_subplot(2, 3, 4, adjustable='box', aspect=1)
+    ax5 = fig.add_subplot(2, 3, 5, adjustable='box', aspect=1)
+    ax6 = fig.add_subplot(2, 3, 6, adjustable='box', aspect=1)
 
-    subplot(221)
-    imshow(orig_image.T, cmap="gray", vmin=orig_vmin, vmax=orig_vmax)
-    title("Original image")
+    im1 = ax1.imshow(orig_image, cmap='gray', vmin=orig_vmin, vmax=orig_vmax)
+    ax1.set_title('Original image', size=20)
 
-    subplot(222)
-    imshow(corr_image.T, cmap="gray", vmin=corr_vmin, vmax=corr_vmax)
-    title("Corrected image")
+    im2 = ax2.imshow(corr_image, cmap='gray', vmin=corr_vmin, vmax=corr_vmax)
+    ax2.set_title('Corrected image', size=20)
 
-    subplot(223)
-    plt.hist(orig_image[:], bins=1000, range=(orig_vmin, orig_vmax),
-             histtype="stepfilled")
-    title("Original histogram")
+    h1 = ax4.hist(orig_image.flatten(), bins=1000, range=(orig_vmin, orig_vmax),
+                  histtype='stepfilled')
+    ax4.set_title('Original histogram', size=20)
 
-    subplot(224)
-    plt.hist(corr_image[:], bins=1000, range=(corr_vmin, corr_vmax),
-             histtype="stepfilled")
-    title("Corrected histogram")
+    h2 = ax5.hist(corr_image.flatten(), bins=1000, range=(corr_vmin, corr_vmax),
+                  histtype='stepfilled')
+    ax5.set_title('Corrected histogram', size=20)
 
-    fig = gcf()
+    im3 = ax3.imshow(mean_image, cmap='gray')
+    ax3.set_title('Illumination mean', size=20)
+
+    im4 = ax6.imshow(std_image, cmap='gray')
+    ax6.set_title('Illumination std', size=20)
 
     mousepos = mpld3.plugins.MousePosition(fontsize=14)
     mpld3.plugins.connect(fig, mousepos)

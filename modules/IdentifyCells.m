@@ -647,7 +647,7 @@ end
 %%%%%%%%%%%%%%%%%%
 
 if doSaveSegmentedImage
-    SegmentationFilename = strrep(os.path.basename(OrigImageFilename'), ...
+    SegmentationFilename = strrep(os.path.basename(OrigImageFilename), ...
                                   '.png', '_segmentedCells.png');
     SegmentationFilename = fullfile(SegmentationPath, SegmentationFilename);
     if ~isdir(SegmentationPath)

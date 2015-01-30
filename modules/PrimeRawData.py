@@ -58,7 +58,7 @@ if doPlot:
     ax1 = fig.add_subplot(1, 2, 1, adjustable='box', aspect=1)
     ax2 = fig.add_subplot(1, 2, 2, adjustable='box', aspect=1)
 
-    im1 = ax1.imshow(dapi_image.T,
+    im1 = ax1.imshow(dapi_image,
                      vmin=np.percentile(dapi_image, 0.1),
                      vmax=np.percentile(dapi_image, 99.9),
                      cmap='gray')
@@ -67,7 +67,7 @@ if doPlot:
     fig.colorbar(im1, cax=cax1)
     ax1.set_title('Dapi', size=20)
 
-    im2 = ax2.imshow(celltrace_image.T,
+    im2 = ax2.imshow(celltrace_image,
                      vmin=np.percentile(celltrace_image, 0.1),
                      vmax=np.percentile(celltrace_image, 99.9),
                      cmap='gray')
