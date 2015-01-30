@@ -572,8 +572,8 @@ if numObjects >= 1
         % pipelines (in other regions than the objects lost by prior / default
         % behavior of segmentation modules)
         IDsOfObjectsToPatch = find(patchForPrimaryObject);
-        needsToIncludePrimary = ismember(EditedPrimaryLabelMatrixImage,IDsOfObjectsToPatch);
-        FinalLabelMatrixImage(needsToIncludePrimary) =  EditedPrimaryLabelMatrixImage(needsToIncludePrimary);
+        needsToIncludePrimary = ismember(SmoothedImage,IDsOfObjectsToPatch);
+        FinalLabelMatrixImage(needsToIncludePrimary) =  SmoothedImage(needsToIncludePrimary);
     end
 end
 
