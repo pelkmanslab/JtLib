@@ -87,12 +87,12 @@ if doPlot:
     corr_vmax = np.percentile(corr_image, 99.9)
 
     fig = plt.figure()
-    ax1 = fig.add_subplot(2, 3, 1, adjustable='box', aspect=1)
-    ax2 = fig.add_subplot(2, 3, 2, adjustable='box', aspect=1)
-    ax3 = fig.add_subplot(2, 3, 3, adjustable='box', aspect=1)
-    ax4 = fig.add_subplot(2, 3, 4, adjustable='box', aspect=1)
-    ax5 = fig.add_subplot(2, 3, 5, adjustable='box', aspect=1)
-    ax6 = fig.add_subplot(2, 3, 6, adjustable='box', aspect=1)
+    ax1 = fig.add_subplot(2, 3, 1)
+    ax2 = fig.add_subplot(2, 3, 2)
+    ax3 = fig.add_subplot(2, 3, 3)
+    ax4 = fig.add_subplot(2, 3, 4)
+    ax5 = fig.add_subplot(2, 3, 5)
+    ax6 = fig.add_subplot(2, 3, 6)
 
     im1 = ax1.imshow(orig_image, cmap='gray', vmin=orig_vmin, vmax=orig_vmax)
     ax1.set_title('Original image', size=20)
@@ -100,11 +100,13 @@ if doPlot:
     im2 = ax2.imshow(corr_image, cmap='gray', vmin=corr_vmin, vmax=corr_vmax)
     ax2.set_title('Corrected image', size=20)
 
-    h1 = ax4.hist(orig_image.flatten(), bins=1000, range=(orig_vmin, orig_vmax),
+    h1 = ax4.hist(orig_image.flatten(), bins=100,
+                  range=(orig_vmin, orig_vmax),
                   histtype='stepfilled')
     ax4.set_title('Original histogram', size=20)
 
-    h2 = ax5.hist(corr_image.flatten(), bins=1000, range=(corr_vmin, corr_vmax),
+    h2 = ax5.hist(corr_image.flatten(), bins=100,
+                  range=(corr_vmin, corr_vmax),
                   histtype='stepfilled')
     ax5.set_title('Corrected histogram', size=20)
 
@@ -120,6 +122,7 @@ if doPlot:
     fid = h5py.File(handles['hdf5_filename'], 'r')
     jobid = fid['jobid'][()]
     fid.close()
+
     figure_name = 'figures/%s_%05d.html' % (mfilename, jobid)
     mpld3.save_html(fig, figure_name)
     figure2browser(os.path.abspath(figure_name))
