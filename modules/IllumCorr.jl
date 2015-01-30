@@ -72,7 +72,6 @@ corr_image = correct(orig_image, mean_image, std_image)
 
 ### fix "bad" pixels
 ix_bad = ~(isfinite(corr_image))
-print('IllumCorr: identified %d bad pixels' % len(ix_bad))
 # med_filt_image = ndi.filters[:median_filter](corr_image, 3)
 med_filt_image = ndi.filters[:generic_filter](corr_image, np.nanmedian, size=3)
 corr_image[ix_bad] = med_filt_image[ix_bad]
