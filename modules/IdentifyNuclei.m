@@ -163,7 +163,7 @@ if ~isempty(FillImage)
     % Combine objects from different cutting passes
     %----------------------------------------------
 
-    AllCut = logical(ObjectsCut(:,:,end) + sum(ObjectsNotCut(:,:,2:end), 3))
+    AllCut = logical(ObjectsCut(:,:,end) + sum(ObjectsNotCut(:,:,2:end), 3));
     
     %%% Retrieve objects that were not cut (or already cut)
     AllNotCut = logical(sum(ObjectsNotCut, 3));
