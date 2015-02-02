@@ -54,7 +54,7 @@ celltrace_image = np.float64(misc.imread(celltrace_filename))
 
 if doPlot:
     # Make figure using matplotlib
-    fig = plt.figure()
+    fig = plt.figure(figsize=(12, 12))
     ax1 = fig.add_subplot(1, 2, 1, adjustable='box', aspect=1)
     ax2 = fig.add_subplot(1, 2, 2, adjustable='box', aspect=1)
 

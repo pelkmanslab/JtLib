@@ -36,7 +36,7 @@ input_args = checkinputargs(input_args)
 ####################
 
 image = np.array(input_args['Image'], dtype='float64')
-objects = np.array(input_args['Objects'], dtype='float64')
+objects = np.array(input_args['Objects'], dtype='int')
 object_name = input_args['ObjectName']
 
 doPlot = input_args['doPlot']
@@ -52,8 +52,7 @@ object_ids = object_ids[object_ids != 0]  # remove '0' background
 object_num = object_ids.shape[0]
 
 ### measure object properties
-objects_labeled = measure.label(objects)
-regions = measure.regionprops(objects_labeled, image)
+regions = measure.regionprops(objects, image)
 
 ### extract area/shape measurements
 object_area = np.array([regions[i].area for i in range(object_num)])
@@ -64,7 +63,7 @@ object_equidiameter = np.array([regions[i].equivalent_diameter for i in range(ob
 object_formfactor = (4.0 * np.pi * object_area) / (object_perimeter**2)
 
 ### extract intensity measurements
-object_total_int = [np.nansum(image[objects_labeled == i]) for i in object_ids]  # np.sum gives wrong results!?
+object_total_int = np.array([np.nansum(image[objects == i]) for i in object_ids])
 object_max_int = np.array([regions[i].max_intensity for i in range(object_num)])
 object_mean_int = np.array([regions[i].mean_intensity for i in range(object_num)])
 object_min_int = np.array([regions[i].min_intensity for i in range(object_num)])
@@ -80,27 +79,43 @@ object_min_int = np.array([regions[i].min_intensity for i in range(object_num)])
 
 if doPlot:
 
-    # Make figure using matplotlib
-    fig, ax = plt.subplots(subplot_kw=dict(axisbg='#EEEEEE'))
+    X = np.column_stack((object_area, object_eccentricity, object_solidity,
+                        object_formfactor, object_total_int, object_mean_int))
 
-    scatter = ax.scatter(object_area,
-                         object_total_int,
-                         c=object_mean_int,
-                         s=object_mean_int,
-                         alpha=0.3,
-                         cmap=plt.cm.jet)
-    ax.grid(color='white', linestyle='solid')
+    X_names = [
+                'area', 'eccentricity', 'solidity',
+                'form factor', 'total intensity', 'mean intensity'
+                ]
 
-    ax.set_title('Cell Area vs. Intensity', size=20)
-    ax.set_xlabel('Area', size=16)
-    ax.set_ylabel('Total intensity', size=16)
+    # dither the data for clearer plotting
+    X += 0.1 * np.random.random(X.shape)
 
-    fig.tight_layout()
+    fig, ax = plt.subplots(6, 6, sharex="col", sharey="row", figsize=(12, 12))
+    fig.subplots_adjust(left=0.05, right=0.95, bottom=0.05, top=0.95,
+                        hspace=0.3, wspace=0.3)
 
-    # Convert figure to d3 using mpld3
     labels = ['cell {0}'.format(int(i)) for i in object_ids]
-    tooltip = mpld3.plugins.PointLabelTooltip(scatter, labels=labels)
-    mpld3.plugins.connect(fig, tooltip)
+
+    for i in range(6):
+        for j in range(6):
+            points = ax[5-i, j].scatter(X[:, j], X[:, i], s=40, alpha=0.6)
+            ax[5-i, j].set_xlabel(X_names[i])
+            ax[5-i, j].set_ylabel(X_names[j])
+
+    # remove ticks and tick labels
+    for axi in ax.flat:
+        for axis in [axi.xaxis, axi.yaxis]:
+            axis.set_major_formatter(plt.NullFormatter())
+            axis.set_major_locator(plt.NullLocator())
+
+    # connect linked brush
+    linkedbrush = mpld3.plugins.LinkedBrush(points)
+    mpld3.plugins.connect(fig, linkedbrush)
+
+    # labels = ['cell {0}'.format(int(i)) for i in object_ids]
+    # tooltip = mpld3.plugins.PointLabelTooltip(points, labels=labels)
+    # mpld3.plugins.connect(fig, tooltip)
+
 
     # Save figure as html file and open it in the browser
     fid = h5py.File(handles['hdf5_filename'], 'r')

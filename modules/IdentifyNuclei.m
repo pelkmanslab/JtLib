@@ -176,7 +176,7 @@ else
 end
 
 %%% Remove small objects that fall below area threshold
-area = regionprops(IdentifiedNuclei, 'Area');
+area = regionprops(logical(IdentifiedNuclei), 'Area');
 area = cat(1, area.Area);
 for i = 1:length(area)
     if area(i) < MinCutArea
@@ -185,7 +185,7 @@ for i = 1:length(area)
 end
 
 %%% Re-label objects
-IdentifiedNuclei = bwlabel(logical(IdentifiedNuclei))
+IdentifiedNuclei = bwlabel(logical(IdentifiedNuclei));
 
 
 %% Make some default measurements
@@ -194,7 +194,7 @@ IdentifiedNuclei = bwlabel(logical(IdentifiedNuclei))
 NucleiCount = max(unique(IdentifiedNuclei));
 
 %%% Calculate cell centroids
-tmp = regionprops(logical(IdentifiedNuclei),'Centroid');
+tmp = regionprops(logical(IdentifiedNuclei), 'Centroid');
 NucleiCentroid = cat(1, tmp.Centroid);
 if isempty(NucleiCentroid)
     NucleiCentroid = [0 0];   % follow CP's convention to save 0s if no object

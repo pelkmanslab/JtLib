@@ -87,7 +87,7 @@ if doPlot:
     corr_vmin = np.percentile(corr_image, 0.1)
     corr_vmax = np.percentile(corr_image, 99.9)
 
-    fig = plt.figure()
+    fig = plt.figure(figsize=(12, 12))
     ax1 = fig.add_subplot(2, 3, 1)
     ax2 = fig.add_subplot(2, 3, 2)
     ax3 = fig.add_subplot(2, 3, 3)
@@ -124,9 +124,15 @@ if doPlot:
     jobid = fid['jobid'][()]
     fid.close()
 
-    figure_name = 'figures/%s_%s_%05d.html' % (mfilename, image_name, jobid)
+    figure_name = os.path.abspath('figures/%s_%s_%05d.html'
+                                  % (mfilename, image_name, jobid))
+
     mpld3.save_html(fig, figure_name)
-    figure2browser(os.path.abspath(figure_name))
+    # html = mpld3.fig_to_html(fig, template_type='simple')
+    # with open(figure_name, 'w') as f:
+    #     f.write(html)
+
+    figure2browser(figure_name)
 
 
 ####################
