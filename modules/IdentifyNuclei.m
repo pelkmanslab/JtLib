@@ -201,12 +201,16 @@ if isempty(NucleiCentroid)
 end
 
 %%% Calculate cell boundary
-NucleiBorderPixel = bwboundaries(IdentifiedNuclei);
-NucleiBorderPixel = NucleiBorderPixel{1}(1:end-1, :);
-P = NucleiBorderPixel(NucleiBorderPixel(:,1) == min(NucleiBorderPixel(:,1)), :);
-P = P(1,:);
-NucleiBoundary = bwtraceboundary(IdentifiedNuclei, P, 'SW'); % anticlockwise
-NucleiBoundary = fliplr(NucleiBoundary(1:end-1,:)); % not closed
+if NucleiCount > 0
+    NucleiBorderPixel = bwboundaries(IdentifiedNuclei);
+    NucleiBorderPixel = NucleiBorderPixel{1}(1:end-1, :);
+    P = NucleiBorderPixel(NucleiBorderPixel(:,1) == min(NucleiBorderPixel(:,1)), :);
+    P = P(1,:);
+    NucleiBoundary = bwtraceboundary(IdentifiedNuclei, P, 'SW'); % anticlockwise
+    NucleiBoundary = fliplr(NucleiBoundary(1:end-1,:)); % not closed
+else
+   NucleiBoundary = [0 0]; 
+end
 
 
 %%%%%%%%%%%%%%%%%%%%%

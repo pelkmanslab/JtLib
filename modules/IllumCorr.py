@@ -73,6 +73,13 @@ if ix_bad.sum() > 0:
     corr_image[ix_bad] = med_filt_image[ix_bad]
     corr_image[ix_bad] = med_filt_image[ix_bad]
 
+### fix extreme pixels
+percent = 99.9999
+thresh = np.percentile(corr_image, percent)
+print('IllumCorr: %d extreme pixel values (above %f percentile) were set to %d'
+      % (np.sum(corr_image > thresh), percent, thresh))
+corr_image[corr_image > thresh] = thresh
+
 
 #####################
 ## display results ##
