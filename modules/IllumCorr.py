@@ -55,7 +55,7 @@ if not os.path.isabs(stats_path):
 # Matlab '-v7.3' files are HDF5 files
 stats = h5py.File(stats_path, 'r')
 stats = stats['stat_values']
-# Matlab apparently doesn't transpose arrays before saving them to HDF5
+# Matlab transposes arrays, so we have to revert that
 mean_image = np.array(stats['mean'][()], dtype='float64').conj().T
 std_image = np.array(stats['std'][()], dtype='float64').conj().T
 

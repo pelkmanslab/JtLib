@@ -99,8 +99,8 @@ if doPlot:
     for i in range(6):
         for j in range(6):
             points = ax[5-i, j].scatter(X[:, j], X[:, i], s=40, alpha=0.6)
-            ax[5-i, j].set_xlabel(X_names[i])
-            ax[5-i, j].set_ylabel(X_names[j])
+            ax[5-i, j].set_xlabel(X_names[i], size=12)
+            ax[5-i, j].set_ylabel(X_names[j], size=12)
 
     # remove ticks and tick labels
     for axi in ax.flat:

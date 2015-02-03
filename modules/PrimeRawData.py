@@ -63,8 +63,8 @@ if doPlot:
                      vmax=np.percentile(dapi_image, 99.9),
                      cmap='gray')
     divider1 = make_axes_locatable(ax1)
-    cax1 = divider1.append_axes("right", size="10%", pad=0.05)
-    fig.colorbar(im1, cax=cax1)
+    # cax1 = divider1.append_axes("right", size="10%", pad=0.05)
+    # fig.colorbar(im1, cax=cax1)
     ax1.set_title('Dapi', size=20)
 
     im2 = ax2.imshow(celltrace_image,
@@ -72,8 +72,8 @@ if doPlot:
                      vmax=np.percentile(celltrace_image, 99.9),
                      cmap='gray')
     divider2 = make_axes_locatable(ax2)
-    cax2 = divider2.append_axes("right", size="10%", pad=0.05)
-    fig.colorbar(im2, cax=cax2)
+    # cax2 = divider2.append_axes("right", size="10%", pad=0.05)
+    # fig.colorbar(im2, cax=cax2)
     ax2.set_title('Celltrace', size=20)
 
     fig.tight_layout()

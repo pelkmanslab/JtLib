@@ -54,6 +54,11 @@ SegmentationPath = input_args.SegmentationPath;
 %% processing %%
 %%%%%%%%%%%%%%%%
 
+%%% Stick to CellProfiler rescaling
+MinimumThreshold = MinimumThreshold / 2^16;
+MaximumThreshold = 1;
+InputImage = InputImage ./ 2^16;
+
 %%% Smooth image
 if doSmooth
     SmoothedImage = SmoothImage(InputImage, SmoothingFilterSize);
@@ -62,8 +67,6 @@ else
 end
 
 ThresholdMethod = 'Otsu Global';
-
-MaximumThreshold = 2^16;
 
 numThresholdsToTest = length(ThresholdCorrection);
 ThresholdArray = cell(numThresholdsToTest,1);
