@@ -17,3 +17,6 @@ Some of the lab's standard CP modules are already implemented in Jterator:
 * *IdentifySecondaryIterative.m* -> **IdentifyCells.m**     
 * *MeasureObjectIntensity.m* & *MeasureAreaShape* -> **MeasureObjects.py**  
     
+There are also tools available for job submission on Brutus:    
+* **precluster.py** submits a single job (the first job in the joblist) to test the pipeline. You will receive an email once the job is finished.    
+* **jtcluster.py** checks the results file of the precluster step and submits all other jobs if the precluster step completed successfully. 
