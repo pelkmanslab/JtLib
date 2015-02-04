@@ -12,7 +12,7 @@ It should serve as a code repository for common image processing tasks, such as 
 Some of the lab's standard CP modules are already implemented in Jterator:
 
 * *LoadImages.m* -> **LoadImage.py**     
-* *NYB_IlluminationCorrection.m* -> **IllumCorr.py**    
+* *NYB_IlluminationCorrection.m* -> **IlluminationCorrection.py**    
 * *IdentifyPrimary.m* & *SeparatePrimaryTissue.m* -> **IdentifyNuclei.m**   
 * *IdentifySecondaryIterative.m* -> **IdentifyCells.m**     
 * *LoadSegmentedCells.m* -> **LoadSegmentation.py**
