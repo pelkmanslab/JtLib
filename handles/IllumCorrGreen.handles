@@ -24,7 +24,7 @@ hdf5_filename: None
 input:
 
   OrigImage:
-    hdf5_location: /LoadImage/Red
+    hdf5_location: /LoadImage/Green
 
   ImageName:
     parameter: Red
@@ -33,7 +33,7 @@ input:
     parameter: BATCH
 
   StatsFilename:
-    parameter: Measurements_batch_illcor_channel002_zstack000.mat
+    parameter: Measurements_batch_illcor_channel003_zstack000.mat
 
   doPlot:
     parameter: No
@@ -41,4 +41,4 @@ input:
 output:
 
   CorrImage:
-    hdf5_location: /IllumCorr/CorrRed
+    hdf5_location: /IllumCorr/CorrGreen

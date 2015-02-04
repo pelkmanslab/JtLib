@@ -4,11 +4,11 @@ hdf5_filename: None
 input:
 
     InputImage:
-        hdf5_location: /IllumCorr/CorrRed
+        hdf5_location: /IllumCorr/CorrGreen
         class: ndarray
 
     ImageName:
-        parameter: Red
+        parameter: Green
 
     ShiftDescriptor:
         parameter: ALIGNCYCLES/shiftDescriptor.json
@@ -16,7 +16,7 @@ input:
     ReferenceFilename: 
     # We use the filename of the image, which was used for image registration
     # in order to double-check that we are using the correct index.
-        hdf5_location: /Red
+        hdf5_location: /Green
 
     doPlot:
         parameter: No
@@ -25,5 +25,5 @@ input:
 output:
 
     AlignedImage:
-        hdf5_location: /AlignImage/AlignRed
+        hdf5_location: /AlignImage/AlignGreen
         class: ndarray

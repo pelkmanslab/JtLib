@@ -36,7 +36,7 @@ input:
     parameter: Measurements_batch_illcor_channel001_zstack000.mat
 
   doPlot:
-    parameter: Yes
+    parameter: No
 
 output:
 

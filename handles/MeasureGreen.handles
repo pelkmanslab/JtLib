@@ -2,6 +2,13 @@ hdf5_filename: None
 
 input:
 
+    Image:
+        hdf5_location: /AlignImage/AlignGreen
+        class: ndarray
+
+    ImageName:
+        parameter: Green
+
     Object1: 
         hdf5_location: /AlignSegmentation/AlignCells
         class: ndarray

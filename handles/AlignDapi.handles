@@ -19,7 +19,7 @@ input:
         hdf5_location: /Dapi
 
     doPlot:
-        parameter: Yes
+        parameter: No
 
 
 output:
