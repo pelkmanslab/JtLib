@@ -85,9 +85,9 @@ y = shift_descriptor['yShift'][index]
 x = shift_descriptor['xShift'][index]
 
 if shift_descriptor['noShiftIndex'][index] == 1:
-    aligned_image = np.zeros(input_image[lower:-upper, right:-left].shape)
+    aligned_image = np.zeros(input_image[lower:-(upper+1), right:-(left+1)].shape)
 else:
-    aligned_image = input_image[(lower-y):-(upper+y), (right-x):-(left+x)]
+    aligned_image = input_image[(lower-y):-(upper+y+1), (right-x):-(left+x+1)]
 
 
 #####################
