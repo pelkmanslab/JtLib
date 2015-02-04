@@ -1,0 +1,29 @@
+hdf5_filename: None
+
+input:
+
+    Image:
+        hdf5_location: /AlignImage/AlignRed
+        class: ndarray
+
+    ImageName:
+        parameter: Red
+
+    Object1: 
+        hdf5_location: /AlignSegmentation/AlignCells
+        class: ndarray
+
+    Object1Name: 
+        parameter: Cells
+
+    Object2: 
+        hdf5_location: /AlignSegmentation/AlignNuclei
+        class: ndarray
+
+    Object2Name: 
+        parameter: Nuclei
+
+    doPlot:
+        parameter: No
+
+output:

@@ -35,8 +35,8 @@ input_args = checkinputargs(input_args)
 ## input handling ##
 ####################
 
-dapi_filename = input_args['DapiFilename']
-celltrace_filename = input_args['CelltraceFilename']
+image_filename = input_args['ImageFilename']
+image_name = input_args['ImageName']
 doPlot = input_args['doPlot']
 
 
@@ -44,8 +44,7 @@ doPlot = input_args['doPlot']
 ## processing ##
 ################
 
-dapi_image = np.float64(misc.imread(dapi_filename))
-celltrace_image = np.float64(misc.imread(celltrace_filename))
+image = np.array(misc.imread(image_filename), dtype='float64')
 
 
 #####################
@@ -53,28 +52,18 @@ celltrace_image = np.float64(misc.imread(celltrace_filename))
 #####################
 
 if doPlot:
-    # Make figure using matplotlib
-    fig = plt.figure(figsize=(12, 12))
-    ax1 = fig.add_subplot(1, 2, 1, adjustable='box', aspect=1)
-    ax2 = fig.add_subplot(1, 2, 2, adjustable='box', aspect=1)
 
-    im1 = ax1.imshow(dapi_image,
-                     vmin=np.percentile(dapi_image, 0.1),
-                     vmax=np.percentile(dapi_image, 99.9),
+    fig = plt.figure(figsize=(8, 8))
+    ax1 = fig.add_subplot(1, 1, 1)
+
+    im1 = ax1.imshow(image,
+                     vmin=np.percentile(image, 0.1),
+                     vmax=np.percentile(image, 99.9),
                      cmap='gray')
+    ax1.set_title(os.path.basename(image_filename), size=20)
     # divider1 = make_axes_locatable(ax1)
     # cax1 = divider1.append_axes("right", size="10%", pad=0.05)
     # fig.colorbar(im1, cax=cax1)
-    ax1.set_title('Dapi', size=20)
-
-    im2 = ax2.imshow(celltrace_image,
-                     vmin=np.percentile(celltrace_image, 0.1),
-                     vmax=np.percentile(celltrace_image, 99.9),
-                     cmap='gray')
-    # divider2 = make_axes_locatable(ax2)
-    # cax2 = divider2.append_axes("right", size="10%", pad=0.05)
-    # fig.colorbar(im2, cax=cax2)
-    ax2.set_title('Celltrace', size=20)
 
     fig.tight_layout()
 
@@ -82,9 +71,11 @@ if doPlot:
     fid = h5py.File(handles['hdf5_filename'], 'r')
     jobid = fid['jobid'][()]
     fid.close()
-    figure_name = 'figures/%s_%05d.html' % (mfilename, jobid)
+    figure_name = os.path.abspath('figures/%s_%s_%05d.html' % (mfilename,
+                                  image_name, jobid))
+
     mpld3.save_html(fig, figure_name)
-    figure2browser(os.path.abspath(figure_name))
+    figure2browser(figure_name)
 
 
 ####################
@@ -92,8 +83,7 @@ if doPlot:
 ####################
 
 output_args = dict()
-output_args['DapiImage'] = dapi_image
-output_args['CelltraceImage'] = celltrace_image
+output_args['Image'] = image
 
 data = dict()
 

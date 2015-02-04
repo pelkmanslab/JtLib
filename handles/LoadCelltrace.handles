@@ -1,0 +1,16 @@
+hdf5_filename: None
+
+input:
+
+    image_filename:
+        hdf5_location: /Celltrace
+        class: ndarray
+
+    doPlot:
+        parameter: No
+
+output:
+
+    Image:
+        hdf5_location: /LoadImage/Celltrace
+

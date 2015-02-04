@@ -24,7 +24,10 @@ hdf5_filename: None
 input:
 
   OrigImage:
-    hdf5_location: /FixBadPixels/FixedDapiImage
+    hdf5_location: /LoadImage/Dapi
+
+  ImageName:
+    parameter: Dapi
 
   StatsDirectory:
     parameter: BATCH
@@ -33,10 +36,10 @@ input:
     parameter: Measurements_batch_illcor_channel001_zstack000.mat
 
   doPlot:
-    parameter: No
+    parameter: Yes
 
 output:
 
   CorrImage:
-    hdf5_location: /IllumCorr/CorrImageDapi
+    hdf5_location: /IllumCorr/CorrDapi
 

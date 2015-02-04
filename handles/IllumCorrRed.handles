@@ -24,7 +24,10 @@ hdf5_filename: None
 input:
 
   OrigImage:
-    hdf5_location: /FixBadPixels/FixedCelltraceImage
+    hdf5_location: /LoadImage/Red
+
+  ImageName:
+    parameter: Red
 
   StatsDirectory:
     parameter: BATCH
@@ -33,9 +36,9 @@ input:
     parameter: Measurements_batch_illcor_channel003_zstack000.mat
 
   doPlot:
-    parameter: No
+    parameter: Yes
 
 output:
 
   CorrImage:
-    hdf5_location: /IllumCorr/CorrImageCelltrace
+    hdf5_location: /IllumCorr/CorrRed

@@ -1,0 +1,26 @@
+hdf5_filename: /var/folders/7_/tqn1hw4d4nl6t17kcrg7v7jw0000gq/T/150117MPcycle_01.tmp
+
+input:
+
+    SegmentationFolder:
+        parameter: ../150117MPcycle_07/SEGMENTATION
+
+    ReferenceFilename: 
+        hdf5_location: /Dapi
+
+    ObjectName1:
+        parameter: Cells
+
+    ObjectName2:
+        parameter: Nuclei
+
+    doPlot:
+        parameter: Yes
+
+output:
+
+    Objects1:
+        hdf5_location: /LoadSegmentation/Cells
+
+    Objects2:
+        hdf5_location: /LoadSegmentation/Nuclei

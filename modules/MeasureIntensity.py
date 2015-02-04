@@ -35,6 +35,8 @@ input_args = checkinputargs(input_args)
 ## input handling ##
 ####################
 
+image = np.array(input_args['Image'], dtype='float64')
+image_name = input_args['ImageName']
 object_1 = np.array(input_args['Object1'], dtype='int')
 object_1_name = input_args['Object1Name']
 object_2 = np.array(input_args['Object2'], dtype='int')
@@ -61,15 +63,17 @@ for i, obj in enumerate(objects):
     object_num = object_ids.shape[0]
 
     ### measure object properties
-    regions = measure.regionprops(obj)
+    regions = measure.regionprops(obj, image)
 
-    ### extract area/shape measurements
-    object_area = np.array([regions[i].area for i in range(object_num)])
-    object_eccentricity = np.array([regions[i].eccentricity for i in range(object_num)])
-    object_perimeter = np.array([regions[i].perimeter for i in range(object_num)])
-    object_solidity = np.array([regions[i].solidity for i in range(object_num)])
-    object_equidiameter = np.array([regions[i].equivalent_diameter for i in range(object_num)])
-    object_formfactor = (4.0 * np.pi * object_area) / (object_perimeter**2)
+    ### extract intensity measurements
+    object_total_int = np.array([np.nansum(image[obj == i]) for i in object_ids])
+    object_max_int = np.array([regions[i].max_intensity for i in range(object_num)])
+    object_mean_int = np.array([regions[i].mean_intensity for i in range(object_num)])
+    object_min_int = np.array([regions[i].min_intensity for i in range(object_num)])
+
+    ### extract spatial moments
+    # object_moments_hu = [regions[i].moments_hu for i in range(object_num)]
+    # objects_weighted_moments_hu = [regions[i].weighted_moments_hu for i in range(object_num)]
 
 
     #####################
@@ -80,17 +84,20 @@ for i, obj in enumerate(objects):
 
         # This is just a fancy example plot
 
-        X = np.column_stack((object_area, object_eccentricity, object_solidity,
-                            object_formfactor))
+        X = np.column_stack((object_total_int, object_max_int,
+                            object_mean_int, object_min_int))
 
-        X_names = ['area', 'eccentricity', 'solidity', 'form factor']
+        X_names = [
+                    'total intensity', 'max intensity',
+                    'mean intensity', 'min intensity'
+                    ]
 
         # dither the data for clearer plotting
         X += 0.1 * np.random.random(X.shape)
 
         n = X.shape[1]
 
-        fig, ax = plt.subplots(n, n, sharex="col", sharey="row", figsize=(12, 12))
+        fig, ax = plt.subplots(6, 6, sharex="col", sharey="row", figsize=(12, 12))
         fig.subplots_adjust(left=0.05, right=0.95, bottom=0.05, top=0.95,
                             hspace=0.3, wspace=0.3)
 
@@ -130,12 +137,10 @@ for i, obj in enumerate(objects):
     ## prepare output ##
     ####################
 
-    data['%s_AreaShape_Area' % object_name] = object_area
-    data['%s_AreaShape_Eccentricity' % object_name] = object_eccentricity
-    data['%s_AreaShape_Solidity' % object_name] = object_solidity
-    data['%s_AreaShape_Perimeter' % object_name] = object_solidity
-    data['%s_AreaShape_FormFactor' % object_name] = object_formfactor
-
+    data['%s_Intensity_%s_MaxIntensity' % (object_name, image_name)] = object_max_int
+    data['%s_Intensity_%s_MeanIntensity' % (object_name, image_name)] = object_mean_int
+    data['%s_Intensity_%s_MinIntensity' % (object_name, image_name)] = object_min_int
+    data['%s_Intensity_%s_TotalIntensity' % (object_name, image_name)] = object_total_int
 
 output_args = dict()
 

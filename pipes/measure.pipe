@@ -21,7 +21,7 @@
 project:
 
   name: test
-  description: example pipeline for testing purposes
+  description: measurement pipeline for testing purposes
 
 
 # Define the items ("jobs") you want to process:
@@ -34,17 +34,17 @@ jobs:
     pattern: 
       - name: Dapi
         expression: .*C01\.png
-      - name: Celltrace
-        expression: .*C03\.png
+      - name: Red
+        expression: .*C02\.png
 
 
 # Define the path to modules (executable files) and handles (YAML files)
 # and the interpreter program (full path or command for /usr/bin/env):
 pipeline:
 
-  - name: PrimeRawData
-    module: modules/PrimeRawData.py
-    handles: handles/PrimeRawData.handles
+  - name: LoadDapi
+    module: modules/LoadImage.py
+    handles: handles/LoadDapi.handles
     interpreter: python
 
   - name: IllumCorrDapi
@@ -52,25 +52,40 @@ pipeline:
     handles: handles/IllumCorrDapi.handles
     interpreter: python
 
-  - name: IdentifyNuclei
-    module: modules/IdentifyNuclei.m
-    handles: handles/IdentifyNuclei.handles
-    interpreter: Mscript
+  - name: AlignDapi
+    module: modules/AlignImage.py
+    handles: handles/AlignDapi.handles
+    interpreter: python
+
+  - name: LoadRed
+    module: modules/LoadImage.py
+    handles: handles/LoadRed.handles
+    interpreter: python
+
+  - name: IllumCorrRed
+    module: modules/IllumCorr.py
+    handles: handles/IllumCorrRed.handles
+    interpreter: python
+
+  - name: AlignRed
+    module: modules/AlignImage.py
+    handles: handles/AlignRed.handles
+    interpreter: python
+
+  - name: LoadSegmentation
+    module: modules/LoadSegmentation.py
+    handles: handles/LoadSegmentation.handles
+    interpreter: python
+
+  - name: AlignSegmentation
+    module: modules/AlignSegmentation.py
+    handles: handles/AlignSegmentation.handles
+    interpreter: python
 
   - name: MeasureNuclei
     module: modules/MeasureNuclei.py
     handles: handles/MeasureNuclei.handles
     interpreter: python
-
-  - name: IllumCorrCelltrace
-    module: modules/IllumCorr.py
-    handles: handles/IllumCorrCelltrace.handles
-    interpreter: python
-
-  - name: IdentifyCells
-    module: modules/IdentifyCells.m
-    handles: handles/IdentifyCells.handles
-    interpreter: Mscript
 
   - name: MeasureCells
     module: modules/MeasureObjects.py

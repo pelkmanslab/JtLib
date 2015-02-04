@@ -3,12 +3,12 @@ hdf5_filename: None
 
 input:
 
-    InputImage1:
-        hdf5_location: /IdentifyNuclei/Nuclei
+    InputImage:
+        hdf5_location: /IllumCorr/CorrDapi
         class: ndarray
 
-    InputImage2:
-        hdf5_location: /IdentifyCells/Cells
+    ImageName:
+        parameter: Dapi
 
     ShiftDescriptor:
         parameter: ALIGNCYCLES/shiftDescriptor.json
@@ -19,15 +19,11 @@ input:
         hdf5_location: /Dapi
 
     doPlot:
-        parameter: No
+        parameter: Yes
 
 
 output:
 
-    AlignedImage1:
-        hdf5_location: /AlignSeg/AlignNuclei
-        class: ndarray
-
-    AlignedImage2:
-        hdf5_location: /AlignSeg/AlignCells
+    AlignedImage:
+        hdf5_location: /AlignImage/AlignDapi
         class: ndarray

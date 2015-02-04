@@ -1,0 +1,29 @@
+hdf5_filename: /var/folders/7_/tqn1hw4d4nl6t17kcrg7v7jw0000gq/T/150117MPcycle_01.tmp
+
+input:
+
+    Image:
+        hdf5_location: /AlignImage/AlignDapi
+        class: ndarray
+
+    ImageName:
+        parameter: Dapi
+
+    Object1: 
+        hdf5_location: /AlignSegmentation/AlignCells
+        class: ndarray
+
+    Object1Name: 
+        parameter: Cells
+
+    Object2: 
+        hdf5_location: /AlignSegmentation/AlignNuclei
+        class: ndarray
+
+    Object2Name: 
+        parameter: Nuclei
+
+    doPlot:
+        parameter: No
+
+output:

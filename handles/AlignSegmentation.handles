@@ -1,14 +1,14 @@
-hdf5_filename: None
+hdf5_filename: /var/folders/7_/tqn1hw4d4nl6t17kcrg7v7jw0000gq/T/150117MPcycle_01.tmp
 
 
 input:
 
     InputImage1:
-        hdf5_location: /IllumCorr/CorrImageDapi
+        hdf5_location: /LoadSegmentation/Nuclei
         class: ndarray
 
     InputImage2:
-        hdf5_location: /IllumCorr/CorrImageCelltrace
+        hdf5_location: /LoadSegmentation/Cells
 
     ShiftDescriptor:
         parameter: ALIGNCYCLES/shiftDescriptor.json
@@ -18,19 +18,16 @@ input:
     # in order to double-check that we are using the correct index.
         hdf5_location: /Dapi
 
-    InputImage2:
-        hdf5_location: /IllumCorr/CorrImageCelltrace
-
     doPlot:
-        parameter: No
+        parameter: Yes
 
 
 output:
 
     AlignedImage1:
-        hdf5_location: /AlignInt/AlignImageDapi
+        hdf5_location: /AlignSegmentation/AlignNuclei
         class: ndarray
 
     AlignedImage2:
-        hdf5_location: /AlignInt/AlignImageCelltrace
+        hdf5_location: /AlignSegmentation/AlignCells
         class: ndarray

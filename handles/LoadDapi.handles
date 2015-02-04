@@ -1,0 +1,18 @@
+hdf5_filename: None
+
+input:
+
+    ImageFilename:
+        hdf5_location: /Dapi
+
+    ImageName:
+        parameter: Dapi
+
+    doPlot:
+        parameter: No
+
+output:
+
+    Image:
+        hdf5_location: /LoadImage/Dapi
+
