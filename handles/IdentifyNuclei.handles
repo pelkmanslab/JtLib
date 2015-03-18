@@ -42,7 +42,7 @@ input:
   ThresholdMethod:
     parameter: Otsu Global
 
-  MinimumThreshold:
+  MininumThreshold:
     parameter: 120
 
   pObject:
