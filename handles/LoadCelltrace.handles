@@ -2,9 +2,11 @@ hdf5_filename: None
 
 input:
 
-    image_filename:
+    ImageFilename:
         hdf5_location: /Celltrace
-        class: ndarray
+
+    ImageName:
+        parameter: Celltrace
 
     doPlot:
         parameter: No
