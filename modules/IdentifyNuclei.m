@@ -1,5 +1,5 @@
 import jterator.*;
-import subfunctions.*;
+import msubfunctions.*;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% jterator input
@@ -51,6 +51,7 @@ MaxSolidity = input_args.MaxSolidity;
 MinArea = input_args.MinArea;
 MinCutArea = input_args.MinCutArea;
 MinFormFactor = input_args.MinFormFactor;
+SelectionMethod = input_args.SelectionMethod;
 
 %%% Input arguments for plotting segmentation results
 doPlot = input_args.doPlot;
@@ -139,10 +140,7 @@ if ~isempty(FillImage)
         % (e.g. in case of images acquired with low magnification) limits
         % maximal size of the sliding window and thus sensitivity of the
         % perimeter analysis.
-        
-        SelectionMethod = 'quickNdirty'; %'niceNslow'
-        PerimSegAngMethod = 'best_inline';
-        
+                
         %%% Perform perimeter analysis
         PerimeterProps = PerimeterAnalysis(Objects2Cut, SlidingWindow);
         
@@ -153,7 +151,6 @@ if ~isempty(FillImage)
                                                         MaxConcaveRadius, ...
                                                         CircularSegment, ...
                                                         MinCutArea, ...
-                                                        PerimSegAngMethod, ...
                                                         SelectionMethod);
         ObjectsCut(:,:,i) = bwlabel(Objects2Cut .* ~CutMask(:,:,i));
         

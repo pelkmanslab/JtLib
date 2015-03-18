@@ -82,6 +82,9 @@ input:
   CircularSegment:
     parameter: 6
 
+  SelectionMethod:
+    parameter: niceNslow
+
 
   # Plot results
   # ------------
