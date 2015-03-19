@@ -1,7 +1,7 @@
 JtLib
 =====
 
-A set of custom tools for [Jterator**](https://github.com/HackerMD/Jterator).
+A set of custom tools for [Jterator](https://github.com/HackerMD/Jterator).
 It should serve as a code repository for common image processing tasks, such as segmenting objects and taking measurements of segmented objects. 
     
 * **modules**: executables (the actual code)       
