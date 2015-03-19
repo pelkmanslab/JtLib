@@ -7,7 +7,7 @@ It should serve as a code repository for common image processing tasks, such as 
 * **modules**: executables (the actual code)       
 * **handles**:  YAML module descriptor files    
 * **pipes**: YAML pipeline descriptor files     
-* **subfunctions**: functions, which are required by modules  
+* **subfunctions**: functions, which are required by modules (see TODO below)   
 
 Some of the lab's standard CP modules are already implemented in Jterator:
 
@@ -29,22 +29,22 @@ TODO
 
 Currently, the user is responsible for making the *subfunctions* available to the modules.
 This can be done by setting environment variables for each language, which point the location where "packages", "modules" or "libraries" can be found:       
-For python:  
+Python:  
 ```{bash}
 export PYTHONPATH=$PYTHONPATH:/path/to/subfunction/folder
 ```
 
-For Matlab:     
+Matlab:     
 ```{bash}
 export MATLABPATH=$MATLABPATH:/path/to/subfunction/folder
 ```
 
-For R:  
+R:  
 ```{bash}
 export R_LIBS=$R_LIBS:/path/to/subfunction/folder
 ```
 
-For Julia:      
+Julia:      
 ```{bash}
 export JULIA_LOAD_PATH=$JULIA_LOAD_PATH:/path/to/subfunction/folder
 ```
