@@ -114,9 +114,9 @@ if not all(a_ix == b_ix):
 output_images = list()
 output_images.append(np.zeros(aligned_images[ix[0]].shape))
 output_images.append(np.zeros(aligned_images[ix[1]].shape))
-for label in xrange(1, len(a_ix)+1):
-    output_images[ix[1]][aligned_images[ix[1]] == a_ix[label]] = label
-    output_images[ix[0]][aligned_images[ix[0]] == b_ix[label]] = label
+for i, label in enumerate(a_ix):
+    output_images[ix[1]][aligned_images[ix[1]] == a_ix[i]] = label
+    output_images[ix[0]][aligned_images[ix[0]] == b_ix[i]] = label
 
 # keep track of original object labels (of the uncropped images)
 original_ids = a_ix
