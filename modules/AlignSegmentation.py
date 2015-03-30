@@ -121,8 +121,6 @@ for i, label in enumerate(a_ix):
 # keep track of original object labels (of the uncropped images)
 original_ids = a_ix
 
-# TODO: the object counts don't fit the later measurements. something is wrong!
-
 
 #####################
 ## display results ##
