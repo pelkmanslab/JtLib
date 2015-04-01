@@ -14,11 +14,15 @@ function [Parents, Children] = RelateObjects(ParentLabelMatrix, ChildLabelMatrix
     end
 
     for i = 1:max(ParentList)
-        if exist('FinalParentList','var')
+        if exist('FinalParentList', 'var')
             ChildList(i,1) = length(FinalParentList(FinalParentList == i));
         else
             ChildList(i,1) = 0;
         end
+    end
+
+    if ~exist('FinalParentList', 'var')
+        FinalParentList = 0;    
     end
 
     Parents = FinalParentList;
