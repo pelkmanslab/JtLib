@@ -506,7 +506,7 @@ if max(IdentifiedCells(:)) ~= 0       % check if an object is present Empty Imag
 
    % create empty output
    FinalLabelMatrixImage2  = zeros(size(IdentifiedCells));
-   numObjects =size(BoxPerObj,1);
+   numObjects = size(BoxPerObj,1);
    if numObjects>=1  % if objects present
        patchForPrimaryObject = false(1,numObjects);
        for k=1: numObjects  % loop through individual objects to safe computation
@@ -547,6 +547,10 @@ if max(IdentifiedCells(:)) ~= 0       % check if an object is present Empty Imag
    % Now mimik standard outupt of calculations of standard module
    IdentifiedCells = FinalLabelMatrixImage2;
 
+else
+
+   % To prevent to break the code in case no objects are present.
+   numObjects = [];
 
 end
 
