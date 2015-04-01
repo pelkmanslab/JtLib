@@ -24,6 +24,9 @@ function [Parents, Children] = RelateObjects(ParentLabelMatrix, ChildLabelMatrix
     if ~exist('FinalParentList', 'var')
         FinalParentList = 0;    
     end
+    if ~exist('ChildList', 'var')
+        ChildList = 0;
+    end
 
     Parents = FinalParentList;
     Children = ChildList;
