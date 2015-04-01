@@ -605,11 +605,15 @@ end
 
 %%% Calculate cell boundary
 CellBorderPixel = bwboundaries(IdentifiedCells);
-CellBorderPixel = CellBorderPixel{1}(1:end-1, :);
-P = CellBorderPixel(CellBorderPixel(:,1) == min(CellBorderPixel(:,1)), :);
-P = P(1,:);
-CellBoundary = bwtraceboundary(IdentifiedCells, P, 'SW'); % anticlockwise
-CellBoundary = fliplr(CellBoundary(1:end-1,:)); % not closed
+if ~isempty(CellBorderPixel)
+  CellBorderPixel = CellBorderPixel{1}(1:end-1, :);
+  P = CellBorderPixel(CellBorderPixel(:,1) == min(CellBorderPixel(:,1)), :);
+  P = P(1,:);
+  CellBoundary = bwtraceboundary(IdentifiedCells, P, 'SW'); % anticlockwise
+  CellBoundary = fliplr(CellBoundary(1:end-1,:)); % not closed
+else
+  CellBoundary = [0,0];
+end
 
 
 %%%%%%%%%%%%%%%%%%%%%
