@@ -1,7 +1,6 @@
-JtLib
-=====
+# JtLib #
 
-A set of custom tools for [Jterator](https://github.com/HackerMD/Jterator).
+A library for custom [Jterator](https://github.com/HackerMD/Jterator) tools.
 It should serve as a code repository for common image processing tasks, such as segmenting objects and taking measurements of segmented objects. 
     
 * **modules**: executables (the actual code)       
@@ -24,29 +23,32 @@ There are also tools available for job submission on Brutus:
 * **jtcluster.py** checks the results file of the precluster step and submits all other jobs if the precluster step completed successfully. 
 
 
-TODO
-----
+## Usage ##
 
-Currently, the user is responsible for making the *subfunctions* available to the modules.
-This can be done by setting environment variables for each language, which point the location where "packages", "modules" or "libraries" can be found:       
+Obviously, you need to have Jterator installed.
+
+Currently, the user is responsible for making the *subfunctions* available to the modules. This can be achieved by setting environment variables for each language, which point to the location where the corresponding "packages", "modules" or "libraries" (language-specific syntax) can be found:    
+
 Python:  
 ```{bash}
-export PYTHONPATH=$PYTHONPATH:/path/to/subfunction/folder
+export PYTHONPATH=$PYTHONPATH:$HOME/jtlib/subfunctions/python
 ```
 
 Matlab:     
 ```{bash}
-export MATLABPATH=$MATLABPATH:/path/to/subfunction/folder
+export MATLABPATH=$MATLABPATH:$HOME/jtlib/subfunctions/matlab
 ```
 
 R:  
 ```{bash}
-export R_LIBS=$R_LIBS:/path/to/subfunction/folder
+export R_LIBS=$R_LIBS:$HOME/jtlib/subfunctions/r
 ```
+
+Note: In R you may have to specify each individual library and not only the main directory.
 
 Julia:      
 ```{bash}
-export JULIA_LOAD_PATH=$JULIA_LOAD_PATH:/path/to/subfunction/folder
+export JULIA_LOAD_PATH=$JULIA_LOAD_PATH:$HOME/jtlib/subfunctions/julia
 ```
 
 Optimally, *Jterator* would also take care of this. This could be included in the pipeline descriptor file.
