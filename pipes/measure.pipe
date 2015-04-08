@@ -21,7 +21,7 @@
 project:
 
   name: test
-  description: measurement pipeline for testing purposes
+  libpath: ~/jtlib
 
 
 # Define the items ("jobs") you want to process:
@@ -43,51 +43,51 @@ jobs:
 pipeline:
 
   - name: LoadDapi
-    module: modules/LoadImage.py
+    module: "{libpath}/modules/LoadImage.py"
     handles: handles/LoadDapi.handles
     interpreter: python
 
   - name: IllumCorrDapi
-    module: modules/IllumCorr.py
+    module: "{libpath}/modules/IllumCorr.py"
     handles: handles/IllumCorrDapi.handles
     interpreter: python
 
   - name: AlignDapi
-    module: modules/AlignImage.py
+    module: "{libpath}/modules/AlignImage.py"
     handles: handles/AlignDapi.handles
     interpreter: python
 
   - name: LoadRed
-    module: modules/LoadImage.py
+    module: "{libpath}/modules/LoadImage.py"
     handles: handles/LoadRed.handles
     interpreter: python
 
   - name: IllumCorrRed
-    module: modules/IllumCorr.py
+    module: "{libpath}/modules/IllumCorr.py"
     handles: handles/IllumCorrRed.handles
     interpreter: python
 
   - name: AlignRed
-    module: modules/AlignImage.py
+    module: "{libpath}/modules/AlignImage.py"
     handles: handles/AlignRed.handles
     interpreter: python
 
   - name: LoadSegmentation
-    module: modules/LoadSegmentation.py
+    module: "{libpath}/modules/LoadSegmentation.py"
     handles: handles/LoadSegmentation.handles
     interpreter: python
 
   - name: AlignSegmentation
-    module: modules/AlignSegmentation.py
+    module: "{libpath}/modules/AlignSegmentation.py"
     handles: handles/AlignSegmentation.handles
     interpreter: python
 
   - name: MeasureNuclei
-    module: modules/MeasureNuclei.py
+    module: "{libpath}/modules/MeasureNuclei.py"
     handles: handles/MeasureNuclei.handles
     interpreter: python
 
   - name: MeasureCells
-    module: modules/MeasureObjects.py
+    module: "{libpath}/modules/MeasureObjects.py"
     handles: handles/MeasureCells.handles
     interpreter: python

@@ -21,7 +21,7 @@
 project:
 
   name: test
-  description: segmentation pipeline for testing purposes
+  libpath: ~/jtlib
 
 
 # Define the items ("jobs") you want to process:
@@ -43,31 +43,31 @@ jobs:
 pipeline:
 
   - name: LoadDapiImage
-    module: modules/LoadImage.py
+    module: "{libpath}/modules/LoadImage.py"
     handles: handles/LoadDapiImage.handles
     interpreter: python
 
   - name: IllumCorrDapi
-    module: modules/IllumCorr.py
+    module: "{libpath}/modules/IllumCorr.py"
     handles: handles/IllumCorrDapi.handles
     interpreter: python
 
   - name: IdentifyNuclei
-    module: modules/IdentifyNuclei.m
+    module: "{libpath}/modules/IdentifyNuclei.m"
     handles: handles/IdentifyNuclei.handles
     interpreter: Mscript
 
   - name: LoadCelltraceImage
-    module: modules/LoadImage.py
+    module: "{libpath}/modules/LoadImage.py"
     handles: handles/LoadCelltraceImage.handles
     interpreter: python
 
   - name: IllumCorrCelltrace
-    module: modules/IllumCorr.py
+    module: "{libpath}/modules/IllumCorr.py"
     handles: handles/IllumCorrCelltrace.handles
     interpreter: python
 
   - name: IdentifyCells
-    module: modules/IdentifyCells.m
+    module: "{libpath}/modules/IdentifyCells.m"
     handles: handles/IdentifyCells.handles
     interpreter: Mscript
