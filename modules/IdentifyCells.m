@@ -1,6 +1,6 @@
 import jtapi.*;
 import plot2svg.*;
-import msubfunctions.*;
+import jtsubfunctions.*;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% jterator input

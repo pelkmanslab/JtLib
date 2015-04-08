@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import mpld3
 # from mpl_toolkits.axes_grid1 import make_axes_locatable
 from jtapi import *
-from pysubfunctions import microscope_type
+from jtsubfunctions import microscope_type
 
 
 mfilename = re.search('(.*).py', os.path.basename(__file__)).group(1)

@@ -1,5 +1,5 @@
 import jtapi.*;
-import msubfunctions.*;
+import jtsubfunctions.*;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% jterator input
