@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import mpld3
 from skimage import measure
-from jterator.api import *
+from jtapi import *
 
 
 mfilename = re.search('(.*).py', os.path.basename(__file__)).group(1)

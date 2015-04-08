@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import mpld3
 # from mpl_toolkits.axes_grid1 import make_axes_locatable
-from jterator.api import *
+from jtapi import *
 from pysubfunctions import microscope_type
 
 

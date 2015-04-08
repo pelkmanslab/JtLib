@@ -6,7 +6,7 @@ from scipy import misc
 import matplotlib.pyplot as plt
 # from mpl_toolkits.axes_grid1 import make_axes_locatable
 import mpld3
-from jterator.api import *
+from jtapi import *
 
 
 mfilename = re.search('(.*).py', os.path.basename(__file__)).group(1)
