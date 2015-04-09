@@ -5,7 +5,7 @@ input:
 
     InputImage:
         hdf5_location: /IllumCorr/CorrRed
-        class: ndarray
+        type: ndarray
 
     ImageName:
         parameter: Red
@@ -26,4 +26,3 @@ output:
 
     AlignedImage:
         hdf5_location: /AlignImage/AlignRed
-        class: ndarray

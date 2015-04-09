@@ -5,7 +5,7 @@ input:
 
     InputImage1:
         hdf5_location: /LoadSegmentation/Nuclei
-        class: ndarray
+        type: ndarray
 
     InputImage2:
         hdf5_location: /LoadSegmentation/Cells
@@ -26,8 +26,6 @@ output:
 
     AlignedImage1:
         hdf5_location: /AlignSegmentation/AlignNuclei
-        class: ndarray
 
     AlignedImage2:
         hdf5_location: /AlignSegmentation/AlignCells
-        class: ndarray

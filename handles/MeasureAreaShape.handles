@@ -4,14 +4,14 @@ input:
 
     Object1: 
         hdf5_location: /AlignSegmentation/AlignCells
-        class: ndarray
+        type: ndarray
 
     Object1Name: 
         parameter: Cells
 
     Object2: 
         hdf5_location: /AlignSegmentation/AlignNuclei
-        class: ndarray
+        type: ndarray
 
     Object2Name: 
         parameter: Nuclei

@@ -21,7 +21,7 @@ input:
 
   CorrImage:
     hdf5_location: /IllumCorr/CorrImageDapi
-    class: double
+    type: double
 
   # Preprocessing: smooth intensity image by median filtering
   # ---------------------------------------------------------
@@ -116,4 +116,3 @@ output:
 
   Nuclei:
     hdf5_location: /IdentifyNuclei/Nuclei
-    class: double

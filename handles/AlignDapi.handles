@@ -5,7 +5,7 @@ input:
 
     InputImage:
         hdf5_location: /IllumCorr/CorrDapi
-        class: ndarray
+        type: ndarray
 
     ImageName:
         parameter: Dapi
@@ -26,4 +26,3 @@ output:
 
     AlignedImage:
         hdf5_location: /AlignImage/AlignDapi
-        class: ndarray
