@@ -1,4 +1,4 @@
-function CutMask = PerimeterWatershedSegmentation(LabelImage,IntensityImage,PerimeterTrace,MaxEqivRadius,MinEquivAngle,ObjSizeThres,SelectionMethod,varargin)
+function CutMask = PerimeterWatershedSegmentation(LabelImage,IntensityImage,PerimeterTrace,MaxEqivRadius,MinEquivAngle,ObjSizeThres,varargin)
 %PERIMETERWATERSHEDSEGMENTATION separates clumped objects along watershed
 %lines between concave regions.
 %
@@ -22,10 +22,6 @@ function CutMask = PerimeterWatershedSegmentation(LabelImage,IntensityImage,Peri
 %
 %   OBJSIZETHRES is the minimal size cut objects should have. Potential cut lines
 %   will be discarded in case the resulting objects would fall below this threshold.
-%
-%   SELECTIONMETHOD is a string ('quickNdirty' or 'niceNslow') command that specifies
-%   the way watershed nodes are selected within or in close proximity to a selected concave region.
-%   'niceNslow' is more accurate, but the computational burden is higher.
 %
 %   Optional input arguments: 'debugON' command results in the display of all intermediate
 %   processing steps (selected pixels within concave regions -> green points,
@@ -55,7 +51,7 @@ ObjectIDs = setdiff(unique(LabelImage(:)),0);
 % Get outer coordinates of bounding box of each object
 distanceToObjectMax = 3;
 N = floor(BoxPerObj(:,2)-distanceToObjectMax-1);                    f = N < 1;                            N(f) = 1;
-S = ceil(BoxPerObj(:,2)+BoxPerObj(:,4)+distanceToObjectMax+1);   	f = S > size(LabelImage,1);           S(f) = size(LabelImage,1);
+S = ceil(BoxPerObj(:,2)+BoxPerObj(:,4)+distanceToObjectMax+1);      f = S > size(LabelImage,1);           S(f) = size(LabelImage,1);
 W = floor(BoxPerObj(:,1)-distanceToObjectMax-1);                    f = W < 1;                            W(f) = 1;
 E = ceil(BoxPerObj(:,1)+BoxPerObj(:,3)+distanceToObjectMax+1);      f = E > size(LabelImage,2);           E(f) = size(LabelImage,2);
 
@@ -120,24 +116,10 @@ if ~isempty(ObjectIDs)
         SelectedRegions = propsConcaveRegion(QualifyingRegionsMask,:);
 
         %% Define cut points
-        if strcmpi(SelectionMethod,'quickNdirty')
-            % use only the pixels of the concave regions with mean/max gradient
-            %CutCoordList = SelectedRegions(:,[9,10]);%mean gradient of regions
-            CutCoordList = SelectedRegions(:,[7,8]);%maximum gradient of regions
-            regionIndex = (1:length(CutCoordList))';
-        elseif strcmpi(SelectionMethod,'niceNslow')
-            % use all pixels of the concave regions (meeting above radius/angle criteria)
-            CutCoordList = pixelsConcaveRegions(QualifyingRegionsMask);
-            CutCoordList = cell2mat(CutCoordList);
-            pixelsPerRegion = cellfun(@(x) size(x,1), pixelsConcaveRegions(QualifyingRegionsMask));
-            tmp = cell(size(pixelsPerRegion,1),1);
-            for region = 1:size(pixelsPerRegion,1)
-                tmp{region} = repmat(region, pixelsPerRegion(region), 1);
-            end
-            regionIndex = cell2mat(tmp);
-        else
-            error('%s: ''SelectionMethod'' not specified correctly',mfilename)
-        end
+        % use only the pixels of the concave regions with mean/max gradient
+        %CutCoordList = SelectedRegions(:,[9,10]);%mean gradient of regions
+        CutCoordList = SelectedRegions(:,[7,8]);%maximum gradient of regions
+        regionIndex = (1:length(CutCoordList))';
 
 % ======================================================================================================================================
 % === object image -- start ==============================================================================================================
@@ -270,17 +252,8 @@ if ~isempty(ObjectIDs)
                 NodeCoordList(:,1) = PotentialNodesCoordinates(:,2);
                 NodeCoordList(:,2) = PotentialNodesCoordinates(:,1);
 
-                if strcmpi(SelectionMethod,'quickNdirty')
-                    % only take a few nodes in close proximity to the maximum
-                    % gradient of the concave region
-                    numNeighbours = 3;
-                elseif strcmpi(SelectionMethod,'niceNslow')
-                    % take all nodes along the concave region
-                    numNeighbours = 1;
-                end
-
                 % Calculate distances between potential cut points and nodes and determine closest nodes/cut points and the respective indexes
-                [~,ClosestNodesIndex] = pdist2(NodeCoordList,miniCutCoordList,'euclidean','Smallest',numNeighbours);
+                [~,ClosestNodesIndex] = pdist2(NodeCoordList,miniCutCoordList,'euclidean','Smallest',3);
                 ClosestNodesIndex = unique(ClosestNodesIndex(:));
                 
                 %=============debug=============

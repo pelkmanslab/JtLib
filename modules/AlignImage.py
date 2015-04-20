@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import mpld3
 # from mpl_toolkits.axes_grid1 import make_axes_locatable
 from jtapi import *
-from jtsubfunctions import microscope_type
+from jtsubfunctions import get_microscope_type
 
 
 mfilename = re.search('(.*).py', os.path.basename(__file__)).group(1)
@@ -36,8 +36,11 @@ input_args = checkinputargs(input_args)
 ## input handling ##
 ####################
 
-input_image = input_args['InputImage']
-image_name = input_args['ImageName']
+input_images = list()
+input_images.append(input_args['InputImage1'])
+input_images.append(input_args['InputImage2'])
+input_images.append(input_args['InputImage3'])
+input_images.append(input_args['InputImage4'])
 
 shift_descriptor_filename = input_args['ShiftDescriptor']
 reference_filename = input_args['ReferenceFilename']
@@ -56,7 +59,7 @@ shift_descriptor = json.load(open(shift_descriptor_filename))
 
 ### find the correct site index
 # get search pattern
-(microscope, pattern) = microscope_type(reference_filename)
+(microscope, pattern) = get_microscope_type(reference_filename)
 filename_match = re.search(pattern, reference_filename).group(0)
 if filename_match is None:
     raise Exception('Pattern doesn\'t match reference filename.')
@@ -84,10 +87,12 @@ right = shift_descriptor['rightOverlap']
 y = shift_descriptor['yShift'][index]
 x = shift_descriptor['xShift'][index]
 
-if shift_descriptor['noShiftIndex'][index] == 1:
-    aligned_image = np.zeros(input_image[lower:-(upper+1), right:-(left+1)].shape)
-else:
-    aligned_image = input_image[(lower-y):-(upper+y+1), (right-x):-(left+x+1)]
+aligned_images = list()
+for image in input_images:
+    if shift_descriptor['noShiftIndex'][index] == 1:
+        aligned_images.append(np.zeros(image[lower:-(upper+1), right:-(left+1)].shape))
+    else:
+        aligned_images.append(image[(lower-y):-(upper+y+1), (right-x):-(left+x+1)])
 
 
 #####################
@@ -101,17 +106,18 @@ if doPlot:
     ax2 = fig.add_subplot(1, 2, 2)
 
     im1 = ax1.imshow(input_image,
-                     vmin=np.percentile(aligned_image, 0.1),
-                     vmax=np.percentile(aligned_image, 99.9),
+                     vmin=np.percentile(input_image, 0.1),
+                     vmax=np.percentile(input_image, 99.9),
                      cmap='gray')
     ax1.set_title('Original image', size=20)
     # divider1 = make_axes_locatable(ax1)
     # cax1 = divider1.append_axes("right", size="10%", pad=0.05)
     # fig.colorbar(im1, cax=cax1)
 
-    im2 = ax2.imshow(aligned_image,
-                     vmin=np.percentile(aligned_image, 0.1),
-                     vmax=np.percentile(aligned_image, 99.9),
+    # Only display the first image
+    im2 = ax2.imshow(aligned_images[0],
+                     vmin=np.percentile(aligned_images[0], 0.1),
+                     vmax=np.percentile(aligned_images[0], 99.9),
                      cmap='gray')
     ax2.set_title('Aligned image', size=20)
     # divider2 = make_axes_locatable(ax2)
@@ -124,6 +130,7 @@ if doPlot:
     fid = h5py.File(handles['hdf5_filename'], 'r')
     jobid = fid['jobid'][()]
     fid.close()
+    image_name = os.path.basename(reference_filename)
     figure_name = os.path.abspath('figures/%s_%s_%05d.html' % (mfilename,
                                   image_name, jobid))
 
@@ -136,7 +143,10 @@ if doPlot:
 ####################
 
 output_args = dict()
-output_args['AlignedImage'] = aligned_image
+output_args['AlignedImage1'] = aligned_images[0]
+output_args['AlignedImage2'] = aligned_images[1]
+output_args['AlignedImage3'] = aligned_images[2]
+output_args['AlignedImage4'] = aligned_images[3]
 
 data = dict()
 

@@ -1,25 +1,40 @@
 hdf5_filename: None
+
 input:
 
-    SegmentationFolder:
-        parameter: ../150117MPcycle_07/SEGMENTATION
+    - name: ObjectName1
+      class: parameter
+      value: 
+      type: ndarray
+      help: 'Name of the objects in the segmentation image.'
 
-    ReferenceFilename: 
-        hdf5_location: /Dapi
+    - name: ObjectName2
+      class: parameter
+      value: 
+      type: ndarray
+      help: 'Name of the objects in the segmentation image.'
 
-    ObjectName1:
-        parameter: Cells
+    - name: SegmentationDirectory
+      class: parameter
+      value: 
+      help: 'Relative path to the folder containing the segmentation images.'
 
-    ObjectName2:
-        parameter: Nuclei
+    - name: ReferenceFilename
+      class: hdf5_location
+      value: 
+      help: 'Filename of the image, which was used as a basename for the segmentation image files.'
 
-    doPlot:
-        parameter: No
+    - name: doPlot
+      class: parameter
+      value: No  # no plotting by default
+      help: 'Do you want to plot the results?'
 
 output:
 
-    Objects1:
-        hdf5_location: /LoadSegmentation/Cells
+    - name: Objects1
+      class: hdf5_location
+      value: 
 
-    Objects2:
-        hdf5_location: /LoadSegmentation/Nuclei
+    - name: Objects2
+      class: hdf5_location
+      value: 

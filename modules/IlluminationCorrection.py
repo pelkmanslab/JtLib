@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import mpld3
 import scipy.ndimage as ndi
 from jtapi import *
+from jtsubfunctions import get_microscope_type, get_image_channel
 
 
 mfilename = re.search('(.*).py', os.path.basename(__file__)).group(1)
@@ -35,10 +36,20 @@ input_args = checkinputargs(input_args)
 ## input handling ##
 ####################
 
-orig_image = np.array(input_args['OrigImage'], dtype='float64')
-image_name = input_args['ImageName']
+orig_images = list()
+orig_images.append(np.array(input_args['OrigImage1'], dtype='float64'))
+orig_images.append(np.array(input_args['OrigImage2'], dtype='float64'))
+orig_images.append(np.array(input_args['OrigImage3'], dtype='float64'))
+orig_images.append(np.array(input_args['OrigImage4'], dtype='float64'))
+
+reference_filenames = list()
+reference_filenames.append(input_args['ReferenceFilename1'])
+reference_filenames.append(input_args['ReferenceFilename2'])
+reference_filenames.append(input_args['ReferenceFilename3'])
+reference_filenames.append(input_args['ReferenceFilename4'])
+
 stats_directory = input_args['StatsDirectory']
-stats_filename = input_args['StatsFilename']
+stats_filename_pattern = input_args['StatsFilenamePattern']
 doPlot = input_args['doPlot']
 
 
@@ -46,39 +57,55 @@ doPlot = input_args['doPlot']
 ## processing ##
 ################
 
-### build absolute path to illumination correction file
-stats_path = os.path.join(stats_directory, stats_filename)
-if not os.path.isabs(stats_path):
-    stats_path = os.path.join(os.getcwd(), stats_path)
+corr_images = list()
+for i, orig_image in enumerate(orig_images):
+    ### determine channel number from reference filename
+    reference_filename = reference_filenames[i]
+    (microscope, pattern) = microscope_type(reference_filename)
+    channel = get_image_channel(reference_filename, microscope)
+    ### build absolute path to illumination correction file
+    # determine dynamically from stats_filename_pattern
+    glob_pattern = stats_filename_pattern % channel
+    if not os.path.isabs(stats_directory):
+        stats_directory = os.path.join(os.getcwd(), stats_directory)
+    stats_filename = glob.glob(os.path.join(stats_directory, glob_pattern)) 
+    if len(stats_filename) > 1:
+        raise Exception('More than one statistics file matches the pattern.')
+    elif len(stats_filename) == 0:
+        raise Exception('No statistics file matches the pattern.')
+    else:
+        stats_filename = stats_filename[0]
 
-### load illumination correction file and extract statistics
-# Matlab '-v7.3' files are HDF5 files
-stats = h5py.File(stats_path, 'r')
-stats = stats['stat_values']
-# Matlab transposes arrays, so we have to revert that
-mean_image = np.array(stats['mean'][()], dtype='float64').conj().T
-std_image = np.array(stats['std'][()], dtype='float64').conj().T
+    ### load illumination correction file and extract statistics
+    # Matlab '-v7.3' files are HDF5 files
+    stats = h5py.File(stats_filename, 'r')
+    stats = stats['stat_values']
+    # Matlab transposes arrays, so we have to revert that
+    mean_image = np.array(stats['mean'][()], dtype='float64').conj().T
+    std_image = np.array(stats['std'][()], dtype='float64').conj().T
 
-### correct intensity image for illumination artifact
-orig_image[orig_image == 0] = 1
-corr_image = (np.log10(orig_image) - mean_image) / std_image
-corr_image = (corr_image * np.mean(std_image)) + np.mean(mean_image)
-corr_image = 10 ** corr_image
+    ### correct intensity image for illumination artifact
+    orig_image[orig_image == 0] = 1
+    corr_image = (np.log10(orig_image) - mean_image) / std_image
+    corr_image = (corr_image * np.mean(std_image)) + np.mean(mean_image)
+    corr_image = 10 ** corr_image
 
-### fix "bad" pixels with non numeric values (NaN or Inf)
-ix_bad = np.logical_not(np.isfinite(corr_image))
-if ix_bad.sum() > 0:
-    print('IllumCorr: identified %d bad pixels' % ix_bad.sum())
-    med_filt_image = ndi.filters.median_filter(corr_image, 3)
-    corr_image[ix_bad] = med_filt_image[ix_bad]
-    corr_image[ix_bad] = med_filt_image[ix_bad]
+    ### fix "bad" pixels with non numeric values (NaN or Inf)
+    ix_bad = np.logical_not(np.isfinite(corr_image))
+    if ix_bad.sum() > 0:
+        print('IllumCorr: identified %d bad pixels' % ix_bad.sum())
+        med_filt_image = ndi.filters.median_filter(corr_image, 3)
+        corr_image[ix_bad] = med_filt_image[ix_bad]
+        corr_image[ix_bad] = med_filt_image[ix_bad]
 
-### fix extreme pixels
-percent = 99.9999
-thresh = np.percentile(corr_image, percent)
-print('IllumCorr: %d extreme pixel values (above %f percentile) were set to %d'
-      % (np.sum(corr_image > thresh), percent, thresh))
-corr_image[corr_image > thresh] = thresh
+    ### fix extreme pixels
+    percent = 99.9999
+    thresh = np.percentile(corr_image, percent)
+    print('IllumCorr: %d extreme pixel values (above %f percentile) were set to %d'
+          % (np.sum(corr_image > thresh), percent, thresh))
+    corr_image[corr_image > thresh] = thresh
+
+    corr_images.append(corr_image)
 
 
 #####################
@@ -88,11 +115,11 @@ corr_image[corr_image > thresh] = thresh
 if doPlot:
 
     # Using 'PyPlot'
-    orig_vmin = np.percentile(orig_image, 0.1)
-    orig_vmax = np.percentile(orig_image, 99.9)
+    orig_vmin = np.percentile(orig_images[0], 0.1)
+    orig_vmax = np.percentile(orig_images[0], 99.9)
 
-    corr_vmin = np.percentile(corr_image, 0.1)
-    corr_vmax = np.percentile(corr_image, 99.9)
+    corr_vmin = np.percentile(corr_images[0], 0.1)
+    corr_vmax = np.percentile(corr_images[0], 99.9)
 
     fig = plt.figure(figsize=(12, 12))
     ax1 = fig.add_subplot(2, 3, 1)
@@ -102,18 +129,18 @@ if doPlot:
     ax5 = fig.add_subplot(2, 3, 5)
     ax6 = fig.add_subplot(2, 3, 6)
 
-    im1 = ax1.imshow(orig_image, cmap='gray', vmin=orig_vmin, vmax=orig_vmax)
+    im1 = ax1.imshow(orig_images[0], cmap='gray', vmin=orig_vmin, vmax=orig_vmax)
     ax1.set_title('Original image', size=20)
 
-    im2 = ax2.imshow(corr_image, cmap='gray', vmin=corr_vmin, vmax=corr_vmax)
+    im2 = ax2.imshow(corr_images[0], cmap='gray', vmin=corr_vmin, vmax=corr_vmax)
     ax2.set_title('Corrected image', size=20)
 
-    h1 = ax4.hist(orig_image.flatten(), bins=100,
+    h1 = ax4.hist(orig_images[0].flatten(), bins=100,
                   range=(orig_vmin, orig_vmax),
                   histtype='stepfilled')
     ax4.set_title('Original histogram', size=20)
 
-    h2 = ax5.hist(corr_image.flatten(), bins=100,
+    h2 = ax5.hist(corr_images[0].flatten(), bins=100,
                   range=(corr_vmin, corr_vmax),
                   histtype='stepfilled')
     ax5.set_title('Corrected histogram', size=20)
@@ -131,14 +158,11 @@ if doPlot:
     jobid = fid['jobid'][()]
     fid.close()
 
+    image_name = os.path.basename(reference_filenames[0])
     figure_name = os.path.abspath('figures/%s_%s_%05d.html'
                                   % (mfilename, image_name, jobid))
 
     mpld3.save_html(fig, figure_name)
-    # html = mpld3.fig_to_html(fig, template_type='simple')
-    # with open(figure_name, 'w') as f:
-    #     f.write(html)
-
     figure2browser(figure_name)
 
 
@@ -147,7 +171,12 @@ if doPlot:
 ####################
 
 output_args = dict()
-output_args["CorrImage"] = corr_image
+output_args['CorrImage1'] = corr_images[0]
+output_args['CorrImage2'] = corr_images[1]
+output_args['CorrImage3'] = corr_images[2]
+output_args['CorrImage4'] = corr_images[3]
+
+
 data = dict()
 
 

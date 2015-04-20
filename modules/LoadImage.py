@@ -35,8 +35,12 @@ input_args = checkinputargs(input_args)
 ## input handling ##
 ####################
 
-image_filename = input_args['ImageFilename']
-image_name = input_args['ImageName']
+image_filenames = list()
+image_filenames.append(input_args['ImageFilename1'])
+image_filenames.append(input_args['ImageFilename2'])
+image_filenames.append(input_args['ImageFilename3'])
+image_filenames.append(input_args['ImageFilename4'])
+
 doPlot = input_args['doPlot']
 
 
@@ -44,7 +48,9 @@ doPlot = input_args['doPlot']
 ## processing ##
 ################
 
-image = np.array(misc.imread(image_filename), dtype='float64')
+images = list()
+for f in image_filenames:
+  images.append(np.array(misc.imread(f), dtype='float64'))
 
 
 #####################
@@ -56,11 +62,11 @@ if doPlot:
     fig = plt.figure(figsize=(8, 8))
     ax1 = fig.add_subplot(1, 1, 1)
 
-    im1 = ax1.imshow(image,
-                     vmin=np.percentile(image, 0.1),
-                     vmax=np.percentile(image, 99.9),
+    im1 = ax1.imshow(images[0],
+                     vmin=np.percentile(images[0], 0.1),
+                     vmax=np.percentile(images[0], 99.9),
                      cmap='gray')
-    ax1.set_title(os.path.basename(image_filename), size=20)
+    ax1.set_title(os.path.basename(image_filenames[0]), size=20)
     # divider1 = make_axes_locatable(ax1)
     # cax1 = divider1.append_axes("right", size="10%", pad=0.05)
     # fig.colorbar(im1, cax=cax1)
@@ -71,6 +77,7 @@ if doPlot:
     fid = h5py.File(handles['hdf5_filename'], 'r')
     jobid = fid['jobid'][()]
     fid.close()
+    image_name = os.path.basename(image_filenames[0])
     figure_name = os.path.abspath('figures/%s_%s_%05d.html' % (mfilename,
                                   image_name, jobid))
 
@@ -83,7 +90,10 @@ if doPlot:
 ####################
 
 output_args = dict()
-output_args['Image'] = image
+output_args['Image1'] = images[0]
+output_args['Image2'] = images[1]
+output_args['Image3'] = images[2]
+output_args['Image4'] = images[3]
 
 data = dict()
 

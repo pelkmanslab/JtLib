@@ -35,9 +35,9 @@ input_args = checkinputargs(input_args)
 ## input handling ##
 ####################
 
-input_image_1 = np.array(input_args['InputImage1'], dtype='float64')
-input_image_2 = np.array(input_args['InputImage2'], dtype='float64')
-input_images = [input_image_1, input_image_2]
+input_images = list()
+input_images.append(np.array(input_args['InputImage1'], dtype='float64'))
+input_images.append(np.array(input_args['InputImage2'], dtype='float64'))
 
 shift_descriptor_filename = input_args['ShiftDescriptor']
 ref_filename = input_args['ReferenceFilename']

@@ -21,65 +21,82 @@ hdf5_filename: None
 
 input:
 
-  CorrImage:
-    hdf5_location: /IllumCorr/CorrImageCelltrace
+  - name: CelltraceImage
+    class: hdf5_location
+    value: 
     type: double
+    help: 'Intensity image that should be used for cell identification.'
 
-  NucleiImage:
-    hdf5_location: /IdentifyNuclei/Nuclei
+  - name: NucleiImage
+    class: hdf5_location
+    value: 
     type: double
+    help: 'Mask image that should be used as a seed for cell identification.'
 
 
   # Preprocessing: smooth intensity image by median filtering
   # ---------------------------------------------------------
 
-  doSmooth:
-    parameter: No
+  - name: doSmooth
+    class: parameter
+    value: No
+    help: 'Do you want to smooth the intensity image before identifying cells?'
 
-  SmoothingFilterSize:
-    parameter: 3
+  - name: SmoothingFilterSize
+    class: parameter
+    value: 3
+    help: 'Size of the median smoothing filter.'
 
 
   # Identify objects by iterative intensity thresholding
   # ----------------------------------------------------
 
-  ThresholdCorrection:
+  - name: ThresholdCorrection
     # The threshold correction factors determine the intensity thresholds
     # over which the module iterates.
-    parameter: [1.2, 1.15, 1.1, 1.05, 1, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5, 0.45, 0.4, 0.35, 0.3, 0.25, 0.2, 0.15]
+    class: parameter
+    value: [1.2, 1.15, 1.1, 1.05, 1, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5, 0.45, 0.4, 0.35, 0.3, 0.25, 0.2, 0.15]
     type: double
+    help: 'Threshold correction factors determine the different intensity thresholds over for iterations.'
 
-  MinimumThreshold:
+  - name: MinimumThreshold
     # Setting a minimal value will prevent recognition of background as object.
     # To set SmallestThreshold, pick a pixel value at the border of sparse cells,
     # which still lies above background.
-    parameter: 120
-
-  pObject:
-    parameter: 10
+    class: parameter
+    value: 120
+    help: 'Minimal allowed threshold value that can prevent recognition of background as objects. Choose a value at the border of cells, which is still above background.'
 
 
   # Plot results
   # ------------
 
-  doPlot:
-    parameter: Yes
+  - name: doPlot
+    class: parameter
+    value: No  # no plotting by default
+    help: 'Do you want to plot the results?'
 
 
   # Store results
   # -------------
 
-  doSaveSegmentedImage:
-    parameter: Yes
+  - name: doSaveSegmentedImage
+    class: parameter
+    value: Yes
+    help: 'Do you want to save segmented cells as mask images?'
 
-  OrigImageFilename:
-    hdf5_location: /Celltrace
+  - name: SegmentationPath
+    class: parameter
+    value: 
+    help: 'Relative path to the folder were these mask images should be saved.'
 
-  SegmentationPath:
-    parameter: SEGMENTATION
-
+  - name: OrigImageFilename
+    class: hdf5_location
+    value: 
+    help: 'Name of the intensity image file.'
 
 output:
 
-  Cells:
-    hdf5_location: /IdentifyCells/Cells
+  - name: Cells
+    class: hdf5_location
+    value: 

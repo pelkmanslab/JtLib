@@ -1,7 +1,7 @@
 import re
 
 
-def microscope_type(image_filename):
+def get_microscope_type(image_filename):
     '''
     Determine the microscope type based on the image filename. Also return
     the regular expression pattern to determine the unique index of the image.
@@ -19,3 +19,15 @@ def microscope_type(image_filename):
         microscope = None
         pattern = None
     return(microscope, pattern)
+
+
+def get_image_channel(image_filename, microscope):
+    '''
+    Get image channel information form filename via regular expression pattern.
+    '''
+    if microscope == 'visi' or microscope == 'cv7k':
+        r = re.compile('C(\d+)\.png$')
+        channel = re.search(r, image_filename)
+    else:
+        raise Exception('Microscope type not supported.')
+    return channel

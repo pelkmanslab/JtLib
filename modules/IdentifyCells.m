@@ -30,7 +30,7 @@ input_args = checkinputargs(input_args);
 %%%%%%%%%%%%%%%%%%%%
 
 Nuclei = input_args.NucleiImage;
-InputImage = input_args.CorrImage;
+InputImage = input_args.CelltraceImage;
 
 %%% Input arguments for object smoothing by median filtering
 doSmooth = input_args.doSmooth;
@@ -39,7 +39,6 @@ SmoothingFilterSize = input_args.SmoothingFilterSize;
 %%% Input arguments for identifying objects by iterative intensity thresholding
 ThresholdCorrection = input_args.ThresholdCorrection;
 MinimumThreshold = input_args.MinimumThreshold;
-pObject = input_args.pObject;
 
 %%% Input arguments for plotting segmentation results
 doPlot = input_args.doPlot;
@@ -67,6 +66,7 @@ else
 end
 
 ThresholdMethod = 'Otsu Global';
+pObject = 10;
 
 numThresholdsToTest = length(ThresholdCorrection);
 ThresholdArray = cell(numThresholdsToTest,1);

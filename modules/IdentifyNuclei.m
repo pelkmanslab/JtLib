@@ -76,7 +76,9 @@ else
 end
 
 %% Threshold image
+ThresholdMethod = 'Otsu Global';
 MaximumThreshold = 2^16;
+pObject = 10;
 
 %%% Calculate threshold
 threshhold = ImageThreshold(ThresholdMethod, ...
@@ -150,8 +152,7 @@ if ~isempty(FillImage)
                                                         PerimeterProps, ...
                                                         MaxConcaveRadius, ...
                                                         degtorad(CircularSegment), ...
-                                                        MinCutArea, ...
-                                                        SelectionMethod);
+                                                        MinCutArea);
         ObjectsCut(:,:,i) = bwlabel(Objects2Cut .* ~CutMask(:,:,i));
         
     end

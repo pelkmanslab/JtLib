@@ -37,10 +37,12 @@ input_args = checkinputargs(input_args)
 ## input handling ##
 ####################
 
+object_names = list()
+object_names.append(input_args['ObjectName1'])
+object_names.append(input_args['ObjectName2'])
+
 ref_filename = input_args['ReferenceFilename']
-segmentation_folder = input_args['SegmentationFolder']
-object_name_1 = input_args['ObjectName1']
-object_name_2 = input_args['ObjectName2']
+segmentation_folder = input_args['SegmentationDirectory']
 doPlot = input_args['doPlot']
 
 
@@ -54,32 +56,26 @@ filename_match = re.search(pattern, ref_filename).group(1)
 if filename_match is None:
     raise Exception('Pattern doesn\'t match reference filename.')
 
-segmentation_filename_1 = glob.glob(os.path.join(os.getcwd(),
-                                    segmentation_folder, '*%s*_segmented%s.png'
-                                    % (filename_match, object_name_1)))
+segmentation_filenames = list()
+for obj in object_names:
 
-if len(segmentation_filename_1) == 0:
-    raise Exception('No file found that matches reference pattern.')
-elif len(segmentation_filename_1) > 1:
-    raise Exception('Several files found that match reference pattern.')
-else:
-    segmentation_filename_1 = segmentation_filename_1[0]
+    filenames = glob.glob(os.path.join(os.getcwd(),
+                          segmentation_folder, '*%s*_segmented%s.png'
+                          % (filename_match, obj)))
 
+    if len(filenames) == 0:
+        raise Exception('No file found that matches reference pattern.')
+    elif len(filenames) > 1:
+        raise Exception('Several files found that match reference pattern.')
+    else:
+        segmentation_filenames.append(filenames[0])
 
-segmentation_filename_2 = glob.glob(os.path.join(os.getcwd(),
-                                    segmentation_folder, '*%s*_segmented%s.png'
-                                    % (filename_match, object_name_2)))
-
-if len(segmentation_filename_2) == 0:
-    raise Exception('No file found that matches reference pattern.')
-elif len(segmentation_filename_2) > 1:
-    raise Exception('Several files found that match reference pattern.')
-else:
-    segmentation_filename_2 = segmentation_filename_2[0]
 
 ### load segmentation images
-segmentation_1 = np.array(misc.imread(segmentation_filename_1), dtype='int')
-segmentation_2 = np.array(misc.imread(segmentation_filename_2), dtype='int')
+segmentations = list()
+for f in segmentation_filenames:
+    segmentations.append(np.array(misc.imread(f), dtype='int'))
+    segmentations.append(np.array(misc.imread(f), dtype='int'))
 
 
 #####################
@@ -92,11 +88,11 @@ if doPlot:
     ax1 = fig.add_subplot(1, 2, 1, adjustable='box', aspect=1)
     ax2 = fig.add_subplot(1, 2, 2, adjustable='box', aspect=1)
 
-    im1 = ax1.imshow(segmentation_1)
-    ax1.set_title(object_name_1, size=20)
+    im1 = ax1.imshow(segmentations[0])
+    ax1.set_title(object_names[0], size=20)
 
-    im2 = ax2.imshow(segmentation_2)
-    ax2.set_title(object_name_2, size=20)
+    im2 = ax2.imshow(segmentations[1])
+    ax2.set_title(object_names[1], size=20)
 
     fig.tight_layout()
 
@@ -117,8 +113,8 @@ if doPlot:
 data = dict()
 
 output_args = dict()
-output_args['Objects1'] = segmentation_1
-output_args['Objects2'] = segmentation_2
+output_args['Objects1'] = segmentations[0]
+output_args['Objects2'] = segmentationa[1]
 
 
 ###############################################################################

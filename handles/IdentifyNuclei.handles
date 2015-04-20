@@ -19,100 +19,130 @@ hdf5_filename: None
 
 input:
 
-  CorrImage:
-    hdf5_location: /IllumCorr/CorrImageDapi
+  - name: DapiImage
+    class: hdf5_location
+    value: 
     type: double
+    help: 'Intensity image that should be used for nuclei identification.'
 
   # Preprocessing: smooth intensity image by median filtering
   # ---------------------------------------------------------
 
-  doSmooth:
-    parameter: No
+  - name: doSmooth
+    class: parameter
+    value: No
+    help: 'Do you want to smooth the intensity image before identifying cells?'
 
-  SmoothingFilterSize:
-    parameter: 3
+  - name: SmoothingFilterSize
+    class: parameter
+    value: 3
+    help: 'Size of the median smoothing filter.'
 
 
   # Identify objects by intensity thresholding
   # ------------------------------------------
 
-  ThresholdCorrection:
-    parameter: 1
+  - name: ThresholdCorrection
+    class: parameter
+    value: 1
+    help: 'Threshold correction factor to adjust thresholding.'
 
-  ThresholdMethod:
-    parameter: Otsu Global
+  - name: MinimumThreshold
+    class: parameter
+    value: 120
+    help: 'Minimal allowed threshold value that can prevent recognition of background as objects.'
 
-  MininumThreshold:
-    parameter: 120
-
-  pObject:
-    parameter: 10
 
 
   # Separate (cut) clumped objects based on perimeter/watershed analysis
   # --------------------------------------------------------------------
 
-  CuttingPasses:
-    parameter: 2
+  - name: CuttingPasses
+    class: parameter
+    value: 2
+    help: 'Number of cutting passes (iterations) to break down clumped objects.'
 
-  MaxSolidity:
-    parameter: 0.91
+  - name: MaxSolidity
+    class: parameter
+    value: 0.91
+    help: 'Object selection: maximal solidity for an object to be selected for cutting.'
 
-  MinFormFactor:
-    parameter: 0.45
+  - name: MinFormFactor
+    class: parameter
+    value: 0.45
+    help: 'Object selection: minimal form factor for an object to be selected for cutting.'
 
-  MaxArea:
-    parameter: 50000
+  - name: MaxArea
+    class: parameter
+    value: 50000
+    help: 'Object selection: maximal area for an object to be selected for cutting.'
 
-  MinArea:
-    parameter: 7000
+  - name: MinArea
+    class: parameter
+    value: 7000
+    help: 'Object selection: minimal area for an object to be selected for cutting.'
 
-  MinCutArea:
-    parameter: 2500
+  - name: MinCutArea
+    class: parameter
+    value: 2500
+    help: 'Minimal area a potentially cut object must have. Prevents cutting off small fragments.'
 
-  SlidingWindow:
-    parameter: 8
+  - name: SlidingWindow
+    class: parameter
+    value: 8
+    help: 'Perimeter analysis: sliding window size for detection of concave regions.'
 
-  FilterSize:
-    parameter: 1
+  - name: FilterSize
+    class: parameter
+    value: 1
+    help: 'Perimeter analysis: size of the smoothing filter applied to objects before perimeter analysis.'
 
-  MaxConcaveRadius:
-    parameter: 30
+  - name: MaxConcaveRadius
+    class: parameter
+    value: 30
+    help: 'Perimeter analysis: maximum equivalent radius for a region to be considered concave.'
 
-  CircularSegment:
-    parameter: 6
-
-  SelectionMethod:
-    parameter: niceNslow
+  - name: CircularSegment
+    class: parameter
+    value: 6
+    help: 'Perimeter analysis: equivalent circular segment for a region to be considered concave.'
 
 
   # Plot results
   # ------------
 
-  doPlot:
-    parameter: Yes
+  - name: doPlot
+    class: parameter
+    value: Yes
+    help: 'Do you want to plot the results?'
 
-  doTestModePerimeter:
-    parameter: No
+  # doTestModePerimeter:
+  #   parameter: No
 
-  doTestModeShape:
-    parameter: No
+  # doTestModeShape:
+  #   parameter: No
 
 
   # Store results
   # -------------
 
-  doSaveSegmentedImage:
-    parameter: Yes
+  - name: doSaveSegmentedImage
+    class: parameter
+    value: Yes
+    help: 'Do you want to save segmented nuclei as mask images?'
 
-  OrigImageFilename:
-    hdf5_location: /Dapi
+  - name: SegmentationPath
+    class: parameter
+    value: 
+    help: 'Relative path to the folder were these mask images should be saved.'
 
-  SegmentationPath:
-    parameter: SEGMENTATION
-
+  - name: OrigImageFilename
+    class: hdf5_location
+    value: 
+    help: 'Name of the intensity image file.'
 
 output:
 
-  Nuclei:
-    hdf5_location: /IdentifyNuclei/Nuclei
+  - name: Nuclei
+    class: hdf5_location
+    value: 
