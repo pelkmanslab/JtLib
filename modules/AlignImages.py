@@ -89,6 +89,9 @@ x = shift_descriptor['xShift'][index]
 
 aligned_images = list()
 for image in input_images:
+    if image is None:
+        aligned_images.append(None)
+        continue
     if shift_descriptor['noShiftIndex'][index] == 1:
         aligned_images.append(np.zeros(image[lower:-(upper+1), right:-(left+1)].shape))
     else:
@@ -143,10 +146,10 @@ if doPlot:
 ####################
 
 output_args = dict()
-output_args['AlignedImage1'] = aligned_images[0]
-output_args['AlignedImage2'] = aligned_images[1]
-output_args['AlignedImage3'] = aligned_images[2]
-output_args['AlignedImage4'] = aligned_images[3]
+for i, image in enumerate(aligned_images):
+    if image is None:
+        continue
+    output_args['AlignedImage%d' % i] = image
 
 data = dict()
 

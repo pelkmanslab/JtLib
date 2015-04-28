@@ -38,6 +38,8 @@ input_args = checkinputargs(input_args)
 input_images = list()
 input_images.append(np.array(input_args['InputImage1'], dtype='float64'))
 input_images.append(np.array(input_args['InputImage2'], dtype='float64'))
+input_images.append(np.array(input_args['InputImage3'], dtype='float64'))
+input_images.append(np.array(input_args['InputImage4'], dtype='float64'))
 
 shift_descriptor_filename = input_args['ShiftDescriptor']
 ref_filename = input_args['ReferenceFilename']
@@ -84,6 +86,9 @@ right = shift_descriptor['rightOverlap']
 
 aligned_images = list()
 for image in input_images:
+    if image is None:
+        aligned_images.append(None)
+        continue
     if shift_descriptor['noShiftIndex'][index] == 1:
         aligned_images.append(np.zeros(image[lower:-(upper+1), right:-(left+1)].shape))
     else:

@@ -15,9 +15,22 @@ input:
       type: ndarray
       help: 'Mask image that should be aligned.'
 
+    - name: InputImage3
+      class: hdf5_location
+      value: 
+      type: ndarray
+      help: 'Mask image that should be aligned.'
+
+    - name: InputImage4
+      class: hdf5_location
+      value: 
+      type: ndarray
+      help: 'Mask image that should be aligned.'
+
     - name: ShiftDescriptor
       class: parameter
       value: 
+      type: str
       help: 'Relative path to the shiftDescriptor.json file.'
 
     - name: ReferenceFilename

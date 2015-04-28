@@ -59,6 +59,9 @@ doPlot = input_args['doPlot']
 
 corr_images = list()
 for i, orig_image in enumerate(orig_images):
+    if orig_image is None:
+        corr_images.append(None)
+        continue
     ### determine channel number from reference filename
     reference_filename = reference_filenames[i]
     (microscope, pattern) = microscope_type(reference_filename)
@@ -171,10 +174,10 @@ if doPlot:
 ####################
 
 output_args = dict()
-output_args['CorrImage1'] = corr_images[0]
-output_args['CorrImage2'] = corr_images[1]
-output_args['CorrImage3'] = corr_images[2]
-output_args['CorrImage4'] = corr_images[3]
+for i, image in enumerate(corr_images):
+    if image is None:
+        continue
+    output_args['CorrImage%d' % i] = image
 
 
 data = dict()

@@ -64,18 +64,18 @@ input:
 output:
 
   - name: CorrImage1
-      class: hdf5_location
-      value: 
+    class: hdf5_location
+    value: 
 
-    - name: CorrImage2
-      class: hdf5_location
-      value:
+  - name: CorrImage2
+    class: hdf5_location
+    value:
 
-    - name: CorrImage3
-      class: hdf5_location
-      value: 
+  - name: CorrImage3
+    class: hdf5_location
+    value: 
 
-    - name: CorrImage4
-      class: hdf5_location
-      value:
+  - name: CorrImage4
+    class: hdf5_location
+    value:
 

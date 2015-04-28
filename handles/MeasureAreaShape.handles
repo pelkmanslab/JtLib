@@ -2,54 +2,6 @@ hdf5_filename: /var/folders/7_/tqn1hw4d4nl6t17kcrg7v7jw0000gq/T/150117MPcycle_01
 
 input:
 
-    - name: Image1
-      class: hdf5_location
-      value: 
-      type: ndarray
-      help: 'Intensity image that should be used for the measurements.'
-
-    - name: ImageName1
-      class: hdf5_location
-      value: 
-      type: ndarray
-      help: 'Name of the image in the measurement output.'
-
-    - name: Image2
-      class: hdf5_location
-      value: 
-      type: ndarray
-      help: 'Intensity image that should be used for the measurements.'
-
-    - name: ImageName2
-      class: hdf5_location
-      value: 
-      type: ndarray
-      help: 'Name of the image in the measurement output.'
-
-    - name: Image3
-      class: hdf5_location
-      value: 
-      type: ndarray
-      help: 'Intensity image that should be used for the measurements.'
-
-    - name: ImageName3
-      class: hdf5_location
-      value: 
-      type: ndarray
-      help: 'Name of the image in the measurement output.'
-
-    - name: Image4
-      class: hdf5_location
-      value: 
-      type: ndarray
-      help: 'Intensity image that should be used for the measurements.'
-
-    - name: ImageName4
-      class: hdf5_location
-      value: 
-      type: ndarray
-      help: 'Name of the image in the measurement output.'
-
     - name: Object1
       class: hdf5_location
       value: 

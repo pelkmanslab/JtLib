@@ -35,13 +35,17 @@ input_args = checkinputargs(input_args)
 ## input handling ##
 ####################
 
-object_1 = np.array(input_args['Object1'], dtype='int')
-object_1_name = input_args['Object1Name']
-object_2 = np.array(input_args['Object2'], dtype='int')
-object_2_name = input_args['Object2Name']
+objects = list()
+objects.append(np.array(input_args['Object1'], dtype='int'))
+objects.append(np.array(input_args['Object2'], dtype='int'))
+objects.append(np.array(input_args['Object3'], dtype='int'))
+objects.append(np.array(input_args['Object4'], dtype='int'))
 
-objects = [object_1, object_2]
-object_names = [object_1_name, object_2_name]
+object_names = list()
+object_names.append(input_args['ObjectName1'])
+object_names.append(input_args['ObjectName2'])
+object_names.append(input_args['ObjectName3'])
+object_names.append(input_args['ObjectName4'])
 
 doPlot = input_args['doPlot']
 
@@ -52,6 +56,8 @@ doPlot = input_args['doPlot']
 
 data = dict()
 for i, obj in enumerate(objects):
+    if obj is None:
+        continue
 
     object_name = object_names[i]
 

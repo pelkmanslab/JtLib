@@ -50,10 +50,14 @@ image_names.append(input_args['ImageName4'])
 objects = list()
 objects.append(np.array(input_args['Object1'], dtype='int'))
 objects.append(np.array(input_args['Object2'], dtype='int'))
+objects.append(np.array(input_args['Object3'], dtype='int'))
+objects.append(np.array(input_args['Object4'], dtype='int'))
 
 object_names = list()
 object_names.append(input_args['ObjectName1'])
 object_names.append(input_args['ObjectName2'])
+object_names.append(input_args['ObjectName3'])
+object_names.append(input_args['ObjectName4'])
 
 doPlot = input_args['doPlot']
 
@@ -64,6 +68,8 @@ doPlot = input_args['doPlot']
 
 data = dict()
 for i, obj in enumerate(objects):
+    if obj is None:
+        continue
 
     object_name = object_names[i]
 
@@ -73,6 +79,8 @@ for i, obj in enumerate(objects):
     object_num = object_ids.shape[0]
 
     for j, image in enumerate(images):
+        if image is None:
+            continue
 
         image_name = image_names[j]
         ### measure object properties

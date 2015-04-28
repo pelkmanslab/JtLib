@@ -50,7 +50,10 @@ doPlot = input_args['doPlot']
 
 images = list()
 for f in image_filenames:
-  images.append(np.array(misc.imread(f), dtype='float64'))
+    if f is None:
+        images.append(None)
+        continue
+    images.append(np.array(misc.imread(f), dtype='float64'))
 
 
 #####################
@@ -90,10 +93,10 @@ if doPlot:
 ####################
 
 output_args = dict()
-output_args['Image1'] = images[0]
-output_args['Image2'] = images[1]
-output_args['Image3'] = images[2]
-output_args['Image4'] = images[3]
+for i, image in images:
+    if image is None:
+        continue
+    output_args['Image%d' % i] = image
 
 data = dict()
 

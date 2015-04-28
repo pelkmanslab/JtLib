@@ -14,6 +14,18 @@ input:
       type: ndarray
       help: 'Name of the objects in the segmentation image.'
 
+    - name: ObjectName3
+      class: parameter
+      value: 
+      type: ndarray
+      help: 'Name of the objects in the segmentation image.'
+
+    - name: ObjectName4
+      class: parameter
+      value: 
+      type: ndarray
+      help: 'Name of the objects in the segmentation image.'
+
     - name: SegmentationDirectory
       class: parameter
       value: 
@@ -36,5 +48,13 @@ output:
       value: 
 
     - name: Objects2
+      class: hdf5_location
+      value: 
+
+    - name: Objects3
+      class: hdf5_location
+      value: 
+
+    - name: Objects4
       class: hdf5_location
       value: 

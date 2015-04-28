@@ -40,6 +40,8 @@ input_args = checkinputargs(input_args)
 object_names = list()
 object_names.append(input_args['ObjectName1'])
 object_names.append(input_args['ObjectName2'])
+object_names.append(input_args['ObjectName3'])
+object_names.append(input_args['ObjectName4'])
 
 ref_filename = input_args['ReferenceFilename']
 segmentation_folder = input_args['SegmentationDirectory']
@@ -58,6 +60,9 @@ if filename_match is None:
 
 segmentation_filenames = list()
 for obj in object_names:
+    if obj is None:
+        segmentation_filenames.append(None)
+        continue
 
     filenames = glob.glob(os.path.join(os.getcwd(),
                           segmentation_folder, '*%s*_segmented%s.png'
@@ -74,6 +79,9 @@ for obj in object_names:
 ### load segmentation images
 segmentations = list()
 for f in segmentation_filenames:
+    if f is None:
+        segmentations.append(None)
+        continue
     segmentations.append(np.array(misc.imread(f), dtype='int'))
     segmentations.append(np.array(misc.imread(f), dtype='int'))
 
@@ -113,8 +121,10 @@ if doPlot:
 data = dict()
 
 output_args = dict()
-output_args['Objects1'] = segmentations[0]
-output_args['Objects2'] = segmentationa[1]
+for i, image in enumerate(segmentations):
+    if image is None:
+        continue
+    output_args['Objects%d' % i] = image
 
 
 ###############################################################################
