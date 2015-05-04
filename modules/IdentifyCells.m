@@ -615,6 +615,9 @@ else
   CellBoundary = [0,0];
 end
 
+% Get indices of cells at the border of images
+BorderIds = []
+
 
 %%%%%%%%%%%%%%%%%%%%%
 %% display results %%

@@ -133,6 +133,16 @@ if ~isempty(FillImage)
         %%% Smooth image to avoid problems with bwtraceboundary.m
         SmoothDisk = getnhood(strel('disk', FilterSize, 0));
         Objects2Cut = bwlabel(imdilate(imerode(Objects2Cut, SmoothDisk), SmoothDisk));
+
+        % In rare cases the above smoothing approach creates new, small
+        % objects that cause problems. Let's remove them.
+        props = regionprops(logical(Objects2Cut), 'Area');
+        objArea2 = cat(1, props.Area);
+        obj2remove = find(objArea2 < MinArea);
+        for j = 1:length(obj2remove)
+            Objects2Cut(Objects2Cut == obj2remove(j)) = 0;
+        end
+        Objects2Cut = bwlabel(Objects2Cut);
         
         %%% Separate clumped objects along watershed lines
 
