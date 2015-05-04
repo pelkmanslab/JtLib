@@ -134,7 +134,7 @@ if ~isempty(FillImage)
         SmoothDisk = getnhood(strel('disk', FilterSize, 0));
         Objects2Cut = bwlabel(imdilate(imerode(Objects2Cut, SmoothDisk), SmoothDisk));
 
-        % In rare cases the above smoothing approach creates new, small
+        % In rare cases, the above smoothing approach creates new, small
         % objects that cause problems. Let's remove them.
         props = regionprops(logical(Objects2Cut), 'Area');
         objArea2 = cat(1, props.Area);
@@ -155,6 +155,11 @@ if ~isempty(FillImage)
                 
         %%% Perform perimeter analysis
         PerimeterProps = PerimeterAnalysis(Objects2Cut, SlidingWindow);
+
+        % In rare cases, there may be a unreasonable large number of concave
+        % regions, which may cause runtime problems. Let's limit the number of
+        % maximally allowed regions.
+        AllowedRegions = 30;
         
         %%% Perform the actual segmentation        
         CutMask(:,:,i) = PerimeterWatershedSegmentation(Objects2Cut, ...
@@ -162,7 +167,8 @@ if ~isempty(FillImage)
                                                         PerimeterProps, ...
                                                         MaxConcaveRadius, ...
                                                         degtorad(CircularSegment), ...
-                                                        MinCutArea);
+                                                        MinCutArea,
+                                                        AllowedRegions);
         ObjectsCut(:,:,i) = bwlabel(Objects2Cut .* ~CutMask(:,:,i));
         
     end
