@@ -1,8 +1,8 @@
-function CutMask = PerimeterWatershedSegmentation(LabelImage,IntensityImage,PerimeterTrace,MaxEqivRadius,MinEquivAngle,ObjSizeThres,varargin)
+function CutMask = PerimeterWatershedSegmentation(LabelImage,IntensityImage,PerimeterTrace,MaxEqivRadius,MinEquivAngle,ObjSizeThres,numRegionThreshold,varargin)
 %PERIMETERWATERSHEDSEGMENTATION separates clumped objects along watershed
 %lines between concave regions.
 %
-%   CUTMASK=PERIMETERWATERSHEDSEGMENTATION(LABELIMAGE,INTENSITYIMAGE,PERIMETERTRACE,MAXEQIVRADIUS,MINEQIVANGLE,OBJSIZETHRES,ANLGEMETHOD,SELECTIONMETHOD,NODESNUM)
+%   CUTMASK=PERIMETERWATERSHEDSEGMENTATION(LABELIMAGE,INTENSITYIMAGE,PERIMETERTRACE,MAXEQIVRADIUS,MINEQIVANGLE,OBJSIZETHRES,NUMREGIONTHRESHOLD)
 %   separates objects in LABELIMAGE along watershed lines determined in INTENSITYIMAGE
 %   between concave regions specified by PERIMETERTRACE. Note that all image operations 
 %   are carried out on small 'mini' images the size of each object's bounding box. 
@@ -22,6 +22,9 @@ function CutMask = PerimeterWatershedSegmentation(LabelImage,IntensityImage,Peri
 %
 %   OBJSIZETHRES is the minimal size cut objects should have. Potential cut lines
 %   will be discarded in case the resulting objects would fall below this threshold.
+%
+%   NUMREGIONTHRESHOLD is the maximally allowed number of concave regions.
+%   Objects that have more concave regions than this value are not processed!
 %
 %   Optional input arguments: 'debugON' command results in the display of all intermediate
 %   processing steps (selected pixels within concave regions -> green points,
@@ -109,6 +112,11 @@ if ~isempty(ObjectIDs)
             propsConcaveRegion(j,12) = length(NormCurvature)/sum(NormCurvature);%EQUIVALENT RADIUS
             propsConcaveRegion(j,13) = j;%save region ID so we can later quickly refer to information in CurrentPreimProps (see start of loop)
             pixelsConcaveRegions{j} = propsCurrentRegion(:,1:2);
+        end
+
+        if size(propsConcaveRegion, 1) > numRegionThreshold
+            fprintf('%s: object # %d skipped because it has too many concave regions\n', mfilename, i)
+            continue
         end
 
         %% Select concave regions meeting the Radius/Angle criteria
@@ -231,6 +239,7 @@ if ~isempty(ObjectIDs)
             if debug
                 [I, J] = find(imCurrentLines>0);
                 figure(h), imagesc(padInt)
+                title(sprintf('Object # %d', i))
                 colormap(gray)
                 freezeColors
                 hold on
@@ -260,6 +269,7 @@ if ~isempty(ObjectIDs)
                 if debug
                     % Display selected regions over intensity image
                     figure(h),imagesc(padInt)
+                    title(sprintf('Object # %d', i))
                     colormap(gray)
                     hold on
                     scatter(miniCutCoordList(:,2), miniCutCoordList(:,1), 2000, 'g', '.');
@@ -269,6 +279,7 @@ if ~isempty(ObjectIDs)
                     % Display selected nodes over intensity image
                     SelectedNodeCoordList = NodeCoordList(ClosestNodesIndex,:);
                     figure(h),imagesc(padInt)
+                    title(sprintf('Object # %d', i))
                     colormap(gray)
                     hold on
                     scatter(SelectedNodeCoordList(:,2), SelectedNodeCoordList(:,1), 2000, 'r', '.');
@@ -464,6 +475,7 @@ if ~isempty(ObjectIDs)
                         [I, J] = find(logical(AllLinesImage));
                         
                         figure(h), imagesc(padInt)
+                        title(sprintf('Object # %d', i))
                         colormap(gray)
                         hold on
                         scatter(J, I, 150, 'y', 's', 'MarkerFaceColor', 'y')
@@ -519,6 +531,7 @@ if ~isempty(ObjectIDs)
                     BestLineImage(AllLines(BestLinesIndex(1)).lineimage>0) = 1;
                     [I, J] = find(logical(BestLineImage));
                     figure(h),imagesc(padInt)
+                    title(sprintf('Object # %d', i))
                     colormap(gray)
                     hold on
                     scatter(J, I, 150, 'y', 's', 'MarkerFaceColor','y')
