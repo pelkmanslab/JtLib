@@ -2,97 +2,94 @@ import os
 import sys
 import re
 import glob
-import numpy as np
-from scipy import misc
+from os.path import join
+# import numpy as np
+# from scipy import misc
 import matplotlib.pyplot as plt
+import mahotas as mh
 # from mpl_toolkits.axes_grid1 import make_axes_locatable
 import mpld3
 from jtapi import *
-from jtsubfunctions import microscope_type
+from jtlib import file_util, aligncycles
 
 
-mfilename = re.search('(.*).py', os.path.basename(__file__)).group(1)
+##############
+# read input #
+##############
 
-###############################################################################
-## jterator input
-
-print('jt - %s:' % mfilename)
-
-### standard input
+# jterator api
 handles_stream = sys.stdin
-
-### retrieve handles from .YAML files
 handles = gethandles(handles_stream)
-
-### read input arguments from .HDF5 files
 input_args = readinputargs(handles)
-
-### check whether input arguments are valid
 input_args = checkinputargs(input_args)
 
-###############################################################################
-
-
-####################
-## input handling ##
-####################
-
 object_names = list()
-object_names.append(input_args['ObjectName1'])
-object_names.append(input_args['ObjectName2'])
-object_names.append(input_args['ObjectName3'])
-object_names.append(input_args['ObjectName4'])
+for i in range(1, 4+1):
+    currentObject = 'ObjectName%s' % i
+    if currentObject in input_args:
+        object_names.append(input_args[currentObject])
 
 ref_filename = input_args['ReferenceFilename']
 segmentation_folder = input_args['SegmentationDirectory']
-doPlot = input_args['doPlot']
+do_shift = input_args['Shift']
+shift_descriptor_filename = input_args['ShiftDescriptor']
+do_plot = input_args['Plot']
 
 
-################
-## processing ##
-################
+##############
+# processing #
+##############
 
-### determine filenames of segmentation images
-(microscope, pattern) = microscope_type(ref_filename)
-filename_match = re.search(pattern, ref_filename).group(1)
-if filename_match is None:
+if do_shift:
+    # load shift descriptor file
+    shift_descriptor_filename = join(handles['project_path'],
+                                     shift_descriptor_filename)
+    shift_descriptor = aligncycles.load_shift_descriptor(shift_descriptor_filename)
+
+    # use segmentation directory stored in shift descriptor
+    segmentation_folder = shift_descriptor['SegmentationDirectory']
+
+# determine filenames of segmentation images
+(microscope, pattern) = file_util.get_microscope_type(ref_filename)
+filename_identifier = re.search(pattern, ref_filename).group(1)
+if not filename_identifier:
     raise Exception('Pattern doesn\'t match reference filename.')
 
 segmentation_filenames = list()
 for obj in object_names:
-    if obj is None:
+    if not obj:
         segmentation_filenames.append(None)
         continue
 
-    filenames = glob.glob(os.path.join(os.getcwd(),
-                          segmentation_folder, '*%s*_segmented%s.png'
-                          % (filename_match, obj)))
+    wildcard_string = join(handles['project_path'], segmentation_folder,
+                           '*%s*_segmented%s.png' % (filename_identifier, obj))
+
+    filenames = glob.glob(wildcard_string)
 
     if len(filenames) == 0:
-        raise Exception('No file found that matches reference pattern.')
+        raise Exception('No file found that matches %s.' % wildcard_string)
     elif len(filenames) > 1:
-        raise Exception('Several files found that match reference pattern.')
+        raise Exception('Several files found that match %s.' % wildcard_string)
     else:
         segmentation_filenames.append(filenames[0])
 
-
-### load segmentation images
+# load segmentation images
 segmentations = list()
 for f in segmentation_filenames:
-    if f is None:
+    if not f:
         segmentations.append(None)
         continue
-    segmentations.append(np.array(misc.imread(f), dtype='int'))
-    segmentations.append(np.array(misc.imread(f), dtype='int'))
+    # segmentations.append(np.array(misc.imread(f), dtype='int'))
+    segmentations.append(mh.imread(f))
 
 
-#####################
-## display results ##
-#####################
+###################
+# display results #
+###################
 
-if doPlot:
+if do_plot:
 
-    fig = plt.figure(figsize=(12, 12))
+    fig = plt.figure(figsize=(10, 10))
     ax1 = fig.add_subplot(1, 2, 1, adjustable='box', aspect=1)
     ax2 = fig.add_subplot(1, 2, 2, adjustable='box', aspect=1)
 
@@ -104,19 +101,12 @@ if doPlot:
 
     fig.tight_layout()
 
-    # Save figure as html file and open it in the browser
-    fid = h5py.File(handles['hdf5_filename'], 'r')
-    jobid = fid['jobid'][()]
-    fid.close()
-    figure_name = os.path.abspath('figures/%s_%05d.html' % (mfilename, jobid))
-
+    figure_name = '%s.html' % handles['figure_filename']
     mpld3.save_html(fig, figure_name)
-    figure2browser(figure_name)
 
-
-####################
-## prepare output ##
-####################
+################
+# write output #
+################
 
 data = dict()
 
@@ -124,16 +114,8 @@ output_args = dict()
 for i, image in enumerate(segmentations):
     if image is None:
         continue
-    output_args['Objects%d' % i] = image
+    output_args['Objects%d' % (i+1)] = image
 
-
-###############################################################################
-## jterator output
-
-### write measurement data to HDF5
+# jterator api
 writedata(handles, data)
-
-### write temporary pipeline data to HDF5
 writeoutputargs(handles, output_args)
-
-###############################################################################

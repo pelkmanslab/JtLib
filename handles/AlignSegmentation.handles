@@ -1,30 +1,23 @@
-hdf5_filename: None
-
-
 input:
 
     - name: InputImage1
       class: hdf5_location
       value: 
-      type: ndarray
       help: 'Mask image that should be aligned.'
 
     - name: InputImage2
       class: hdf5_location
       value: 
-      type: ndarray
       help: 'Mask image that should be aligned.'
 
     - name: InputImage3
       class: hdf5_location
       value: 
-      type: ndarray
       help: 'Mask image that should be aligned.'
 
     - name: InputImage4
       class: hdf5_location
       value: 
-      type: ndarray
       help: 'Mask image that should be aligned.'
 
     - name: ShiftDescriptor
@@ -40,7 +33,7 @@ input:
       value: 
       help: 'Filename of the image, which was used for image registration.'
 
-    - name: doPlot
+    - name: Plot
       class: parameter
       value: No  # no plotting by default
       help: 'Do you want to plot the results?'

@@ -1,41 +1,53 @@
-AlignImages:
-    handles: (__libpath__)/handles/AlignImages.handles
-    module: (__libpath__)/modules/AlignImages.py
+AlignImage:
+    handles: handles/AlignImage.handles
+    module: '{libpath}/modules/AlignImage.py'
     interpreter: python
     active: true
 
 AlignSegmentation:
-    handles: (__libpath__)/handles/AlignSegmentation.handles
-    module: (__libpath__)/modules/AlignSegmentation.py
+    handles: handles/AlignSegmentation.handles
+    module: '{libpath}/modules/AlignSegmentation.py'
+    interpreter: python
+    active: true
+
+IllumCorrectImage:
+    handles: handles/IllumCorrectImage.handles
+    module: '{libpath}/modules/IllumCorrectImage.py'
     interpreter: python
     active: true
 
 IdentifyCells:
-    handles: (__libpath__)/handles/IdentifyCells.handles
-    module: (__libpath__)/modules/IdentifyCells.m
+    handles: handles/IdentifyCells.handles
+    module: '{libpath}/modules/IdentifyCells.m'
     interpreter: Mscript
     active: true
 
 IdentifyNuclei:
-    handles: (__libpath__)/handles/IdentifyNuclei.handles
-    module: (__libpath__)/modules/IdentifyNuclei.m
+    handles: handles/IdentifyNuclei.handles
+    module: '{libpath}/modules/IdentifyNuclei.m'
     interpreter: Mscript
     active: true
 
 LoadImages:
-    handles: (__libpath__)/handles/LoadImages.handles
-    module: (__libpath__)/modules/LoadImages.py
+    handles: handles/LoadImages.handles
+    module: '{libpath}/modules/LoadImages.py'
     interpreter: python
     active: true
 
 LoadSegmentation:
-    handles: (__libpath__)/handles/LoadSegmentation.handles
-    module: (__libpath__)/modules/LoadSegmentation.py
+    handles: handles/LoadSegmentation.handles
+    module: '{libpath}/modules/LoadSegmentation.py'
+    interpreter: python
+    active: true
+
+MeasureAreaShape:
+    handles: handles/MeasureAreaShape.handles
+    module: '{libpath}/modules/MeasureAreaShape.py'
     interpreter: python
     active: true
 
 MeasureIntensity:
-    handles: (__libpath__)/handles/MeasureIntensity.handles
-    module: (__libpath__)/modules/MeasureIntensity.py
+    handles: handles/MeasureIntensity.handles
+    module: '{libpath}/modules/MeasureIntensity.py'
     interpreter: python
     active: true

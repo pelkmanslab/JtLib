@@ -1,46 +1,28 @@
 import jtapi.*;
-import jtsubfunctions.*;
+import jtlib.*;
+import os.*;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% jterator input
 
-fprintf(sprintf('jt - %s:\n', mfilename));
+%%%%%%%%%%%%%%
+% read input %
+%%%%%%%%%%%%%%
 
-%%% read standard input
-handles_stream = input_stream;
-
-%%% change current working directory
-cd(currentDirectory)
-
-%%% retrieve handles from .YAML files
-handles = gethandles(handles_stream);
-
-%%% read input arguments from .HDF5 files
+% jterator api
+handles = gethandles(STDIN);
 input_args = readinputargs(handles);
-
-%%% check whether input arguments are valid
 input_args = checkinputargs(input_args);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+InputImage = input_args.IntensityImage;
 
-
-%%%%%%%%%%%%%%%%%%%%
-%% input handling %%
-%%%%%%%%%%%%%%%%%%%%
-
-InputImage = input_args.CorrImage;
-
-%%% Input arguments for object smoothing by median filtering
-doSmooth = input_args.doSmooth;
+% Parameters for object smoothing by median filtering
+doSmooth = input_args.Smooth;
 SmoothingFilterSize = input_args.SmoothingFilterSize;
 
-%%% Input arguments for identifying objects by intensity threshold
+% Parameters for identifying objects by intensity threshold
 ThresholdCorrection = input_args.ThresholdCorrection;
-ThresholdMethod = input_args.ThresholdMethod;
 MininumThreshold = input_args.MininumThreshold;
-pObject = input_args.pObject;
 
-%%% Input arguments for cutting clumped objects
+% Parameters for cutting clumped objects
 CuttingPasses = input_args.CuttingPasses;
 FilterSize = input_args.FilterSize;
 SlidingWindow = input_args.SlidingWindow;
@@ -51,24 +33,23 @@ MaxSolidity = input_args.MaxSolidity;
 MinArea = input_args.MinArea;
 MinCutArea = input_args.MinCutArea;
 MinFormFactor = input_args.MinFormFactor;
-SelectionMethod = input_args.SelectionMethod;
 
-%%% Input arguments for plotting segmentation results
-doPlot = input_args.doPlot;
+% Parameters for plotting segmentation results
+doPlot = input_args.Plot;
 % doTestModePerimeter = input_args.doTestModePerimeter;
 % doTestModeShape = input_args.doTestModeShape;
 
-%%% Input arguments for saving segmented images
-doSaveSegmentedImage = input_args.doSaveSegmentedImage;
-OrigImageFilename = input_args.OrigImageFilename;
+% Input arguments for saving segmented images
+do_SaveSegmentedImage = input_args.SaveSegmentedImage;
+InputImageFilename = input_args.IntensityImageFilename;
 SegmentationPath = input_args.SegmentationPath;
 
 
-%%%%%%%%%%%%%%%%
-%% processing %%
-%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%
+% processing %
+%%%%%%%%%%%%%%
 
-%%% Smooth image
+%% Smooth image
 if doSmooth
     SmoothedImage = SmoothImage(InputImage, SmoothingFilterSize);
 else
@@ -80,7 +61,7 @@ ThresholdMethod = 'Otsu Global';
 MaximumThreshold = 2^16;
 pObject = 10;
 
-%%% Calculate threshold
+% Calculate threshold
 threshhold = ImageThreshold(ThresholdMethod, ...
                             pObject, ...
                             MininumThreshold, ...
@@ -89,11 +70,11 @@ threshhold = ImageThreshold(ThresholdMethod, ...
                             SmoothedImage, ...
                             []);
 
-%%% Threshold intensity image to detect objects
+% Threshold intensity image to detect objects
 ThreshImage = zeros(size(SmoothedImage), 'double');
 ThreshImage(SmoothedImage > threshhold) = 1;
 
-%%% Fill holes in objects
+% Fill holes in objects
 FillImage = imfill(double(ThreshImage),'holes');
 
 
@@ -117,7 +98,7 @@ if ~isempty(FillImage)
             Objects = ObjectsCut(:,:,i-1);
         end
         
-        %%% Select objects for cutting
+        % Select objects for cutting
         thresholds = struct();
         thresholds.Solidity = MaxSolidity;
         thresholds.FormFactor = MinFormFactor;
@@ -130,7 +111,7 @@ if ~isempty(FillImage)
         % Cut objects
         %------------
         
-        %%% Smooth image to avoid problems with bwtraceboundary.m
+        % Smooth image to avoid problems with bwtraceboundary.m
         SmoothDisk = getnhood(strel('disk', FilterSize, 0));
         Objects2Cut = bwlabel(imdilate(imerode(Objects2Cut, SmoothDisk), SmoothDisk));
 
@@ -144,7 +125,7 @@ if ~isempty(FillImage)
         end
         Objects2Cut = bwlabel(Objects2Cut);
         
-        %%% Separate clumped objects along watershed lines
+        % Separate clumped objects along watershed lines
 
         % PerimeterAnalysis currently cannot handle holes in objects (we may
         % want to implement this in case of big clumps of many objects).
@@ -153,7 +134,7 @@ if ~isempty(FillImage)
         % maximal size of the sliding window and thus sensitivity of the
         % perimeter analysis.
                 
-        %%% Perform perimeter analysis
+        % Perform perimeter analysis
         PerimeterProps = PerimeterAnalysis(Objects2Cut, SlidingWindow);
 
         % In rare cases, there may be a unreasonable large number of concave
@@ -161,13 +142,13 @@ if ~isempty(FillImage)
         % maximally allowed regions.
         AllowedRegions = 30;
         
-        %%% Perform the actual segmentation        
+        % Perform the actual segmentation        
         CutMask(:,:,i) = PerimeterWatershedSegmentation(Objects2Cut, ...
                                                         SmoothedImage, ...
                                                         PerimeterProps, ...
                                                         MaxConcaveRadius, ...
                                                         degtorad(CircularSegment), ...
-                                                        MinCutArea,
+                                                        MinCutArea, ...
                                                         AllowedRegions);
         ObjectsCut(:,:,i) = bwlabel(Objects2Cut .* ~CutMask(:,:,i));
         
@@ -179,7 +160,7 @@ if ~isempty(FillImage)
 
     AllCut = logical(ObjectsCut(:,:,end) + sum(ObjectsNotCut(:,:,2:end), 3));
     
-    %%% Retrieve objects that were not cut (or already cut)
+    % Retrieve objects that were not cut (or already cut)
     AllNotCut = logical(sum(ObjectsNotCut, 3));
     IdentifiedNuclei = bwlabel(logical(ObjectsCut(:,:,end) + AllNotCut));
 
@@ -189,7 +170,7 @@ else
      
 end
 
-%%% Remove small objects that fall below area threshold
+%% Remove small objects that fall below area threshold
 area = regionprops(logical(IdentifiedNuclei), 'Area');
 area = cat(1, area.Area);
 for i = 1:length(area)
@@ -198,23 +179,23 @@ for i = 1:length(area)
     end
 end
 
-%%% Re-label objects
+%% Re-label objects
 IdentifiedNuclei = bwlabel(logical(IdentifiedNuclei));
 
 
 %% Make some default measurements
 
-%%% Calculate object counts
+% Calculate object counts
 NucleiCount = max(unique(IdentifiedNuclei));
 
-%%% Calculate cell centroids
+% Calculate cell centroids
 tmp = regionprops(logical(IdentifiedNuclei), 'Centroid');
 NucleiCentroid = cat(1, tmp.Centroid);
 if isempty(NucleiCentroid)
     NucleiCentroid = [0 0];   % follow CP's convention to save 0s if no object
 end
 
-%%% Calculate cell boundary
+% Calculate cell boundary
 if NucleiCount > 0
     NucleiBorderPixel = bwboundaries(IdentifiedNuclei);
     NucleiBorderPixel = NucleiBorderPixel{1}(1:end-1, :);
@@ -226,12 +207,14 @@ else
    NucleiBoundary = [0 0]; 
 end
 
+% Get indices of nuclei at the border of images
+BorderIds = GetBorderObjects(IdentifiedNuclei);
 
-%%%%%%%%%%%%%%%%%%%%%
-%% display results %%
-%%%%%%%%%%%%%%%%%%%%%
 
-        
+%%%%%%%%%%%%%%%%%%%
+% display results %
+%%%%%%%%%%%%%%%%%%%
+       
 if doPlot
 
     B = bwboundaries(AllCut, 'holes');
@@ -268,25 +251,22 @@ if doPlot
     title('Separated objects');
     freezeColors
 
-    %%% Save figure as pdf
-    jobid = h5varget(handles.hdf5_filename, 'jobid');
-    figure_filename = sprintf('figures/%s_%.5d.pdf', mfilename, jobid);
-    set(fig, 'PaperPosition', [0 0 7 7], 'PaperSize', [7 7]);
+    % Save figure as pdf
+    figure_filename = sprintf('%s.png', handles.figure_filename);
+    set(fig, 'PaperPosition', [0 0 5 5], 'PaperSize', [5 5]);
     saveas(fig, figure_filename);
-
-    %%% Save also as Matlab figure to explore details
-    savefig(fig, strrep(figure_filename, '.pdf', '.fig'));
 
 end
 
 
-%%%%%%%%%%%%%%%%%%
-%% save results %%
-%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%
+% save results %
+%%%%%%%%%%%%%%%%
 
-if doSaveSegmentedImage
-    SegmentationFilename = strrep(os.path.basename(OrigImageFilename), ...
+if do_SaveSegmentedImage
+    SegmentationFilename = strrep(os.path.basename(InputImageFilename), ...
                                   '.png', '_segmentedNuclei.png');
+    SegmentationPath = fullfile(handles.project_path, SegmentationPath);
     SegmentationFilename = fullfile(SegmentationPath, SegmentationFilename);
     if ~isdir(SegmentationPath)
         mkdir(SegmentationPath)
@@ -297,27 +277,19 @@ if doSaveSegmentedImage
 end
 
 
-%%%%%%%%%%%%%%%%%%%%
-%% prepare output %%
-%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%
+% write output %
+%%%%%%%%%%%%%%%%
 
-%%% Structure output arguments for later storage in the .HDF5 file
 data = struct();
 data.Nuclei_Count = NucleiCount;
 data.Nuclei_Centroids = NucleiCentroid;
 data.Nuclei_Boundary = NucleiBoundary;
+data.Nuclei_BorderIds = BorderIds;
 
 output_args = struct();
 output_args.Nuclei = IdentifiedNuclei;
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% jterator output
-
-%%% write measurement data to HDF5
+% jterator api
 writedata(handles, data);
-
-%%% write temporary pipeline data to HDF5
 writeoutputargs(handles, output_args);
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

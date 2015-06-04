@@ -1,0 +1,31 @@
+input:
+
+    - name: InputImage
+      class: hdf5_location
+      value: 
+      type: ndarray
+      help: 'Intensity image that should be aligned.'
+
+    - name: ShiftDescriptor
+      class: parameter
+      value: 
+      help: 'Relative path to the shiftDescriptor.json file.'
+
+    - name: ReferenceFilename
+      # We use the filename of the image, which was used for image registration
+      # to double-check that we are using the correct index.
+      class: hdf5_location
+      value: 
+      help: 'Filename of the image, which was used for image registration.'
+
+    - name: Plot
+      class: parameter
+      value: No  # no plotting by default
+      help: 'Do you want to plot the results?'
+
+
+output:
+
+    - name: AlignedImage
+      class: hdf5_location
+      value:

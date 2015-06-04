@@ -1,104 +1,62 @@
-import os
+from os.path import join
 import sys
-import re
-import json
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 import mpld3
 from jtapi import *
-from jtsubfunctions import microscope_type
+from jtlib import aligncycles
 
 
-mfilename = re.search('(.*).py', os.path.basename(__file__)).group(1)
+##############
+# read input #
+##############
 
-###############################################################################
-## jterator input
-
-print('jt - %s:' % mfilename)
-
-### standard input
+# jterator api
 handles_stream = sys.stdin
-
-### retrieve handles from .YAML files
 handles = gethandles(handles_stream)
-
-### read input arguments from .HDF5 files
 input_args = readinputargs(handles)
-
-### check whether input arguments are valid
 input_args = checkinputargs(input_args)
 
-###############################################################################
-
-
-####################
-## input handling ##
-####################
-
 input_images = list()
-input_images.append(np.array(input_args['InputImage1'], dtype='float64'))
-input_images.append(np.array(input_args['InputImage2'], dtype='float64'))
-input_images.append(np.array(input_args['InputImage3'], dtype='float64'))
-input_images.append(np.array(input_args['InputImage4'], dtype='float64'))
+for i in range(1, 5):
+    im_name = 'InputImage%d' % i
+    if im_name in input_args:
+        input_images.append(np.array(input_args[im_name], dtype='float64'))
 
 shift_descriptor_filename = input_args['ShiftDescriptor']
-ref_filename = input_args['ReferenceFilename']
+reference_filename = input_args['ReferenceFilename']
+do_plot = input_args['Plot']
 
-doPlot = input_args['doPlot']
 
+##############
+# processing #
+##############
 
-################
-## processing ##
-################
+# load shift descriptor file
+shift_descriptor_filename = join(handles['project_path'],
+                                 shift_descriptor_filename)
+shift_descriptor = aligncycles.load_shift_descriptor(shift_descriptor_filename)
 
-### load shift descriptor file
-if not os.path.exists(shift_descriptor_filename):
-    raise Exception('Shift descriptor file does not exist.')
-shift_descriptor = json.load(open(shift_descriptor_filename))
+# find the correct site index
+index = aligncycles.get_index_from_shift_descriptor(shift_descriptor,
+                                                    reference_filename)
 
-### find the correct site index
-# get search pattern
-(microscope, pattern) = microscope_type(ref_filename)
-filename_match = re.search(pattern, ref_filename).group(0)
-if filename_match is None:
-    raise Exception('Pattern doesn\'t match reference filename.')
-# find file that matches pattern
-i = -1
-index = list()
-for site in shift_descriptor['fileName']:
-    i += 1
-    if re.search(filename_match, site):
-        index.append(i)
-        break
-# ensure that there is only one file that matches pattern
-if len(index) == 0:
-    raise Exception('No file found that matches reference pattern.')
-elif len(index) > 1:
-    raise Exception('Several files found that match reference pattern.')
-else:
-    index = index[0]
-
-### align image (crop only - segmentation is based on reference cycle!)
-upper = shift_descriptor['upperOverlap']
-lower = shift_descriptor['lowerOverlap']
-left = shift_descriptor['leftOverlap']
-right = shift_descriptor['rightOverlap']
-
+# align image (crop only - segmentation is based on reference cycle!)
 aligned_images = list()
 for image in input_images:
-    if image is None:
-        aligned_images.append(None)
-        continue
+    cropped_image = aligncycles.shift_and_crop_image(image, shift_descriptor,
+                                                     index, crop_only=True)
     if shift_descriptor['noShiftIndex'][index] == 1:
-        aligned_images.append(np.zeros(image[lower:-(upper+1), right:-(left+1)].shape))
+        aligned_images.append(np.zeros(cropped_image.shape))
     else:
-        aligned_images.append(image[lower:-(upper+1), right:-(left+1)])
+        aligned_images.append(cropped_image)
 
 # Cutting can result in inconsistent object counts, for example a nucleus
 # can be removed, but there is still some part of the cell present in the image.
 # We have to correct for such cutting artifacts.
 
-### ensure that object counts are identical and that object ids match.
+# ensure that object counts are identical and that object ids match.
 object_ids = [np.unique(image[image != 0]) for image in aligned_images]
 object_counts = [len(objects) for objects in object_ids]
 ix = np.argsort(object_counts)
@@ -127,62 +85,61 @@ for i, label in enumerate(a_ix):
 original_ids = a_ix
 
 
-#####################
-## display results ##
-#####################
+###################
+# display results #
+###################
 
+if do_plot:
 
-if doPlot:
+    fig = plt.figure(figsize=(10, 10))
 
-    fig = plt.figure(figsize=(12, 12))
     ax1 = fig.add_subplot(2, 2, 1)
     ax2 = fig.add_subplot(2, 2, 2)
     ax3 = fig.add_subplot(2, 2, 3)
     ax4 = fig.add_subplot(2, 2, 4)
 
     im1 = ax1.imshow(input_images[0])
-    ax1.set_title('Original segmentation', size=20)
+    ax1.set_title('Original', size=20)
+    divider = make_axes_locatable(ax1)
+    cax = divider.append_axes("right", size="5%", pad=0.05)
+    fig.colorbar(im1, cax=cax)
 
     im2 = ax2.imshow(output_images[0])
-    ax2.set_title('Aligned segmentation', size=20)
+    ax2.set_title('Aligned', size=20)
+    divider = make_axes_locatable(ax2)
+    cax = divider.append_axes("right", size="5%", pad=0.05)
+    fig.colorbar(im2, cax=cax)
 
     im3 = ax3.imshow(input_images[1])
-    ax3.set_title('Original segmentation', size=20)
+    ax3.set_title('Original', size=20)
+    divider = make_axes_locatable(ax3)
+    cax = divider.append_axes("right", size="5%", pad=0.05)
+    fig.colorbar(im3, cax=cax)
 
     im4 = ax4.imshow(output_images[1])
-    ax4.set_title('Aligned segmentation', size=20)
+    ax4.set_title('Aligned', size=20)
+    divider = make_axes_locatable(ax4)
+    cax = divider.append_axes("right", size="5%", pad=0.05)
+    fig.colorbar(im4, cax=cax)
 
     fig.tight_layout()
 
     # Save figure as html file and open it in the browser
-    fid = h5py.File(handles['hdf5_filename'], 'r')
-    jobid = fid['jobid'][()]
-    fid.close()
-    figure_name = os.path.abspath('figures/%s_%05d.html' % (mfilename, jobid))
-
+    figure_name = '%s.html' % handles['figure_filename']
     mpld3.save_html(fig, figure_name)
-    figure2browser(figure_name)
 
 
-####################
-## prepare output ##
-####################
+################
+# write output #
+################
 
 output_args = dict()
-output_args['AlignedImage1'] = output_images[0]
-output_args['AlignedImage2'] = output_images[1]
+for i, image in enumerate(output_images):
+    output_args['AlignedImage%d' % (i+1)] = image
 
 data = dict()
 data['OriginalObjectIds'] = original_ids
 
-
-###############################################################################
-## jterator output
-
-### write measurement data to HDF5
+# jterator api
 writedata(handles, data)
-
-### write temporary pipeline data to HDF5
 writeoutputargs(handles, output_args)
-
-###############################################################################

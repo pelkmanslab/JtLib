@@ -1,106 +1,83 @@
-hdf5_filename: None
-
 input:
 
-    - name: Image1
+    - name: Image
       class: hdf5_location
       value: 
-      type: ndarray
       help: 'Intensity image that should be used for the measurements.'
 
-    - name: ImageName1
-      class: hdf5_location
+    - name: ImageName
+      class: parameter
       value: 
-      type: ndarray
-      help: 'Name of the image in the measurement output.'
-
-    - name: Image2
-      class: hdf5_location
-      value: 
-      type: ndarray
-      help: 'Intensity image that should be used for the measurements.'
-
-    - name: ImageName2
-      class: hdf5_location
-      value: 
-      type: ndarray
-      help: 'Name of the image in the measurement output.'
-
-    - name: Image3
-      class: hdf5_location
-      value: 
-      type: ndarray
-      help: 'Intensity image that should be used for the measurements.'
-
-    - name: ImageName3
-      class: hdf5_location
-      value: 
-      type: ndarray
-      help: 'Name of the image in the measurement output.'
-
-    - name: Image4
-      class: hdf5_location
-      value: 
-      type: ndarray
-      help: 'Intensity image that should be used for the measurements.'
-
-    - name: ImageName4
-      class: hdf5_location
-      value: 
-      type: ndarray
+      type: str
       help: 'Name of the image in the measurement output.'
 
     - name: Object1
       class: hdf5_location
       value: 
-      type: ndarray
       help: 'Mask image that should be used for the measurements.'
 
     - name: ObjectName1
-      class: hdf5_location
+      class: parameter
       value: 
-      type: ndarray
+      type: str
       help: 'Name of the objects in the measurement output.'
 
     - name: Object2
       class: hdf5_location
       value: 
-      type: ndarray
       help: 'Mask image that should be used for the measurements.'
 
     - name: ObjectName2
-      class: hdf5_location
+      class: parameter
       value: 
-      type: ndarray
+      type: str
       help: 'Name of the objects in the measurement output.'
 
     - name: Object3
       class: hdf5_location
       value: 
-      type: ndarray
       help: 'Mask image that should be used for the measurements.'
 
     - name: ObjectName3
-      class: hdf5_location
+      class: parameter
       value: 
-      type: ndarray
+      type: str
       help: 'Name of the objects in the measurement output.'
 
     - name: Object4
       class: hdf5_location
       value: 
-      type: ndarray
       help: 'Mask image that should be used for the measurements.'
 
     - name: ObjectName4
-      class: hdf5_location
+      class: parameter
       value: 
-      type: ndarray
+      type: str
       help: 'Name of the objects in the measurement output.'
 
-    - name: doPlot
+    - name: Hu
       class: parameter
-      value: No  # no plotting by default
+      value: false
+      help: 'Do you want to measure intensity-weighted Hu moments?'
+
+    - name: Haralick
+      class: parameter
+      value: false
+      help: 'Do you want to measure Haralick texture features?'
+
+    - name: TAS
+      class: parameter
+      value: false
+      help: 'Do you want to measure Threshold Adjacency Statistics (TAS)?'
+
+    # - name: SURF
+    #   class: parameter
+    #   value: false
+    #   help: 'Do you want to measure Speeded-Up Robust Features (SURF)?'
+
+    - name: Plot
+      class: parameter
+      value: false
       help: 'Do you want to plot the results?'
 
 output:

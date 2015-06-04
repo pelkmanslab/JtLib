@@ -1,29 +1,27 @@
-hdf5_filename: None
-
 input:
 
     - name: ObjectName1
       class: parameter
       value: 
-      type: ndarray
+      type: str
       help: 'Name of the objects in the segmentation image.'
 
     - name: ObjectName2
       class: parameter
       value: 
-      type: ndarray
+      type: str
       help: 'Name of the objects in the segmentation image.'
 
     - name: ObjectName3
       class: parameter
       value: 
-      type: ndarray
+      type: str
       help: 'Name of the objects in the segmentation image.'
 
     - name: ObjectName4
       class: parameter
       value: 
-      type: ndarray
+      type: str
       help: 'Name of the objects in the segmentation image.'
 
     - name: SegmentationDirectory
@@ -31,14 +29,26 @@ input:
       value: 
       help: 'Relative path to the folder containing the segmentation images.'
 
+    - name: Shift
+      class: parameter
+      value: False
+      help: 'Do you want to rather determine the segmentation directory from a shift descriptor file?'
+
+    - name: ShiftDescriptor
+      class: parameter
+      value: 
+      type: str
+      help: 'Relative path to the shift descriptor file.'
+
     - name: ReferenceFilename
       class: hdf5_location
       value: 
-      help: 'Filename of the image, which was used as a basename for the segmentation image files.'
+      type: str
+      help: 'Name of a reference file to identify the correct segmentation image.'
 
-    - name: doPlot
+    - name: Plot
       class: parameter
-      value: No  # no plotting by default
+      value: False  # no plotting by default
       help: 'Do you want to plot the results?'
 
 output:

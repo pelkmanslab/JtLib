@@ -1,64 +1,46 @@
 import jtapi.*;
 import plot2svg.*;
-import jtsubfunctions.*;
+import jtlib.*;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% jterator input
+%%%%%%%%%%%%%%
+% read input %
+%%%%%%%%%%%%%%
 
-fprintf(sprintf('jt - %s:\n', mfilename));
-
-%%% read standard input
-handles_stream = input_stream;
-
-%%% change current working directory
-cd(currentDirectory)
-
-%%% retrieve handles from .YAML files
-handles = gethandles(handles_stream);
-
-%%% read input arguments from .HDF5 files
+% jterator api
+handles = gethandles(STDIN);
 input_args = readinputargs(handles);
-
-%%% check whether input arguments are valid
 input_args = checkinputargs(input_args);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+InputImage = input_args.IntensityImage;
+Nuclei = input_args.SeedImage;
 
-
-%%%%%%%%%%%%%%%%%%%%
-%% input handling %%
-%%%%%%%%%%%%%%%%%%%%
-
-Nuclei = input_args.NucleiImage;
-InputImage = input_args.CelltraceImage;
-
-%%% Input arguments for object smoothing by median filtering
-doSmooth = input_args.doSmooth;
+% Input arguments for object smoothing by median filtering
+doSmooth = input_args.Smooth;
 SmoothingFilterSize = input_args.SmoothingFilterSize;
 
-%%% Input arguments for identifying objects by iterative intensity thresholding
+% Input arguments for identifying objects by iterative intensity thresholding
 ThresholdCorrection = input_args.ThresholdCorrection;
 MinimumThreshold = input_args.MinimumThreshold;
 
-%%% Input arguments for plotting segmentation results
-doPlot = input_args.doPlot;
+% Input arguments for plotting segmentation results
+do_Plot = input_args.Plot;
 
-%%% Input arguments for saving segmented images
-doSaveSegmentedImage = input_args.doSaveSegmentedImage;
-OrigImageFilename = input_args.OrigImageFilename;
+% Input arguments for saving segmented images
+do_SaveSegmentedImage = input_args.SaveSegmentedImage;
+InputImageFilename = input_args.InputImageFilename;
 SegmentationPath = input_args.SegmentationPath;
 
 
-%%%%%%%%%%%%%%%%
-%% processing %%
-%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%
+% processing %
+%%%%%%%%%%%%%%
 
-%%% Stick to CellProfiler rescaling
+% Stick to CellProfiler rescaling
 MinimumThreshold = MinimumThreshold / 2^16;
 MaximumThreshold = 1;
 InputImage = InputImage ./ 2^16;
 
-%%% Smooth image
+% Smooth image
 if doSmooth
     SmoothedImage = SmoothImage(InputImage, SmoothingFilterSize);
 else
@@ -71,7 +53,7 @@ pObject = 10;
 numThresholdsToTest = length(ThresholdCorrection);
 ThresholdArray = cell(numThresholdsToTest,1);
 
-%%% Obtain first threshold
+% Obtain first threshold
 % [TS] force to use minimal threshold value of 0 and maximum of 1, to ensure
 % equal thresholding for all tested thresholds
 ThresholdArray{1} = ImageThreshold(ThresholdMethod, ...
@@ -80,10 +62,10 @@ ThresholdArray{1} = ImageThreshold(ThresholdMethod, ...
                                    SmoothedImage, ...
                                    []);
 
-%%%% [TS] start modification for obtaining multiple thresholds %%%%%%%%%%%%%%%%%
+%% [TS] start modification for obtaining multiple thresholds %%%%%%%%%%%%%%%%%
 if numThresholdsToTest>1
    for k=2:numThresholdsToTest
-       %%% STEP 1a: Marks at least some of the background
+       % STEP 1a: Marks at least some of the background
        refThreshold = ThresholdArray{1};
        ThresholdArray{k} = refThreshold .* ThresholdCorrection(k) ./ThresholdCorrection(1);
    end
@@ -116,28 +98,28 @@ for k=1:numThresholdsToTest
    end
 end
 
-%%%% [TS] end modification for obtaining multiple thresholds %%%%%%%%%%%%%%%%%
+%% [TS] end modification for obtaining multiple thresholds %%%%%%%%%%%%%%%%%
 
 
-%%%% [TS] Start modification> DISMISS only border %%%%%%%%%%%%%%%%%%%%%%
-%%% Preliminary objects, which were not identified as object proper, still
-%%% serve as seeds for allocating pixels to secondary object. While this
-%%% makes sense for nuclei, which were discared in the primary module due to
-%%% their location at the image border (and have a surrounding cytoplasm),
-%%% it can lead to wrong segmenations, if a false positive nucleus, that was
-%%% filtered away , eg. by the DiscardSinglePixel... module , was present
+%% [TS] Start modification> DISMISS only border %%%%%%%%%%%%%%%%%%%%%%
+% Preliminary objects, which were not identified as object proper, still
+% serve as seeds for allocating pixels to secondary object. While this
+% makes sense for nuclei, which were discared in the primary module due to
+% their location at the image border (and have a surrounding cytoplasm),
+% it can lead to wrong segmenations, if a false positive nucleus, that was
+% filtered away , eg. by the DiscardSinglePixel... module , was present
 
-%%% corrsponds to one line from STEP 10, moved up. Allows proper
-%%% initialzing for reconstitution
-%%% Converts the EditedPrimaryBinaryImage to binary.
+% corrsponds to one line from STEP 10, moved up. Allows proper
+% initialzing for reconstitution
+% Converts the EditedPrimaryBinaryImage to binary.
 EditedPrimaryBinaryImage = im2bw(Nuclei,.5);
 
 % Replace the way the mask PrelimPrimaryBinaryImage is generated
-%%% Use a shared line from STEP 0. This will allow proper initializing for reconstitution.
-%%% Converts the Nuclei to binary.
-%%% OLD> PrelimPrimaryBinaryImage = im2bw(Nuclei,.5);
+% Use a shared line from STEP 0. This will allow proper initializing for reconstitution.
+% Converts the Nuclei to binary.
+% OLD> PrelimPrimaryBinaryImage = im2bw(Nuclei,.5);
 
-%%% Get IDs of objects at image border
+% Get IDs of objects at image border
 R= Nuclei([1 end],:);
 C= Nuclei(:,[1 end]);
 BoderObjIDs = unique([R C']);
@@ -154,46 +136,46 @@ f = ismember(Nuclei,BoderObjIDs) | ... % objects at border
 PrelimPrimaryBinaryImage(f) = true;
 
 
-%%%% [TS] End modification> DISMISS only border %%%%%%%%%%%%%%%%%%%%%
+%% [TS] End modification> DISMISS only border %%%%%%%%%%%%%%%%%%%%%
 
 
 
 
-%%%% [TS] %%%%%%%%%%%%% Start of SHARED code for precalculations %%%%%%%%%%%
+%% [TS] %%%%%%%%%%% Start of SHARED code for precalculations %%%%%%%%%%%
 % note that fragments of original function were replaced by TS to prevent
 % redundant calculations
 
 
-%%% Creates the structuring element that will be used for dilation.
+% Creates the structuring element that will be used for dilation.
 StructuringElement = strel('square',3);
-%%% Dilates the Primary Binary Image by one pixel (8 neighborhood).
+% Dilates the Primary Binary Image by one pixel (8 neighborhood).
 DilatedPrimaryBinaryImage = imdilate(PrelimPrimaryBinaryImage, StructuringElement);
-%%% Subtracts the PrelimPrimaryBinaryImage from the DilatedPrimaryBinaryImage,
-%%% which leaves the PrimaryObjectOutlines.
+% Subtracts the PrelimPrimaryBinaryImage from the DilatedPrimaryBinaryImage,
+% which leaves the PrimaryObjectOutlines.
 PrimaryObjectOutlines = DilatedPrimaryBinaryImage - PrelimPrimaryBinaryImage;
 
 
-%%% Calculate the sobel image, which reflects gradients, which will
-%%% be used for the watershedding function.
-%%% Calculates the 2 sobel filters.  The sobel filter is directional, so it
-%%% is used in both the horizontal & vertical directions and then the
-%%% results are combined.
+% Calculate the sobel image, which reflects gradients, which will
+% be used for the watershedding function.
+% Calculates the 2 sobel filters.  The sobel filter is directional, so it
+% is used in both the horizontal & vertical directions and then the
+% results are combined.
 filter1 = fspecial('sobel');
 filter2 = filter1';
-%%% Applies each of the sobel filters to the original image.
+% Applies each of the sobel filters to the original image.
 I1 = imfilter(SmoothedImage, filter1);
 I2 = imfilter(SmoothedImage, filter2);
-%%% Adds the two images.
-%%% The sobel operator results in negative values, so the absolute values
-%%% are calculated to prevent errors in future steps.
+% Adds the two images.
+% The sobel operator results in negative values, so the absolute values
+% are calculated to prevent errors in future steps.
 AbsSobeledImage = abs(I1) + abs(I2);
 clear I1; clear I2;              
 
-%%%% [TS] %%%%%%%%%%%%% End of SHARED code for precalculations %%%%%%%%%%%
+%% [TS] %%%%%%%%%%% End of SHARED code for precalculations %%%%%%%%%%%
 
 
 
-%%%%%% [TS] %%%%%%%%%%%%%%%  ITERATION CODE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% [TS] %%%%%%%%%%%%%  ITERATION CODE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % initialize output
 cellFinalLabelMatrixImage = cell(numThresholdsToTest,1);
@@ -202,216 +184,216 @@ cellFinalLabelMatrixImage = cell(numThresholdsToTest,1);
 for k=1:numThresholdsToTest
 
    % STEP 0
-   %%% Thresholds the original image.
+   % Thresholds the original image.
    ThresholdedOrigImage = SmoothedImage > ThresholdArray{k};
 
-   %%% STEP 1: Marks at least some of the background
+   % STEP 1: Marks at least some of the background
 
-   %%% Inverts the image.
+   % Inverts the image.
    InvertedThresholdedOrigImage = imcomplement(ThresholdedOrigImage);
    clear ThresholdedOrigImage;      
 
-   %%% STEP 2: Produce the marker image which will be used for the first
-   %%% watershed.
+   % STEP 2: Produce the marker image which will be used for the first
+   % watershed.
   
-   %%% Combines the foreground markers and the background markers.
+   % Combines the foreground markers and the background markers.
    BinaryMarkerImagePre = PrelimPrimaryBinaryImage | InvertedThresholdedOrigImage;
-   %%% Overlays the PrimaryObjectOutlines to maintain distinctions between each
-   %%% primary object and the background.
+   % Overlays the PrimaryObjectOutlines to maintain distinctions between each
+   % primary object and the background.
    BinaryMarkerImage = BinaryMarkerImagePre;
    clear BinaryMarkerImagePre;      
    BinaryMarkerImage(PrimaryObjectOutlines == 1) = 0;
 
 
-   %%% STEP 3: Perform the first watershed.
+   % STEP 3: Perform the first watershed.
   
-   %%% Overlays the foreground and background markers
+   % Overlays the foreground and background markers
    Overlaid = imimposemin(AbsSobeledImage, BinaryMarkerImage);
-   clear BinaryMarkerImage;  %%% [NB] hack. save memory.
+   clear BinaryMarkerImage;  % [NB] hack. save memory.
 
-   %%% Perform the watershed on the marked absolute-value Sobel Image.
+   % Perform the watershed on the marked absolute-value Sobel Image.
    BlackWatershedLinesPre = watershed(Overlaid);
    clear Overlaid;          
 
-   %%% Bug workaround (see step 9).
-   %%% [NB, WATERSHED BUG IN VERSION 2011A (Windows only) OR HIGHER HAS BEEN FIXED. SO CHECK VERSION FIRST]
+   % Bug workaround (see step 9).
+   % [NB, WATERSHED BUG IN VERSION 2011A (Windows only) OR HIGHER HAS BEEN FIXED. SO CHECK VERSION FIRST]
    if verLessThan('matlab', '7.12.0') && ispc()
        BlackWatershedLinesPre2 = im2bw(BlackWatershedLinesPre,.5);
        BlackWatershedLines = bwlabel(BlackWatershedLinesPre2);
 
        clear BlackWatershedLinesPre2 BlackWatershedLinesPre;
    else
-       %%% [BS, QUICK AND DIRTY HACK FROM PEKLMANS]
+       % [BS, QUICK AND DIRTY HACK FROM PEKLMANS]
        BlackWatershedLines = double(BlackWatershedLinesPre);
 
        clear BlackWatershedLinesPre;
-       %%% END OF BS-HACK BUGFIX FOR VERSION 2011 AND LATER?
+       % END OF BS-HACK BUGFIX FOR VERSION 2011 AND LATER?
    end
 
-   %%% STEP 4: Identify and extract the secondary objects, using the watershed
-   %%% lines.
+   % STEP 4: Identify and extract the secondary objects, using the watershed
+   % lines.
   
-   %%% The BlackWatershedLines image is a label matrix where the watershed
-   %%% lines = 0 and each distinct object is assigned a number starting at 1.
-   %%% This image is converted to a binary image where all the objects = 1.
+   % The BlackWatershedLines image is a label matrix where the watershed
+   % lines = 0 and each distinct object is assigned a number starting at 1.
+   % This image is converted to a binary image where all the objects = 1.
    SecondaryObjects1 = im2bw(BlackWatershedLines,.5);
    clear BlackWatershedLines;
-   %%% Identifies objects in the binary image using bwlabel.
-   %%% Note: Matlab suggests that in some circumstances bwlabeln is faster
-   %%% than bwlabel, even for 2D images.  I found that in this case it is
-   %%% about 10 times slower.
+   % Identifies objects in the binary image using bwlabel.
+   % Note: Matlab suggests that in some circumstances bwlabeln is faster
+   % than bwlabel, even for 2D images.  I found that in this case it is
+   % about 10 times slower.
    LabelMatrixImage1 = bwlabel(SecondaryObjects1,4);
    clear SecondaryObjects1;
   
 
-   %%% STEP 5: Discarding background "objects".  The first watershed function
-   %%% simply divides up the image into regions.  Most of these regions
-   %%% correspond to actual objects, but there are big blocks of background
-   %%% that are recognized as objects. These can be distinguished from actual
-   %%% objects because they do not overlap a primary object.
+   % STEP 5: Discarding background "objects".  The first watershed function
+   % simply divides up the image into regions.  Most of these regions
+   % correspond to actual objects, but there are big blocks of background
+   % that are recognized as objects. These can be distinguished from actual
+   % objects because they do not overlap a primary object.
 
-   %%% The following changes all the labels in LabelMatrixImage1 to match the
-   %%% centers they enclose (from PrelimPrimaryBinaryImage), and marks as background
-   %%% any labeled regions that don't overlap a center. This function assumes
-   %%% that every center is entirely contained in one labeled area.  The
-   %%% results if otherwise may not be well-defined. The non-background labels
-   %%% will be renumbered according to the center they enclose.
+   % The following changes all the labels in LabelMatrixImage1 to match the
+   % centers they enclose (from PrelimPrimaryBinaryImage), and marks as background
+   % any labeled regions that don't overlap a center. This function assumes
+   % that every center is entirely contained in one labeled area.  The
+   % results if otherwise may not be well-defined. The non-background labels
+   % will be renumbered according to the center they enclose.
 
-   %%% Finds the locations and labels for different regions.
+   % Finds the locations and labels for different regions.
    area_locations = find(LabelMatrixImage1);
    area_labels = LabelMatrixImage1(area_locations);
-   %%% Creates a sparse matrix with column as label and row as location,
-   %%% with the value of the center at (I,J) if location I has label J.
-   %%% Taking the maximum of this matrix gives the largest valued center
-   %%% overlapping a particular label.  Tacking on a zero and pushing
-   %%% labels through the resulting map removes any background regions.
+   % Creates a sparse matrix with column as label and row as location,
+   % with the value of the center at (I,J) if location I has label J.
+   % Taking the maximum of this matrix gives the largest valued center
+   % overlapping a particular label.  Tacking on a zero and pushing
+   % labels through the resulting map removes any background regions.
    map = [0 full(max(sparse(area_locations, area_labels, PrelimPrimaryBinaryImage(area_locations))))];
 
    ActualObjectsBinaryImage = map(LabelMatrixImage1 + 1);
    clear area_labels area_locations map;       
 
 
-   %%% STEP 6: Produce the marker image which will be used for the second
-   %%% watershed.
+   % STEP 6: Produce the marker image which will be used for the second
+   % watershed.
   
-   %%% The module has now produced a binary image of actual secondary
-   %%% objects.  The gradient (Sobel) image was used for watershedding, which
-   %%% produces very nice divisions between objects that are clumped, but it
-   %%% is too stringent at the edges of objects that are isolated, and at the
-   %%% edges of clumps of objects. Therefore, the stringently identified
-   %%% secondary objects are used as markers for a second round of
-   %%% watershedding, this time based on the original (intensity) image rather
-   %%% than the gradient image.
+   % The module has now produced a binary image of actual secondary
+   % objects.  The gradient (Sobel) image was used for watershedding, which
+   % produces very nice divisions between objects that are clumped, but it
+   % is too stringent at the edges of objects that are isolated, and at the
+   % edges of clumps of objects. Therefore, the stringently identified
+   % secondary objects are used as markers for a second round of
+   % watershedding, this time based on the original (intensity) image rather
+   % than the gradient image.
 
-   %%% Creates the structuring element that will be used for dilation.
+   % Creates the structuring element that will be used for dilation.
    StructuringElement = strel('square',3);
-   %%% Dilates the Primary Binary Image by one pixel (8 neighborhood).
+   % Dilates the Primary Binary Image by one pixel (8 neighborhood).
    DilatedActualObjectsBinaryImage = imdilate(ActualObjectsBinaryImage, StructuringElement);
-   %%% Subtracts the PrelimPrimaryBinaryImage from the DilatedPrimaryBinaryImage,
-   %%% which leaves the PrimaryObjectOutlines.
+   % Subtracts the PrelimPrimaryBinaryImage from the DilatedPrimaryBinaryImage,
+   % which leaves the PrimaryObjectOutlines.
    ActualObjectOutlines = DilatedActualObjectsBinaryImage - ActualObjectsBinaryImage;
    clear DilatedActualObjectsBinaryImage;
-   %%% Produces the marker image which will be used for the watershed. The
-   %%% foreground markers are taken from the ActualObjectsBinaryImage; the
-   %%% background markers are taken from the same image as used in the first
-   %%% round of watershedding: InvertedThresholdedOrigImage.
+   % Produces the marker image which will be used for the watershed. The
+   % foreground markers are taken from the ActualObjectsBinaryImage; the
+   % background markers are taken from the same image as used in the first
+   % round of watershedding: InvertedThresholdedOrigImage.
    BinaryMarkerImagePre2 = ActualObjectsBinaryImage | InvertedThresholdedOrigImage;
    clear InvertedThresholdedOrigImage ActualObjectsBinaryImage;
-   %%% Overlays the ActualObjectOutlines to maintain distinctions between each
-   %%% secondary object and the background.
+   % Overlays the ActualObjectOutlines to maintain distinctions between each
+   % secondary object and the background.
    BinaryMarkerImage2 = BinaryMarkerImagePre2;
    clear BinaryMarkerImagePre2;
 
    BinaryMarkerImage2(ActualObjectOutlines == 1) = 0;
 
-   %%% STEP 7: Perform the second watershed.
-   %%% As described above, the second watershed is performed on the original
-   %%% intensity image rather than on a gradient (Sobel) image.
+   % STEP 7: Perform the second watershed.
+   % As described above, the second watershed is performed on the original
+   % intensity image rather than on a gradient (Sobel) image.
   
-   %%% Inverts the original image.
+   % Inverts the original image.
    InvertedOrigImage = imcomplement(SmoothedImage);
-   %%% Overlays the foreground and background markers onto the
-   %%% InvertedOrigImage, so there are black secondary object markers on top
-   %%% of each dark secondary object, with black background.
+   % Overlays the foreground and background markers onto the
+   % InvertedOrigImage, so there are black secondary object markers on top
+   % of each dark secondary object, with black background.
    MarkedInvertedOrigImage = imimposemin(InvertedOrigImage, BinaryMarkerImage2);
    clear BinaryMarkerImage2 BinaryMarkerImage2;
 
-   %%% Performs the watershed on the MarkedInvertedOrigImage.
+   % Performs the watershed on the MarkedInvertedOrigImage.
    SecondWatershedPre = watershed(MarkedInvertedOrigImage);
    clear MarkedInvertedOrigImage;
-   %%% BUG WORKAROUND:
-   %%% There is a bug in the watershed function of Matlab that often results in
-   %%% the label matrix result having two objects labeled with the same label.
-   %%% I am not sure whether it is a bug in how the watershed image is
-   %%% produced (it seems so: the resulting objects often are nowhere near the
-   %%% regional minima) or whether it is simply a problem in the final label
-   %%% matrix calculation. Matlab has been informed of this issue and has
-   %%% confirmed that it is a bug (February 2004). I think that it is a
-   %%% reasonable fix to convert the result of the watershed to binary and
-   %%% remake the label matrix so that each label is used only once. In later
-   %%% steps, inappropriate regions are weeded out anyway.
+   % BUG WORKAROUND:
+   % There is a bug in the watershed function of Matlab that often results in
+   % the label matrix result having two objects labeled with the same label.
+   % I am not sure whether it is a bug in how the watershed image is
+   % produced (it seems so: the resulting objects often are nowhere near the
+   % regional minima) or whether it is simply a problem in the final label
+   % matrix calculation. Matlab has been informed of this issue and has
+   % confirmed that it is a bug (February 2004). I think that it is a
+   % reasonable fix to convert the result of the watershed to binary and
+   % remake the label matrix so that each label is used only once. In later
+   % steps, inappropriate regions are weeded out anyway.
 
-   %%% [NB, WATERSHED BUG IN VERSION 2011A (Windows only) OR HIGHER HAS BEEN FIXED. SO CHECK VERSION FIRST]
+   % [NB, WATERSHED BUG IN VERSION 2011A (Windows only) OR HIGHER HAS BEEN FIXED. SO CHECK VERSION FIRST]
    if verLessThan('matlab', '7.12.0') && ispc()
        SecondWatershedPre2 = im2bw(SecondWatershedPre,.5);
        SecondWatershed = bwlabel(SecondWatershedPre2);
        clear SecondWatershedPre2;
    else
-       %%% [BS, QUICK AND DIRTY HACK FROM PEKLMANS]
+       % [BS, QUICK AND DIRTY HACK FROM PEKLMANS]
        SecondWatershed = double(SecondWatershedPre);
-       %%% END OF BS-HACK BUGFIX FOR VERSION 2011 AND LATER?
+       % END OF BS-HACK BUGFIX FOR VERSION 2011 AND LATER?
    end
    clear SecondWatershedPre;
   
 
-   %%% STEP 8: As in step 7, remove objects that are actually background
-   %%% objects.  See step 7 for description. This time, the edited primary object image is
-   %%% used rather than the preliminary one, so that objects whose nuclei are
-   %%% on the edge of the image and who are larger or smaller than the
-   %%% specified size are discarded.
+   % STEP 8: As in step 7, remove objects that are actually background
+   % objects.  See step 7 for description. This time, the edited primary object image is
+   % used rather than the preliminary one, so that objects whose nuclei are
+   % on the edge of the image and who are larger or smaller than the
+   % specified size are discarded.
 
-   %%% Finds the locations and labels for different regions.
+   % Finds the locations and labels for different regions.
    area_locations2 = find(SecondWatershed);
    area_labels2 = SecondWatershed(area_locations2);
-   %%% Creates a sparse matrix with column as label and row as location,
-   %%% with the value of the center at (I,J) if location I has label J.
-   %%% Taking the maximum of this matrix gives the largest valued center
-   %%% overlapping a particular label.  Tacking on a zero and pushing
-   %%% labels through the resulting map removes any background regions.
+   % Creates a sparse matrix with column as label and row as location,
+   % with the value of the center at (I,J) if location I has label J.
+   % Taking the maximum of this matrix gives the largest valued center
+   % overlapping a particular label.  Tacking on a zero and pushing
+   % labels through the resulting map removes any background regions.
    map2 = [0 full(max(sparse(area_locations2, area_labels2, EditedPrimaryBinaryImage(area_locations2))))];
    FinalBinaryImagePre = map2(SecondWatershed + 1);
    clear SecondWatershed area_labels2 map2;
 
-   %%% Fills holes in the FinalBinaryPre image.
+   % Fills holes in the FinalBinaryPre image.
    FinalBinaryImage = imfill(FinalBinaryImagePre, 'holes');
    clear FinalBinaryImagePre;
-   %%% Converts the image to label matrix format. Even if the above step
-   %%% is excluded (filling holes), it is still necessary to do this in order
-   %%% to "compact" the label matrix: this way, each number corresponds to an
-   %%% object, with no numbers skipped.
+   % Converts the image to label matrix format. Even if the above step
+   % is excluded (filling holes), it is still necessary to do this in order
+   % to "compact" the label matrix: this way, each number corresponds to an
+   % object, with no numbers skipped.
    ActualObjectsLabelMatrixImage3 = bwlabel(FinalBinaryImage);
    clear FinalBinaryImage;
-   %%% The final objects are relabeled so that their numbers
-   %%% correspond to the numbers used for nuclei.
-   %%% For each object, one label and one label location is acquired and
-   %%% stored.
+   % The final objects are relabeled so that their numbers
+   % correspond to the numbers used for nuclei.
+   % For each object, one label and one label location is acquired and
+   % stored.
    [LabelsUsed,LabelLocations] = unique(Nuclei);
-   %%% The +1 increment accounts for the fact that there are zeros in the
-   %%% image, while the LabelsUsed starts at 1.
+   % The +1 increment accounts for the fact that there are zeros in the
+   % image, while the LabelsUsed starts at 1.
    LabelsUsed(ActualObjectsLabelMatrixImage3(LabelLocations(2:end))+1) = Nuclei(LabelLocations(2:end));
    FinalLabelMatrixImagePre = LabelsUsed(ActualObjectsLabelMatrixImage3+1);
    clear FinalBinaryImage LabelsUsed LabelLocations;
-   %%% The following is a workaround for what seems to be a bug in the
-   %%% watershed function: very very rarely two nuclei end up sharing one
-   %%% "cell" object, so that one of the nuclei ends up without a
-   %%% corresponding cell.  I am trying to determine why this happens exactly.
-   %%% When the cell is measured, the area (and other
-   %%% measurements) are recorded as [], which causes problems when dependent
-   %%% measurements (e.g. perimeter/area) are attempted.  It results in divide
-   %%% by zero errors and the mean area = NaN and so on.  So, the Primary
-   %%% label matrix image (where it is nonzero) is written onto the Final cell
-   %%% label matrix image pre so that every primary object has at least some
-   %%% pixels of secondary object.
+   % The following is a workaround for what seems to be a bug in the
+   % watershed function: very very rarely two nuclei end up sharing one
+   % "cell" object, so that one of the nuclei ends up without a
+   % corresponding cell.  I am trying to determine why this happens exactly.
+   % When the cell is measured, the area (and other
+   % measurements) are recorded as [], which causes problems when dependent
+   % measurements (e.g. perimeter/area) are attempted.  It results in divide
+   % by zero errors and the mean area = NaN and so on.  So, the Primary
+   % label matrix image (where it is nonzero) is written onto the Final cell
+   % label matrix image pre so that every primary object has at least some
+   % pixels of secondary object.
    IdentifiedCells = FinalLabelMatrixImagePre;
    clear FinalLabelMatrixImagePre;
    IdentifiedCells(Nuclei ~= 0) = Nuclei(Nuclei ~= 0);
@@ -427,14 +409,14 @@ for k=1:numThresholdsToTest
    clear IdentifiedCells; % memory==low
 
 end
-%%%% [TS] %%%%%%%%%%%%%%%%%%%%%%%%%%%%% End of iteration %%%%%%%%%%%
+%% [TS] %%%%%%%%%%%%%%%%%%%%%%%%%%% End of iteration %%%%%%%%%%%
 
 clear AbsSobeledImage;
 clear PrelimPrimaryBinaryImage;
 
 
 
-%%%% [TS] %%%%%%%%%% ABSOLUTE SEGEMENTATION  Start  %%%%%%%%%%%
+%% [TS] %%%%%%%% ABSOLUTE SEGEMENTATION  Start  %%%%%%%%%%%
 
 % this code combines knowledge of about the segementation at individual
 % thresholds to one common segmentation, which will be superior and
@@ -460,17 +442,17 @@ end
 
 % use code from spot quality control showSpotsInControl.m
 DistanceToDilate = 1;
-%%% Creates the structuring element using the user-specified size.
+% Creates the structuring element using the user-specified size.
 StructuringElementMini = strel('disk', DistanceToDilate);
-%%% Dilates the preliminary label matrix image (edited for small only).
+% Dilates the preliminary label matrix image (edited for small only).
 DilatedPrelimSecObjectLabelMatrixImageMini = imdilate(IdentifiedCells, StructuringElementMini);
-%%% Converts to binary.
+% Converts to binary.
 DilatedPrelimSecObjectBinaryImageMini = im2bw(DilatedPrelimSecObjectLabelMatrixImageMini,.5);
-%%% Computes nearest neighbor image of nuclei centers so that the dividing
-%%% line between secondary objects is halfway between them rather than
-%%% favoring the primary object with the greater label number.
+% Computes nearest neighbor image of nuclei centers so that the dividing
+% line between secondary objects is halfway between them rather than
+% favoring the primary object with the greater label number.
 [~, Labels] = bwdist(full(IdentifiedCells>0)); % We want to ignore MLint error checking for this line.
-%%% Remaps labels in Labels to labels in IdentifiedCells.
+% Remaps labels in Labels to labels in IdentifiedCells.
 if max(Labels(:)) == 0,
    Labels = ones(size(Labels));
 end
@@ -584,26 +566,26 @@ if numObjects >= 1
     end
 end
 
-%%%% [TS] %%%%%%%%%% ABSOLUTE SEGEMENTATION  End  %%%%%%%%%%%
+%% [TS] %%%%%%%% ABSOLUTE SEGEMENTATION  End  %%%%%%%%%%%
 
 
 
 %% Make some default measurements
 
-%%% Calculate object counts
+% Calculate object counts
 CellCount = max(unique(IdentifiedCells));
 
-%%% Relate 'nuclei' to 'cells'
+% Relate 'nuclei' to 'cells'
 [Parents, Children] = RelateObjects(IdentifiedCells, Nuclei);
 
-%%% Calculate cell centroids
+% Calculate cell centroids
 tmp = regionprops(logical(IdentifiedCells),'Centroid');
 CellCentroid = cat(1, tmp.Centroid);
 if isempty(CellCentroid)
     CellCentroid = [0 0];   % follow CP's convention to save 0s if no object
 end
 
-%%% Calculate cell boundary
+% Calculate cell boundary
 CellBorderPixel = bwboundaries(IdentifiedCells);
 if ~isempty(CellBorderPixel)
   CellBorderPixel = CellBorderPixel{1}(1:end-1, :);
@@ -616,14 +598,14 @@ else
 end
 
 % Get indices of cells at the border of images
-BorderIds = []
+BorderIds = GetBorderObjects(IdentifiedCells);
 
 
-%%%%%%%%%%%%%%%%%%%%%
-%% display results %%
-%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%
+% display results %
+%%%%%%%%%%%%%%%%%%%
 
-if doPlot
+if do_Plot
 
     B = bwboundaries(IdentifiedCells, 'holes');
     LabeledCells = label2rgb(bwlabel(IdentifiedCells),'jet','k','shuffle');
@@ -645,24 +627,21 @@ if doPlot
     title('Identified cells');
     freezeColors
 
-    %%% Save figure as pdf
-    jobid = h5varget(handles.hdf5_filename, 'jobid');
-    figure_filename = sprintf('figures/%s_%.5d.pdf', mfilename, jobid);
-    set(fig, 'PaperPosition', [0 0 7 7], 'PaperSize', [7 7]);
+    % Save figure as pdf
+    figure_filename = sprintf('%s.png', handles.figure_filename);
+    set(fig, 'PaperPosition', [0 0 5 5], 'PaperSize', [5 5]);
     saveas(fig, figure_filename);
-
-    %%% Save Matlab figure
-    savefig(fig, strrep(figure_filename, '.pdf', '.fig'));
 
 end
 
-%%%%%%%%%%%%%%%%%%
-%% save results %%
-%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%
+% save results %
+%%%%%%%%%%%%%%%%
 
-if doSaveSegmentedImage
-    SegmentationFilename = strrep(os.path.basename(OrigImageFilename), ...
+if do_SaveSegmentedImage
+    SegmentationFilename = strrep(os.path.basename(InputImageFilename), ...
                                   '.png', '_segmentedCells.png');
+    SegmentationPath = fullfile(handles.project_path, SegmentationPath);
     SegmentationFilename = fullfile(SegmentationPath, SegmentationFilename);
     if ~isdir(SegmentationPath)
         mkdir(SegmentationPath)
@@ -673,30 +652,20 @@ if doSaveSegmentedImage
 end
 
         
+%%%%%%%%%%%%%%%%
+% write output %
+%%%%%%%%%%%%%%%%
 
-
-%%%%%%%%%%%%%%%%%%%%
-%% prepare output %%
-%%%%%%%%%%%%%%%%%%%%
-
-%%% Structure output arguments for later storage in the .HDF5 file
 data = struct();
 data.Cells_Children = Children;
 data.Cells_Count = CellCount;
 data.Cells_Centroids = CellCentroid;
 data.Cells_Boundary = CellBoundary;
+data.Cells_BorderIds = BorderIds;
 
 output_args = struct();
 output_args.Cells = IdentifiedCells;
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% jterator output
-
-%%% write measurement data to HDF5
+% jterator api
 writedata(handles, data);
-
-%%% write temporary pipeline data to HDF5
 writeoutputargs(handles, output_args);
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

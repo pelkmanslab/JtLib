@@ -1,25 +1,6 @@
-hdf5_filename: None
-
-# Identify nuclei
-# ===============
-
-# The module identifies 'nuclei' objects by intensity thresholding and 
-# subsequent separation of clumped objects along watershed lines.
-# 
-# Clumped objects are selected based on area/shape features.
-# The selected clumped objects are then subjected to perimeter analysis in order
-# to identify concave regions. Then watershed lines, which connect two concave 
-# regions with each other, are identified the optimal separation line is chosen
-# for each clump.
-#
-# Authors:
-#  Markus Herrmann (PerimeterWatershedSegmentation.m and Jterator module implementation)
-#  Nicolas Battich (CP module SeparatePrimary.m)
-#  Anatol Schwab (PerimeterAnaylsis.m)
-
 input:
 
-  - name: DapiImage
+  - name: IntensityImage
     class: hdf5_location
     value: 
     type: double
@@ -28,10 +9,12 @@ input:
   # Preprocessing: smooth intensity image by median filtering
   # ---------------------------------------------------------
 
-  - name: doSmooth
+  - name: Smooth
     class: parameter
-    value: No
-    help: 'Do you want to smooth the intensity image before identifying cells?'
+    value: true
+    help: >
+      Do you want to smooth the intensity image before identifying cells?
+      Highly recommended!
 
   - name: SmoothingFilterSize
     class: parameter
@@ -47,7 +30,7 @@ input:
     value: 1
     help: 'Threshold correction factor to adjust thresholding.'
 
-  - name: MinimumThreshold
+  - name: MininumThreshold
     class: parameter
     value: 120
     help: 'Minimal allowed threshold value that can prevent recognition of background as objects.'
@@ -111,22 +94,22 @@ input:
   # Plot results
   # ------------
 
-  - name: doPlot
+  - name: Plot
     class: parameter
-    value: Yes
+    value: true
     help: 'Do you want to plot the results?'
 
-  # doTestModePerimeter:
+  # TestModePerimeter:
   #   parameter: No
 
-  # doTestModeShape:
+  # TestModeShape:
   #   parameter: No
 
 
   # Store results
   # -------------
 
-  - name: doSaveSegmentedImage
+  - name: SaveSegmentedImage
     class: parameter
     value: Yes
     help: 'Do you want to save segmented nuclei as mask images?'
@@ -136,7 +119,7 @@ input:
     value: 
     help: 'Relative path to the folder were these mask images should be saved.'
 
-  - name: OrigImageFilename
+  - name: IntensityImageFilename
     class: hdf5_location
     value: 
     help: 'Name of the intensity image file.'

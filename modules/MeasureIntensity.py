@@ -1,177 +1,116 @@
-import os
 import sys
-import re
-import h5py
 import numpy as np
+from skimage import filters, measure
 import matplotlib.pyplot as plt
 import mpld3
-from skimage import measure
 from jtapi import *
+from jtlib import features, image_util
 
 
-mfilename = re.search('(.*).py', os.path.basename(__file__)).group(1)
+##############
+# read input #
+##############
 
-###############################################################################
-## jterator input
-
-print('jt - %s:' % mfilename)
-
-### standard input
+# jterator api
 handles_stream = sys.stdin
-
-### retrieve handles from .YAML files
 handles = gethandles(handles_stream)
-
-### read input arguments from .HDF5 files
 input_args = readinputargs(handles)
-
-### check whether input arguments are valid
 input_args = checkinputargs(input_args)
 
-###############################################################################
-
-
-####################
-## input handling ##
-####################
-
-images = list()
-images.append(np.array(input_args['Image1'], dtype='float64'))
-images.append(np.array(input_args['Image2'], dtype='float64'))
-images.append(np.array(input_args['Image3'], dtype='float64'))
-images.append(np.array(input_args['Image4'], dtype='float64'))
-
-image_names = list()
-image_names.append(input_args['ImageName1'])
-image_names.append(input_args['ImageName2'])
-image_names.append(input_args['ImageName3'])
-image_names.append(input_args['ImageName4'])
+image = np.array(input_args['Image'], dtype='float64')
+image_name = input_args['ImageName']
 
 objects = list()
-objects.append(np.array(input_args['Object1'], dtype='int'))
-objects.append(np.array(input_args['Object2'], dtype='int'))
-objects.append(np.array(input_args['Object3'], dtype='int'))
-objects.append(np.array(input_args['Object4'], dtype='int'))
+for i in range(1, 5):
+    name = 'Object%d' % i
+    if name in input_args:
+        objects.append(np.array(input_args[name], dtype='int'))
 
 object_names = list()
-object_names.append(input_args['ObjectName1'])
-object_names.append(input_args['ObjectName2'])
-object_names.append(input_args['ObjectName3'])
-object_names.append(input_args['ObjectName4'])
+for i in range(1, 5):
+    name = 'ObjectName%d' % i
+    if name in input_args:
+        object_names.append(input_args[name])
 
-doPlot = input_args['doPlot']
+measurement_names = []
+measurement_names.append('intensity')  # measured by default
+if input_args['Hu']:
+    measurement_names.append('hu')
+if input_args['Haralick']:
+    measurement_names.append('haralick')
+if input_args['TAS']:
+    measurement_names.append('tas')
+# if input_args['SURF']:
+#     measurement_names.append('surf')
+
+do_plot = input_args['Plot']
 
 
-################
-## processing ##
-################
+##############
+# processing #
+##############
 
 data = dict()
-for i, obj in enumerate(objects):
-    if obj is None:
-        continue
+for i, obj_image in enumerate(objects):
 
-    object_name = object_names[i]
+    if obj_image.shape != image.shape:
+        raise Exception('Size of intensity and object image must be identical')
 
-    ### get object ids and total number of objects
-    object_ids = np.unique(obj)
-    object_ids = object_ids[object_ids != 0]  # remove '0' background
-    object_num = object_ids.shape[0]
+    obj_name = object_names[i]
 
-    for j, image in enumerate(images):
-        if image is None:
-            continue
+    # Get coordinates of region containing individual objects
+    regions = measure.regionprops(obj_image, intensity_image=image)
 
-        image_name = image_names[j]
-        ### measure object properties
-        regions = measure.regionprops(obj, image)
+    # Calculate threshold across the whole image
+    THRESHOLD = filters.threshold_otsu(image)
+    BINS = 32
 
-        ### extract intensity measurements
-        object_total_int = np.array([np.nansum(image[obj == i]) for i in object_ids])
-        object_max_int = np.array([regions[i].max_intensity for i in range(object_num)])
-        object_mean_int = np.array([regions[i].mean_intensity for i in range(object_num)])
-        object_min_int = np.array([regions[i].min_intensity for i in range(object_num)])
+    measurements = dict()
+    for m in measurement_names:
+        measurements[m] = list()
+    for j, r in enumerate(regions):
 
-        ### extract spatial moments
-        # object_moments_hu = [regions[i].moments_hu for i in range(object_num)]
-        # objects_weighted_moments_hu = [regions[i].weighted_moments_hu for i in range(object_num)]
+        # Crop images to region of current object
+        mask = image_util.crop_image(obj_image, bbox=r.bbox)
+        mask = mask == (j+1)  # only current object
 
-        ####################
-        ## prepare output ##
-        ####################
+        img = image_util.crop_image(image, bbox=r.bbox)
+        img[~mask] = 0
+        # plt.imshow(img)
+        # plt.show()
 
-        data['%s_Intensity_%s_MaxIntensity' % (object_name, image_name)] = object_max_int
-        data['%s_Intensity_%s_MeanIntensity' % (object_name, image_name)] = object_mean_int
-        data['%s_Intensity_%s_MinIntensity' % (object_name, image_name)] = object_min_int
-        data['%s_Intensity_%s_TotalIntensity' % (object_name, image_name)] = object_total_int
+        # Intensity
+        feats = features.measure_intensity(r, img)
+        measurements['intensity'].append(feats)
 
+        # Weighted hu moments
+        if 'hu' in measurement_names:
+            feats = features.measure_hu(r)
+            measurements['hu'].append(feats)
 
-        #####################
-        ## display results ##
-        #####################
+        # Haralick texture features
+        if 'haralick' in measurement_names:
+            feats = features.measure_haralick(img, bins=BINS)
+            measurements['haralick'].append(feats)
 
-        if doPlot:
+        # Threshold Adjacency Statistics
+        if 'tas' in measurement_names:
+            feats = features.measure_tas(img, threshold=THRESHOLD)
+            measurements['tas'].append(feats)
 
-            # This is just a fancy example plot
+        # # Speeded-Up Robust Features
+        # if 'surf' in measurement_names:
+        #     feats = features.measure_surf(img)
+        #     measurements['surf'].append(feats)
 
-            X = np.column_stack((object_total_int, object_max_int,
-                                object_mean_int, object_min_int))
-
-            X_names = [
-                        'total intensity', 'max intensity',
-                        'mean intensity', 'min intensity'
-                        ]
-
-            # dither the data for clearer plotting
-            X += 0.1 * np.random.random(X.shape)
-
-            n = X.shape[1]
-
-            fig, ax = plt.subplots(6, 6, sharex="col", sharey="row", figsize=(12, 12))
-            fig.subplots_adjust(left=0.05, right=0.95, bottom=0.05, top=0.95,
-                                hspace=0.3, wspace=0.3)
-
-            labels = ['cell {0}'.format(int(i)) for i in object_ids]
-
-            for i in range(n):
-                for j in range(n):
-                    points = ax[(n-1)-i, j].scatter(X[:, j], X[:, i], s=40, alpha=0.6)
-                    ax[(n-1)-i, j].set_xlabel(X_names[i], size=12)
-                    ax[(n-1)-i, j].set_ylabel(X_names[j], size=12)
-
-            # remove ticks and tick labels
-            for axi in ax.flat:
-                for axis in [axi.xaxis, axi.yaxis]:
-                    axis.set_major_formatter(plt.NullFormatter())
-                    axis.set_major_locator(plt.NullLocator())
-
-            # connect linked brush
-            linkedbrush = mpld3.plugins.LinkedBrush(points)
-            mpld3.plugins.connect(fig, linkedbrush)
-
-            # labels = ['cell {0}'.format(int(i)) for i in object_ids]
-            # tooltip = mpld3.plugins.PointLabelTooltip(points, labels=labels)
-            # mpld3.plugins.connect(fig, tooltip)
-
-
-            # Save figure as html file and open it in the browser
-            fid = h5py.File(handles['hdf5_filename'], 'r')
-            jobid = fid['jobid'][()]
-            fid.close()
-            figure_name = 'figures/%s_%s_%05d.html' % (mfilename, object_name, jobid)
-            mpld3.save_html(fig, figure_name)
-            figure2browser(os.path.abspath(figure_name))
+    for m in measurement_names:
+        feature_names = measurements[m][0].keys()
+        for f in feature_names:
+            feats = [item[f] for item in measurements[m]]
+            data['%s_Texture_%s_%s' % (obj_name, image_name, f)] = feats
 
 output_args = dict()
 
-
-###############################################################################
-## jterator output
-
-### write measurement data to HDF5
+# jterator api
 writedata(handles, data)
-
-### write temporary pipeline data to HDF5
 writeoutputargs(handles, output_args)
-
-###############################################################################

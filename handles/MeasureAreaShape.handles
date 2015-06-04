@@ -1,58 +1,57 @@
-hdf5_filename: None
-
 input:
 
     - name: Object1
       class: hdf5_location
       value: 
-      type: ndarray
       help: 'Mask image that should be used for the measurements.'
 
     - name: ObjectName1
-      class: hdf5_location
+      class: parameter
       value: 
-      type: ndarray
+      type: str
       help: 'Name of the objects in the measurement output.'
 
     - name: Object2
       class: hdf5_location
       value: 
-      type: ndarray
       help: 'Mask image that should be used for the measurements.'
 
     - name: ObjectName2
-      class: hdf5_location
+      class: parameter
       value: 
-      type: ndarray
+      type: str
       help: 'Name of the objects in the measurement output.'
 
     - name: Object3
       class: hdf5_location
       value: 
-      type: ndarray
       help: 'Mask image that should be used for the measurements.'
 
     - name: ObjectName3
-      class: hdf5_location
+      class: parameter
       value: 
-      type: ndarray
+      type: str
       help: 'Name of the objects in the measurement output.'
 
     - name: Object4
       class: hdf5_location
       value: 
-      type: ndarray
       help: 'Mask image that should be used for the measurements.'
 
     - name: ObjectName4
-      class: hdf5_location
+      class: parameter
       value: 
-      type: ndarray
+      type: str
       help: 'Name of the objects in the measurement output.'
 
-    - name: doPlot
+    - name: Zernike
       class: parameter
-      value: No  # no plotting by default
+      value: false
+      help: 'Do you want to measure Zernike moments?'
+
+    - name: Plot
+      class: parameter
+      value: false
       help: 'Do you want to plot the results?'
 
 output:

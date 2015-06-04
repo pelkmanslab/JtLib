@@ -1,34 +1,28 @@
-hdf5_filename: None
-
 input:
 
     - name: ImageFilename1
       class: hdf5_location
       value: 
-      type: str
       help: 'Name of the image file.'
 
     - name: ImageFilename2
       class: hdf5_location
       value: 
-      type: str
       help: 'Name of the image file.'
 
     - name: ImageFilename3
       class: hdf5_location
       value: 
-      type: str
       help: 'Name of the image file.'
 
     - name: ImageFilename4
       class: hdf5_location
       value: 
-      type: str
       help: 'Name of the image file.'
 
-    - name: doPlot
+    - name: Plot
       class: parameter
-      value: No
+      value: false
       help: 'Do you want to plot the results?'
 
 output:

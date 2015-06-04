@@ -1,33 +1,12 @@
-hdf5_filename: None
-
-# Identify cells
-# ==============
-
-# The module identifies 'cell' objects by sequential rounds of watershedding
-# using 'nuclei' objects as seeds.
-# This allows to combine the advantage of a high threshold correction
-# factor (correct allocation of pixels to cells within crowded regions)
-# with the advantage of a low threshold correction factor (detection of
-# cellular periphery in sparse regions).
-# The outcome will be a very precise cell outline segmentation, which
-# does not need a lot of human supervision (and thus greatly reduces
-# working time). Note, however, that it may take a long time to compute 
-# (up to 30 min on a single image).
-#
-# Authors:
-#  Thomas Stoeger (CP module IdentifySecondaryIterative.m)
-#  Nicolas Battich (CP module IdentifySecondaryIterative.m)
-#  Markus Herrmann (Jterator module implementation)
-
 input:
 
-  - name: CelltraceImage
+  - name: IntensityImage
     class: hdf5_location
     value: 
     type: double
     help: 'Intensity image that should be used for cell identification.'
 
-  - name: NucleiImage
+  - name: SeedImage
     class: hdf5_location
     value: 
     type: double
@@ -37,9 +16,9 @@ input:
   # Preprocessing: smooth intensity image by median filtering
   # ---------------------------------------------------------
 
-  - name: doSmooth
+  - name: Smooth
     class: parameter
-    value: No
+    value: true
     help: 'Do you want to smooth the intensity image before identifying cells?'
 
   - name: SmoothingFilterSize
@@ -52,17 +31,12 @@ input:
   # ----------------------------------------------------
 
   - name: ThresholdCorrection
-    # The threshold correction factors determine the intensity thresholds
-    # over which the module iterates.
     class: parameter
     value: [1.2, 1.15, 1.1, 1.05, 1, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5, 0.45, 0.4, 0.35, 0.3, 0.25, 0.2, 0.15]
     type: double
-    help: 'Threshold correction factors determine the different intensity thresholds over for iterations.'
+    help: 'Threshold correction factors determine the different intensity thresholds for iterations.'
 
   - name: MinimumThreshold
-    # Setting a minimal value will prevent recognition of background as object.
-    # To set SmallestThreshold, pick a pixel value at the border of sparse cells,
-    # which still lies above background.
     class: parameter
     value: 120
     help: 'Minimal allowed threshold value that can prevent recognition of background as objects. Choose a value at the border of cells, which is still above background.'
@@ -71,18 +45,18 @@ input:
   # Plot results
   # ------------
 
-  - name: doPlot
+  - name: Plot
     class: parameter
-    value: No  # no plotting by default
+    value: false  # no plotting by default
     help: 'Do you want to plot the results?'
 
 
   # Store results
   # -------------
 
-  - name: doSaveSegmentedImage
+  - name: SaveSegmentedImage
     class: parameter
-    value: Yes
+    value: true
     help: 'Do you want to save segmented cells as mask images?'
 
   - name: SegmentationPath
@@ -90,7 +64,7 @@ input:
     value: 
     help: 'Relative path to the folder were these mask images should be saved.'
 
-  - name: OrigImageFilename
+  - name: InputImageFilename
     class: hdf5_location
     value: 
     help: 'Name of the intensity image file.'
