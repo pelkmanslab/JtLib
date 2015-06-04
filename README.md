@@ -50,3 +50,7 @@ Julia:
 ```{bash}
 export JULIA_LOAD_PATH=$JULIA_LOAD_PATH:$HOME/jtlib/subfunctions/julia
 ```
+
+## Documentation ##
+
+Help for modules can be found in the [JtLib wiki](https://github.com/pelkmanslab/JtLib/wiki). These markdown files will also be available in the Jterator user interface.
