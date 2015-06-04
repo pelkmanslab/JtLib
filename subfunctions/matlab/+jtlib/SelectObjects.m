@@ -1,5 +1,7 @@
 function [SelectedObjects, Objects2Cut, ObjectsNot2Cut] = SelectObjects(Objects, thresholds)
 
+import jtlib.*;
+
 % Measure basic area/shape features
 props = regionprops(logical(Objects),'Area','Solidity','Perimeter');
 
