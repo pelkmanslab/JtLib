@@ -598,7 +598,7 @@ else
 end
 
 % Get indices of cells at the border of images
-BorderIds = GetBorderObjects(IdentifiedCells);
+[BorderIds, BorderIx] = GetBorderObjects(IdentifiedCells);
 
 
 %%%%%%%%%%%%%%%%%%%
@@ -662,6 +662,7 @@ data.Cells_Count = CellCount;
 data.Cells_Centroids = CellCentroid;
 data.Cells_Boundary = CellBoundary;
 data.Cells_BorderIds = BorderIds;
+data.Cells_BorderIx = BorderIx;
 
 output_args = struct();
 output_args.Cells = IdentifiedCells;

@@ -1,10 +1,14 @@
-function BorderIds = GetBorderObjects(LabelImage)
-% BorderIds = GetBorderObjects(LabelImage)
+function [BorderIds, BorderIx] = GetBorderObjects(LabelImage)
+% [BorderIds, BorderIx] = GetBorderObjects(LabelImage)
 %
-% Get the unique IDs of objects at the border of an image.
+% Get unique IDs and indexes of objects at the border of an image.
 %
 % Input:
-%   LabelImage      A labeled image as produced by bwlabel().
+%   LabelImage      A labeled image as produced by bwlabel() for example.
+%
+% Output:
+%   BorderIds       Array with unique IDs of the border objects.
+%   BorderIx        Logical array with unique indexes of the border objects.
 %
 % Author:
 %   Markus Herrmann
@@ -15,7 +19,11 @@ function BorderIds = GetBorderObjects(LabelImage)
                               unique(LabelImage(1, :))', ...
                               unique(LabelImage(end, :))'));
 
-    % remove 0 background pixels
-    BorderIds = BorderIds(BorderIds > 0);
+    % remove 0 background
+    BorderIds = integer(BorderIds(BorderIds > 0));
+
+    BorderIx = zeros((length(unique(LabelImage))-1), 1); % without 0 background
+    BorderIx(BorderIds) = 1;
+
 
 end

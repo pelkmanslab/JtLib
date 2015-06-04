@@ -208,7 +208,7 @@ else
 end
 
 % Get indices of nuclei at the border of images
-BorderIds = GetBorderObjects(IdentifiedNuclei);
+[BorderIds, BorderIx] = GetBorderObjects(IdentifiedNuclei);
 
 
 %%%%%%%%%%%%%%%%%%%
@@ -286,6 +286,7 @@ data.Nuclei_Count = NucleiCount;
 data.Nuclei_Centroids = NucleiCentroid;
 data.Nuclei_Boundary = NucleiBoundary;
 data.Nuclei_BorderIds = BorderIds;
+data.Nuclei_BorderIx = BorderIx;
 
 output_args = struct();
 output_args.Nuclei = IdentifiedNuclei;
