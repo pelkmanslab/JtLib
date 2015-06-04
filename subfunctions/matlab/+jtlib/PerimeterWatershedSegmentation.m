@@ -38,6 +38,8 @@ function CutMask = PerimeterWatershedSegmentation(LabelImage,IntensityImage,Peri
 %
 %   (c) Pelkmans Lab 2013
 
+import jtlib.*;
+
 % Obtain pixels at inner periphery of objects
 props = regionprops(LabelImage,'BoundingBox');
 BoxPerObj = cat(1,props.BoundingBox);
