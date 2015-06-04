@@ -20,7 +20,7 @@ function [BorderIds, BorderIx] = GetBorderObjects(LabelImage)
                               unique(LabelImage(end, :))'));
 
     % remove 0 background
-    BorderIds = integer(BorderIds(BorderIds > 0));
+    BorderIds = BorderIds(BorderIds > 0);
 
     BorderIx = zeros((length(unique(LabelImage))-1), 1); % without 0 background
     BorderIx(BorderIds) = 1;
