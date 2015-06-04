@@ -11,12 +11,12 @@ It should serve as a code repository for common image processing tasks, such as 
 Some of the lab's standard CP modules are already implemented in Jterator:
 
 * LoadImages.m -> **LoadImage.py**     
-* NYB_IlluminationCorrection.m -> **IlluminationCorrection.py**    
+* NYB_IlluminationCorrection.m -> **IllumCorrectImage.py**    
 * IdentifyPrimaryItarative.m -> **IdentifyNuclei.m**   
 * IdentifySecondaryIterative.m -> **IdentifyCells.m**     
 * LoadSegmentedCells.m -> **LoadSegmentation.py**
 * MeasureAreaShape.m -> **MeasureAreaShape.py**   
-* MeasureObjectIntensity.m -> **MeasureIntensity.py**
+* MeasureObjectIntensity.m & MeasureTexture.m -> **MeasureIntensity.py**
     
 There are also tools available for job submission on Brutus:    
 * **precluster.py** submits a single job (the first job in the joblist) to test the pipeline. You will receive an email once the job is finished.    
@@ -27,7 +27,7 @@ There are also tools available for job submission on Brutus:
 
 Obviously, you need to have Jterator installed.
 
-Currently, the user is responsible for making the *subfunctions* available to the modules. This can be achieved by setting environment variables for each language, which point to the location where the corresponding "packages", "modules" or "libraries" (language-specific syntax) can be found:    
+The user is responsible for making the *subfunctions* available to the modules. This can be achieved by setting environment variables for each language, which point to the location where the corresponding "packages", "modules" or "libraries" (language-specific syntax) can be found:    
 
 Python:  
 ```{bash}
@@ -50,5 +50,3 @@ Julia:
 ```{bash}
 export JULIA_LOAD_PATH=$JULIA_LOAD_PATH:$HOME/jtlib/subfunctions/julia
 ```
-
-Optimally, *Jterator* would also take care of this. This could be included in the pipeline descriptor file.
