@@ -44,7 +44,7 @@ R:
 export R_LIBS=$R_LIBS:$HOME/jtlib/subfunctions/r
 ```
 
-Note: In R you may have to specify each individual library and not only the main directory.
+> Note: In R you may have to specify each individual library and not only the main directory.
 
 Julia:      
 ```{bash}
