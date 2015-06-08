@@ -1,7 +1,7 @@
 import sys
 import numpy as np
 from scipy import misc
-import pylab as plt
+import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import mpld3
 from jtapi import *
@@ -23,8 +23,6 @@ for i in range(1, 5):
     if key in input_args:
         image_filenames.append(input_args[key])
 
-do_plot = input_args['Plot']
-
 
 ##############
 # processing #
@@ -42,7 +40,7 @@ for f in image_filenames:
 # display results #
 ###################
 
-if do_plot:
+if handles['plot']:
 
     fig = plt.figure(figsize=(10, 10))
 

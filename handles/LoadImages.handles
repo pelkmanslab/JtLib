@@ -20,10 +20,6 @@ input:
       value: 
       help: 'Name of the image file.'
 
-    - name: Plot
-      class: parameter
-      value: false
-      help: 'Do you want to plot the results?'
 
 output:
 
@@ -43,3 +39,5 @@ output:
       class: hdf5_location
       value:
 
+
+plot: false

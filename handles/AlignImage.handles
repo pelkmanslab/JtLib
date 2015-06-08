@@ -18,14 +18,11 @@ input:
       value: 
       help: 'Filename of the image, which was used for image registration.'
 
-    - name: Plot
-      class: parameter
-      value: No  # no plotting by default
-      help: 'Do you want to plot the results?'
-
 
 output:
 
     - name: AlignedImage
       class: hdf5_location
       value:
+
+plot: false

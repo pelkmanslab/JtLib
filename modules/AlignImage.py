@@ -19,7 +19,6 @@ input_args = checkinputargs(input_args)
 input_image = np.array(input_args['InputImage'], dtype='float64')
 shift_descriptor_filename = input_args['ShiftDescriptor']
 reference_filename = input_args['ReferenceFilename']
-do_plot = input_args['Plot']
 
 
 ##############
@@ -52,7 +51,7 @@ else:
 # display results #
 ###################
 
-if do_plot:
+if handles['plot']:
 
     fig = plt.figure(figsize=(10, 10))
     ax1 = fig.add_subplot(1, 2, 1)

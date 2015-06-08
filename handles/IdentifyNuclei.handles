@@ -91,21 +91,6 @@ input:
     help: 'Perimeter analysis: equivalent circular segment for a region to be considered concave.'
 
 
-  # Plot results
-  # ------------
-
-  - name: Plot
-    class: parameter
-    value: true
-    help: 'Do you want to plot the results?'
-
-  # TestModePerimeter:
-  #   parameter: No
-
-  # TestModeShape:
-  #   parameter: No
-
-
   # Store results
   # -------------
 
@@ -124,8 +109,12 @@ input:
     value: 
     help: 'Name of the intensity image file.'
 
+
 output:
 
   - name: Nuclei
     class: hdf5_location
     value: 
+
+
+plot: false

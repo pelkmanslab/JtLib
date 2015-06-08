@@ -43,8 +43,6 @@ if input_args['TAS']:
 # if input_args['SURF']:
 #     measurement_names.append('surf')
 
-do_plot = input_args['Plot']
-
 
 ##############
 # processing #

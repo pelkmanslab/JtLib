@@ -33,7 +33,6 @@ ref_filename = input_args['ReferenceFilename']
 segmentation_folder = input_args['SegmentationDirectory']
 do_shift = input_args['Shift']
 shift_descriptor_filename = input_args['ShiftDescriptor']
-do_plot = input_args['Plot']
 
 
 ##############
@@ -87,7 +86,7 @@ for f in segmentation_filenames:
 # display results #
 ###################
 
-if do_plot:
+if handles['plot']:
 
     fig = plt.figure(figsize=(10, 10))
     ax1 = fig.add_subplot(1, 2, 1, adjustable='box', aspect=1)

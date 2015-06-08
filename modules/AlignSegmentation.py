@@ -26,7 +26,6 @@ for i in range(1, 5):
 
 shift_descriptor_filename = input_args['ShiftDescriptor']
 reference_filename = input_args['ReferenceFilename']
-do_plot = input_args['Plot']
 
 
 ##############
@@ -89,7 +88,7 @@ original_ids = a_ix
 # display results #
 ###################
 
-if do_plot:
+if handles['plot']:
 
     fig = plt.figure(figsize=(10, 10))
 

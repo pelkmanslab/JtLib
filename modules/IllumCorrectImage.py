@@ -22,7 +22,6 @@ reference_filename = input_args['ReferenceFilename']
 stats_directory = input_args['StatsDirectory']
 stats_filename_pattern = input_args['StatsFilenamePattern']
 do_smooth = input_args['Smooth']
-do_plot = input_args['Plot']
 
 
 ##############
@@ -51,7 +50,7 @@ corr_im = illumcorr.fix_bad_pixels(corr_im)
 # display results #
 ###################
 
-if do_plot:
+if handles['plot']:
 
     fig = plt.figure(figsize=(10, 10))
 

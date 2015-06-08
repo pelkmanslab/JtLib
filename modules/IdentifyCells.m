@@ -22,9 +22,6 @@ SmoothingFilterSize = input_args.SmoothingFilterSize;
 ThresholdCorrection = input_args.ThresholdCorrection;
 MinimumThreshold = input_args.MinimumThreshold;
 
-% Input arguments for plotting segmentation results
-do_Plot = input_args.Plot;
-
 % Input arguments for saving segmented images
 do_SaveSegmentedImage = input_args.SaveSegmentedImage;
 InputImageFilename = input_args.InputImageFilename;
@@ -605,7 +602,7 @@ end
 % display results %
 %%%%%%%%%%%%%%%%%%%
 
-if do_Plot
+if handles.plot
 
     B = bwboundaries(IdentifiedCells, 'holes');
     LabeledCells = label2rgb(bwlabel(IdentifiedCells),'jet','k','shuffle');

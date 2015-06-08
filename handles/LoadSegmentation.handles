@@ -46,10 +46,6 @@ input:
       type: str
       help: 'Name of a reference file to identify the correct segmentation image.'
 
-    - name: Plot
-      class: parameter
-      value: False  # no plotting by default
-      help: 'Do you want to plot the results?'
 
 output:
 
@@ -68,3 +64,6 @@ output:
     - name: Objects4
       class: hdf5_location
       value: 
+
+
+plot: false

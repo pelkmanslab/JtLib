@@ -34,8 +34,6 @@ measurement_names.append('morphology')  # measure by default
 if input_args['Zernike']:
     measurement_names.append('zernike')
 
-do_plot = input_args['Plot']
-
 
 ##############
 # processing #

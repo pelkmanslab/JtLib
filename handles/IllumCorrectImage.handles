@@ -35,14 +35,13 @@ input:
     help: >
       If you want to smooth, whath should be the size of the Gaussian filter?
 
-  - name: Plot
-    class: parameter
-    value: false  # no plotting by default
-    help: Do you want to plot the results?
 
 output:
 
   - name: CorrectedImage
     class: hdf5_location
     value: 
+
+
+plot: false
 

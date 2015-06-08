@@ -75,9 +75,8 @@ input:
     #   value: false
     #   help: 'Do you want to measure Speeded-Up Robust Features (SURF)?'
 
-    - name: Plot
-      class: parameter
-      value: false
-      help: 'Do you want to plot the results?'
 
 output:
+
+
+plot: false

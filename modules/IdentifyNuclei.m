@@ -34,11 +34,6 @@ MinArea = input_args.MinArea;
 MinCutArea = input_args.MinCutArea;
 MinFormFactor = input_args.MinFormFactor;
 
-% Parameters for plotting segmentation results
-doPlot = input_args.Plot;
-% doTestModePerimeter = input_args.doTestModePerimeter;
-% doTestModeShape = input_args.doTestModeShape;
-
 % Input arguments for saving segmented images
 do_SaveSegmentedImage = input_args.SaveSegmentedImage;
 InputImageFilename = input_args.IntensityImageFilename;
@@ -215,7 +210,7 @@ end
 % display results %
 %%%%%%%%%%%%%%%%%%%
        
-if doPlot
+if handles.plot
 
     B = bwboundaries(AllCut, 'holes');
     imCutShapeObjectsLabel = label2rgb(bwlabel(AllCut),'jet','k','shuffle');
