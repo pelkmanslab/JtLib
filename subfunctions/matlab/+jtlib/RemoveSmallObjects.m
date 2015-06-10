@@ -15,7 +15,7 @@ function OutputImage = RemoveSmallObjects(LabelImage, AreaThreshold)
 
     props = regionprops(logical(LabelImage), 'Area');
     objArea2 = cat(1, props.Area);
-    obj2remove = find(objArea2 < MinArea);
+    obj2remove = find(objArea2 < AreaThreshold);
     for j = 1:length(obj2remove)
         LabelImage(LabelImage == obj2remove(j)) = 0;
     end

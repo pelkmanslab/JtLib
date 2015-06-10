@@ -1,13 +1,17 @@
 function CutMask = PerimeterWatershedSegmentation(LabelImage,IntensityImage,PerimeterTrace,MaxEqivRadius,MinEquivAngle,ObjSizeThres,numRegionThreshold,varargin)
-%PERIMETERWATERSHEDSEGMENTATION separates clumped objects along watershed
-%lines between concave regions.
+% PERIMETERWATERSHEDSEGMENTATION separates clumped objects along watershed lines between concave regions.
 %
-%   CUTMASK=PERIMETERWATERSHEDSEGMENTATION(LABELIMAGE,INTENSITYIMAGE,PERIMETERTRACE,MAXEQIVRADIUS,MINEQIVANGLE,OBJSIZETHRES,NUMREGIONTHRESHOLD)
-%   separates objects in LABELIMAGE along watershed lines determined in INTENSITYIMAGE
+%   CUTMASK = PERIMETERWATERSHEDSEGMENTATION(LABELIMAGE, INTENSITYIMAGE, PERIMETERTRACE, 
+%                                            MAXEQIVRADIUS,MINEQIVANGLE,OBJSIZETHRES,NUMREGIONTHRESHOLD)
+%
+%   Separates objects in LABELIMAGE along watershed lines determined in INTENSITYIMAGE
 %   between concave regions specified by PERIMETERTRACE. Note that all image operations 
 %   are carried out on small 'mini' images the size of each object's bounding box. 
 %   This approach dramatically reduces computation time!
 %   
+%   Parameters:
+%   -----------
+%
 %   LABELIMAGE is a labeled image (output of bwlabel.m) containing the objects
 %   that should be separated.
 %
@@ -32,13 +36,20 @@ function CutMask = PerimeterWatershedSegmentation(LabelImage,IntensityImage,Peri
 %   on the intensity image of each object.
 %
 %
+%   Returns:
+%   --------
+%   
+%   CUTMASK is a logical array of the size of LABELIMAGE with 1 at the
+%   positions where cuts should be made and 0 otherwise.
+%
+%
 %   Authors:
+%   --------
+%
 %       Markus Herrmann
 %       Nicolas Battich
-%
-%   (c) Pelkmans Lab 2013
 
-import jtlib.*;
+import jtlib.dijkstraCP;
 
 % Obtain pixels at inner periphery of objects
 props = regionprops(LabelImage,'BoundingBox');
