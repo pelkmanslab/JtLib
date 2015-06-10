@@ -47,4 +47,4 @@ export JULIA_LOAD_PATH=$JULIA_LOAD_PATH:$HOME/jtlib/subfunctions/julia
 
 ## Documentation ##
 
-We will use [Sphinx](http://sphinx-doc.org/) to generate documentation of modules. [Sphinx isn't just for Python](http://ericholscher.com/blog/2014/feb/11/sphinx-isnt-just-for-python/), but will used for all API languages.
+We will use [Sphinx](http://sphinx-doc.org/) to generate documentation of modules. [Sphinx isn't just for Python](http://ericholscher.com/blog/2014/feb/11/sphinx-isnt-just-for-python/), but will be used for all API languages.
