@@ -51,12 +51,14 @@ else
     SmoothedImage = InputImage;
 end
 
+%------------------------------
+% Detect objects in input image 
+%------------------------------
+
 %% Threshold image
 ThresholdMethod = 'Otsu Global';
 MaximumThreshold = 2^16;
 pObject = 10;
-
-% Calculate threshold
 threshhold = ImageThreshold(ThresholdMethod, ...
                             pObject, ...
                             MininumThreshold, ...
@@ -76,9 +78,9 @@ FillImage = imfill(double(ThreshImage),'holes');
 %% Cut clumped objects:
 if ~isempty(FillImage)
     
-    %------------------------------------------
-    % Select objects in input image for cutting
-    %------------------------------------------
+    %------------------------------------------------
+    % Select objects for further processing (cutting)
+    %------------------------------------------------
     
     ObjectsCut = zeros([size(FillImage),CuttingPasses]);
     ObjectsNotCut = zeros([size(FillImage),CuttingPasses]);
@@ -101,10 +103,9 @@ if ~isempty(FillImage)
         thresholds.LowerSize = MinArea;
         [SelectedObjects(:,:,i), Objects2Cut, ObjectsNotCut(:,:,i)] = SelectObjects(Objects, thresholds);
         
-        
-        %------------
-        % Cut objects
-        %------------
+        %--------------------------------------
+        % Analyse perimeter of selected objects
+        %--------------------------------------
         
         % Smooth image to avoid problems with bwtraceboundary.m
         SmoothDisk = getnhood(strel('disk', FilterSize, 0));
@@ -112,16 +113,13 @@ if ~isempty(FillImage)
 
         % In rare cases, the above smoothing approach creates new, small
         % objects that cause problems. Let's remove them.
-        props = regionprops(logical(Objects2Cut), 'Area');
-        objArea2 = cat(1, props.Area);
-        obj2remove = find(objArea2 < MinArea);
-        for j = 1:length(obj2remove)
-            Objects2Cut(Objects2Cut == obj2remove(j)) = 0;
-        end
-        Objects2Cut = bwlabel(Objects2Cut);
+        Objects2Cut = RemoveSmallObjects(Objects2Cut, MinArea)
+
+        %---------------------
+        % Cut selected objects
+        %---------------------
         
         % Separate clumped objects along watershed lines
-
         % PerimeterAnalysis currently cannot handle holes in objects (we may
         % want to implement this in case of big clumps of many objects).
         % Sliding window size is linked to object size. Small object sizes
@@ -166,16 +164,7 @@ else
 end
 
 %% Remove small objects that fall below area threshold
-area = regionprops(logical(IdentifiedNuclei), 'Area');
-area = cat(1, area.Area);
-for i = 1:length(area)
-    if area(i) < MinCutArea
-        IdentifiedNuclei(IdentifiedNuclei == i) = 0;
-    end
-end
-
-%% Re-label objects
-IdentifiedNuclei = bwlabel(logical(IdentifiedNuclei));
+IdentifiedNuclei = RemoveSmallObjects(IdentifiedNuclei, MinCutArea)
 
 
 %% Make some default measurements
@@ -191,16 +180,7 @@ if isempty(NucleiCentroid)
 end
 
 % Calculate cell boundary
-if NucleiCount > 0
-    NucleiBorderPixel = bwboundaries(IdentifiedNuclei);
-    NucleiBorderPixel = NucleiBorderPixel{1}(1:end-1, :);
-    P = NucleiBorderPixel(NucleiBorderPixel(:,1) == min(NucleiBorderPixel(:,1)), :);
-    P = P(1,:);
-    NucleiBoundary = bwtraceboundary(IdentifiedNuclei, P, 'SW'); % anticlockwise
-    NucleiBoundary = fliplr(NucleiBoundary(1:end-1,:)); % not closed
-else
-   NucleiBoundary = [0 0]; 
-end
+NucleiBoundary = GetObjectBoundary(IdentifiedNuclei);
 
 % Get indices of nuclei at the border of images
 [BorderIds, BorderIx] = GetBorderObjects(IdentifiedNuclei);
