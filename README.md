@@ -27,25 +27,27 @@ The user is responsible for making the *subfunctions* available to the modules. 
 
 Python:  
 ```{bash}
-export PYTHONPATH=$PYTHONPATH:$HOME/jtlib/subfunctions/python
+export PYTHONPATH=$PYTHONPATH:$HOME/JtLib/subfunctions/python
 ```
 
 Matlab:     
 ```{bash}
-export MATLABPATH=$MATLABPATH:$HOME/jtlib/subfunctions/matlab
+export MATLABPATH=$MATLABPATH:$HOME/JtLib/subfunctions/matlab
 ```
 
 R:  
 ```{bash}
-export R_LIBS=$R_LIBS:$HOME/jtlib/subfunctions/r
+export R_LIBS=$R_LIBS:$HOME/JtLib/subfunctions/r
 ```
 
 > Note: In R you may have to specify each individual library and not only the main directory.
 
 Julia:      
 ```{bash}
-export JULIA_LOAD_PATH=$JULIA_LOAD_PATH:$HOME/jtlib/subfunctions/julia
+export JULIA_LOAD_PATH=$JULIA_LOAD_PATH:$HOME/JtLib/subfunctions/julia
 ```
+
+> You need to adapt the above lines in case your local copy of the repository is not your `$HOME` folder or it is named differently!
 
 ## Documentation ##
 
