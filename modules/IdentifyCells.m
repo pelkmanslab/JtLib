@@ -1,6 +1,12 @@
 import jtapi.*;
 import plot2svg.*;
-import jtlib.*;
+import jtlib.SecondarySegmentation;
+import jtlib.SmoothImage;
+import jtlib.ImageThreshold;
+import jtlib.GetObjectBoundary;
+import jtlib.GetBorderObjects;
+import jtlib.RelateObjects;
+
 
 %%%%%%%%%%%%%%
 % read input %
@@ -32,10 +38,7 @@ SegmentationPath = input_args.SegmentationPath;
 % processing %
 %%%%%%%%%%%%%%
 
-% Stick to CellProfiler rescaling
-MinimumThreshold = MinimumThreshold / 2^16;
-MaximumThreshold = 1;
-InputImage = InputImage ./ 2^16;
+MaximumThreshold = 2^16;
 
 %% Smooth image
 if doSmooth
@@ -46,15 +49,11 @@ end
 
 %% Perform segmentation
 
-% IdentifiedCells = IterativeWatershedSegmentation(SmoothedImage, ...
-%                                                  Nuclei, ...
-%                                                  ThresholdCorrection, ...
-%                                                  MinimumThreshold)
-
-IdentifiedCells = CPIterativeWatershedSegmentation(SmoothedImage, ...
-                                                   Nuclei, Nuclei, ...
-                                                   ThresholdCorrection, ...
-                                                   MinimumThreshold)                              
+IdentifiedCells = SecondarySegmentation(SmoothedImage, ...
+                                        Nuclei, Nuclei, ...
+                                        ThresholdCorrection, ...
+                                        MinimumThreshold, ...
+                                        MaximumThreshold);                             
 
 %% Make some default measurements
 
@@ -62,7 +61,7 @@ IdentifiedCells = CPIterativeWatershedSegmentation(SmoothedImage, ...
 CellCount = max(unique(IdentifiedCells));
 
 % Relate 'nuclei' to 'cells'
-[Parents, Children] = RelateObjects(IdentifiedCells, Nuclei);
+[NucleiParentIds, ChildrenCount] = RelateObjects(IdentifiedCells, Nuclei);
 
 % Calculate cell centroids
 tmp = regionprops(logical(IdentifiedCells),'Centroid');
@@ -134,14 +133,13 @@ end
 %%%%%%%%%%%%%%%%
 
 data = struct();
-data.Cells_Children = Children;
 data.Cells_Count = CellCount;
 data.Cells_Centroids = CellCentroid;
 data.Cells_Boundary = CellBoundary;
 data.Cells_BorderIds = BorderIds;
 data.Cells_BorderIx = BorderIx;
-data.Cells_Parents = Parents;
-data.Cells_Children = Children;
+data.Nuclei_ParentIds = NucleiParentIds;
+% Cells - Nuclei relationship hard-coded for now
 
 output_args = struct();
 output_args.Cells = IdentifiedCells;

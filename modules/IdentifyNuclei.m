@@ -1,6 +1,10 @@
 import jtapi.*;
-import jtlib.*;
 import os.*;
+import jtlib.PrimarySegmentation;
+import jtlib.SmoothImage;
+import jtlib.GetObjectBoundary;
+import jtlib.RemoveSmallObjects;
+import jtlib.GetBorderObjects;
 
 
 %%%%%%%%%%%%%%
@@ -20,7 +24,7 @@ SmoothingFilterSize = input_args.SmoothingFilterSize;
 
 % Parameters for identifying objects by intensity threshold
 ThresholdCorrection = input_args.ThresholdCorrection;
-MininumThreshold = input_args.MininumThreshold;
+MinimumThreshold = input_args.MininumThreshold;
 
 % Parameters for cutting clumped objects
 CuttingPasses = input_args.CuttingPasses;
@@ -51,120 +55,19 @@ else
     SmoothedImage = InputImage;
 end
 
-%------------------------------
-% Detect objects in input image 
-%------------------------------
+MaximumThreshold = 2^16;  % assume 16-bit image
+CircularSegment = degtorad(CircularSegment);
 
-%% Threshold image
-ThresholdMethod = 'Otsu Global';
-MaximumThreshold = 2^16;
-pObject = 10;
-threshhold = ImageThreshold(ThresholdMethod, ...
-                            pObject, ...
-                            MininumThreshold, ...
-                            MaximumThreshold, ...
-                            ThresholdCorrection, ...
-                            SmoothedImage, ...
-                            []);
+%% Segment objects
+[IdentifiedNuclei, CutLines, SelectedObjects, ~, ~] = PrimarySegmentation(SmoothedImage, ...
+                                                                         CuttingPasses, ...
+                                                                         FilterSize, SlidingWindow, CircularSegment, MaxConcaveRadius, ...
+                                                                         MaxSolidity, MinFormFactor, MinArea, MaxArea, MinCutArea, ...
+                                                                         ThresholdCorrection, MinimumThreshold, MaximumThreshold, 'Off');
 
-% Threshold intensity image to detect objects
-ThreshImage = zeros(size(SmoothedImage), 'double');
-ThreshImage(SmoothedImage > threshhold) = 1;
-
-% Fill holes in objects
-FillImage = imfill(double(ThreshImage),'holes');
-
-
-%% Cut clumped objects:
-if ~isempty(FillImage)
-    
-    %------------------------------------------------
-    % Select objects for further processing (cutting)
-    %------------------------------------------------
-    
-    ObjectsCut = zeros([size(FillImage),CuttingPasses]);
-    ObjectsNotCut = zeros([size(FillImage),CuttingPasses]);
-    SelectedObjects = zeros([size(FillImage),CuttingPasses]);
-    CutMask = zeros([size(FillImage),CuttingPasses]);
-        
-    for i = 1:CuttingPasses
-        
-        if i==1
-            Objects = FillImage;
-        else
-            Objects = ObjectsCut(:,:,i-1);
-        end
-        
-        % Select objects for cutting
-        thresholds = struct();
-        thresholds.Solidity = MaxSolidity;
-        thresholds.FormFactor = MinFormFactor;
-        thresholds.UpperSize = MaxArea;
-        thresholds.LowerSize = MinArea;
-        [SelectedObjects(:,:,i), Objects2Cut, ObjectsNotCut(:,:,i)] = SelectObjects(Objects, thresholds);
-        
-        %--------------------------------------
-        % Analyse perimeter of selected objects
-        %--------------------------------------
-        
-        % Smooth image to avoid problems with bwtraceboundary.m
-        SmoothDisk = getnhood(strel('disk', FilterSize, 0));
-        Objects2Cut = bwlabel(imdilate(imerode(Objects2Cut, SmoothDisk), SmoothDisk));
-
-        % In rare cases, the above smoothing approach creates new, small
-        % objects that cause problems. Let's remove them.
-        Objects2Cut = RemoveSmallObjects(Objects2Cut, MinArea)
-
-        %---------------------
-        % Cut selected objects
-        %---------------------
-        
-        % Separate clumped objects along watershed lines
-        % PerimeterAnalysis currently cannot handle holes in objects (we may
-        % want to implement this in case of big clumps of many objects).
-        % Sliding window size is linked to object size. Small object sizes
-        % (e.g. in case of images acquired with low magnification) limits
-        % maximal size of the sliding window and thus sensitivity of the
-        % perimeter analysis.
-                
-        % Perform perimeter analysis
-        PerimeterProps = PerimeterAnalysis(Objects2Cut, SlidingWindow);
-
-        % In rare cases, there may be a unreasonable large number of concave
-        % regions, which may cause runtime problems. Let's limit the number of
-        % maximally allowed regions.
-        AllowedRegions = 30;
-        
-        % Perform the actual segmentation        
-        CutMask(:,:,i) = PerimeterWatershedSegmentation(Objects2Cut, ...
-                                                        SmoothedImage, ...
-                                                        PerimeterProps, ...
-                                                        MaxConcaveRadius, ...
-                                                        degtorad(CircularSegment), ...
-                                                        MinCutArea, ...
-                                                        AllowedRegions);
-        ObjectsCut(:,:,i) = bwlabel(Objects2Cut .* ~CutMask(:,:,i));
-        
-    end
-    
-    %----------------------------------------------
-    % Combine objects from different cutting passes
-    %----------------------------------------------
-
-    AllCut = logical(ObjectsCut(:,:,end) + sum(ObjectsNotCut(:,:,2:end), 3));
-    
-    % Retrieve objects that were not cut (or already cut)
-    AllNotCut = logical(sum(ObjectsNotCut, 3));
-    IdentifiedNuclei = bwlabel(logical(ObjectsCut(:,:,end) + AllNotCut));
-
-else
-
-    IdentifiedNuclei = bwlabel(zeros(size(FillImage)));
-     
-end
 
 %% Remove small objects that fall below area threshold
-IdentifiedNuclei = RemoveSmallObjects(IdentifiedNuclei, MinCutArea)
+IdentifiedNuclei = RemoveSmallObjects(IdentifiedNuclei, MinCutArea);
 
 
 %% Make some default measurements
@@ -192,8 +95,8 @@ NucleiBoundary = GetObjectBoundary(IdentifiedNuclei);
        
 if handles.plot
 
-    B = bwboundaries(AllCut, 'holes');
-    imCutShapeObjectsLabel = label2rgb(bwlabel(AllCut),'jet','k','shuffle');
+    B = bwboundaries(IdentifiedNuclei, 'holes');
+    imCutShapeObjectsLabel = label2rgb(bwlabel(IdentifiedNuclei),'jet','k','shuffle');
     AllSelected = SelectedObjects(:,:,1);
 
     fig = figure;
@@ -203,7 +106,7 @@ if handles.plot
     hold on
     redOutline = cat(3, ones(size(AllSelected)), zeros(size(AllSelected)), zeros(size(AllSelected)));
     h = imagesc(redOutline);
-    set(h, 'AlphaData', imdilate(logical(sum(CutMask, 3)), strel('disk', 12)))
+    set(h, 'AlphaData', imdilate(logical(sum(CutLines, 3)), strel('disk', 12)))
     hold off
     freezeColors
 
