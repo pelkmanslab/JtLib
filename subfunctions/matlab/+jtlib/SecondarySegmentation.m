@@ -1,11 +1,11 @@
-function SecondaryLabelMatrixImage = IterativeWatershedSegmentation(OrigImage, PrelimPrimaryLabelMatrixImage, EditedPrimaryLabelMatrixImage, ...
-                                                                    ThresholdCorrection, MinimumThreshold, MaximumThreshold, GetThreshold)
+function [SecondaryLabelMatrixImage, EditedPrimaryBinaryImage, ThresholdArray] = SecondarySegmentation(OrigImage, PrelimPrimaryLabelMatrixImage, EditedPrimaryLabelMatrixImage, ...
+                                                                                        ThresholdCorrection, MinimumThreshold, MaximumThreshold)
 
-    % ITERATIVEWATERSHEDSEGMENTATION identifies objects (e.g. cell edges)
+    % SECONDARYSEGMENTATION identifies objects (e.g. cell edges)
     % using "seed" objects identified by an Identify Primary module (e.g. nuclei).
     %
-    % SECONDARYLABELMATRIXIMAGE = ITERATIVEWATERSHEDSEGMENTATION(ORIGIMAGE, PRELIMPRIMARYLABELMATRIXIMAGE, EDITEDPRIMARYLABELMATRIXIMAGE, ...
-    %                                                           THRESHOLDCORRECTION, MINIMUMTHRESHOLD, MAXIMUMTHRESHOLD, GETTHRESHOLD)
+    % [SECONDARYLABELMATRIXIMAGE, EDITEDPRIMARYBINARYIMAGE, THRESHOLDARRAY] = SECONDARYSEGMENTATION(ORIGIMAGE, PRELIMPRIMARYLABELMATRIXIMAGE, EDITEDPRIMARYLABELMATRIXIMAGE, ...
+    %                                                                               THRESHOLDCORRECTION, MINIMUMTHRESHOLD, MAXIMUMTHRESHOLD)
     %
     % See help of Cell Profiler's IdentifySecondary module for more details.
     %
@@ -23,10 +23,9 @@ function SecondaryLabelMatrixImage = IterativeWatershedSegmentation(OrigImage, P
     %   ORIGIMAGE                           Grey-scale image (double)
     %   PRELIMPRIMARYLABELMATRIXIMAGE       Label image with primary objects
     %   EDITEDPRIMARYLABELMATRIXIMAGE       Label image with primary objects
-    %   THRESHOLDCORRECTION                 Array of threshold values
+    %   THRESHOLDCORRECTION                 Array of threshold correction values
     %   MININMUMTHRESHOLD                   Lower bound threshold value
     %   MAXIMUMTHRESHOLD                    Upper bound threshold value
-    %   GETTHRESHOLD                        Command to calculate threshold (logical)
     %
     %   Note: when used outside of CellProfiler values of ORIGIMAGE
     %   and MININMUMTHRESHOLD/MAXIMUMTHRESHOLD have to be rescaled between 0-1!
@@ -34,8 +33,9 @@ function SecondaryLabelMatrixImage = IterativeWatershedSegmentation(OrigImage, P
     % Returns:
     % --------
     %
-    %   SECONDARYLABELMATRIXIMAGE           Label image                 
-    %
+    %   SECONDARYLABELMATRIXIMAGE           Label image 
+    %   EDITEDPRIMARYBINARYIMAGE            Label image  
+    %   THRESHOLDARRAY                      Array of used threshold values
     %
     % Usage:
     % ------
@@ -156,38 +156,26 @@ function SecondaryLabelMatrixImage = IterativeWatershedSegmentation(OrigImage, P
 
 
     numThresholdsToTest = length(ThresholdCorrection);
-    ThresholdArray = cell(numThresholdsToTest,1); % [modified by PLab to include multiple thrsholds]
+    ThresholdArray = cell(numThresholdsToTest,1); % [modified by PLab to include multiple thresholds]
 
-    %obtain first threshold via CPthreshold. note that this will also create a
-    %threshold measuremnt, this measuremnt will not be produced for sequential
-    %thresholds to prevent over/writing and conflicts that arise if
-    %numThreshold>=3
     % Former optional inputs, which in practice have lost any relevance
     ThresholdMethod = 'Otsu Global';
     pObject = 10;
-    if GetThreshold
-        % [PLab] force to use minimal treshold value of 0 and maximum of 1, to ensure
-        % equal thresholding for all tested tresholds
-        % [MH] make independent of handles!
-        ThresholdArray{1} = ImageThreshold(ThresholdMethod, ...
-                                           pObject, 0, 1, ...
-                                           ThresholdCorrection(1), ...
-                                           OrigImage, ...
-                                           []);
-    else
-        ThresholdArray{1} = 0; % should never be used
-    end
+    % [PLab] force to use minimal treshold value of 0 and maximum of 1, to ensure
+    % equal thresholding for all tested tresholds
+    % [MH] make independent of handles!
+    ThresholdArray{1} = ImageThreshold(ThresholdMethod, ...
+                                       pObject, 0, 1, ...
+                                       ThresholdCorrection(1), ...
+                                       OrigImage, ...
+                                       []);
 
     %%%% [PLab] start modification for obtaining multiple thresholds  %%%%%%%%%%%%%%%%%
     if numThresholdsToTest>1
         for k=2:numThresholdsToTest
             %%% STEP 1a: Marks at least some of the background
-            if GetThreshold
-                refThreshold = ThresholdArray{1};
-                ThresholdArray{k} = refThreshold .* ThresholdCorrection(k) ./ThresholdCorrection(1);
-            else
-                ThresholdArray{k} = 0; % should never be used
-            end
+            refThreshold = ThresholdArray{1};
+            ThresholdArray{k} = refThreshold .* ThresholdCorrection(k) ./ThresholdCorrection(1);
         end
     end
 
