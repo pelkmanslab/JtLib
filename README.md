@@ -11,12 +11,14 @@ It should serve as a code repository for common image processing tasks, such as 
 Some of the lab's standard CP modules are already implemented in Jterator:
 
 * LoadImages.m -> **LoadImage.py**     
-* IlluminationCorrection.m -> **IllumCorrectImage.py**    
+* IlluminationCorrectionPelkmans.m -> **IllumCorrectImage.py**    
 * IdentifyPrimItarative.m -> **IdentifyNuclei.m**   
 * IdentifySecondaryIterative.m -> **IdentifyCells.m**     
 * LoadSegmentedCells.m -> **LoadSegmentation.py**
 * MeasureAreaShape.m -> **MeasureAreaShape.py**   
 * MeasureObjectIntensity.m & MeasureTexture.m -> **MeasureIntensity.py**
+
+> Note: The measurement modules produce different and more extensive output when compared to the CP matlab implementations.
 
 
 ## Usage ##
