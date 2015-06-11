@@ -1,4 +1,4 @@
-function Threshold = JTthreshold(ThresholdMethod,pObject,MinimumThreshold,MaximumThreshold,ThresholdCorrection,OrigImage,MaskImage)
+function Threshold = ImageThreshold(ThresholdMethod,pObject,MinimumThreshold,MaximumThreshold,ThresholdCorrection,OrigImage,MaskImage)
 
 if ~isempty(MaskImage)
     if size(MaskImage)==size(OrigImage)
