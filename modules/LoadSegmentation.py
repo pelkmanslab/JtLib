@@ -10,7 +10,7 @@ import mahotas as mh
 # from mpl_toolkits.axes_grid1 import make_axes_locatable
 import mpld3
 from jtapi import *
-from jtlib import file_util, aligncycles
+from plia import file_util, aligncycles
 
 
 ##############

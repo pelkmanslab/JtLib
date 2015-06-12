@@ -4,7 +4,7 @@ import os
 import pylab as plt
 import mpld3
 from jtapi import *
-from jtlib import illumcorr
+from plia import illumcorr
 
 
 ##############

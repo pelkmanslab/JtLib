@@ -1,11 +1,11 @@
 import jtapi.*;
 import plot2svg.*;
-import jtlib.SecondarySegmentation;
-import jtlib.SmoothImage;
-import jtlib.ImageThreshold;
-import jtlib.GetObjectBoundary;
-import jtlib.GetBorderObjects;
-import jtlib.RelateObjects;
+import plia.segment.segmentSecondary;
+import plia.smoothImage;
+import plia.calculateThresholdLevel;
+import plia.determineObjectBoundary;
+import plia.determineBorderObjects;
+import plia.relateObjects;
 
 
 %%%%%%%%%%%%%%
@@ -14,24 +14,24 @@ import jtlib.RelateObjects;
 
 % jterator api
 handles = gethandles(STDIN);
-input_args = readinputargs(handles);
-input_args = checkinputargs(input_args);
+inputArgs = readinputargs(handles);
+inputArgs = checkinputargs(inputArgs);
 
-InputImage = input_args.IntensityImage;
-Nuclei = input_args.SeedImage;
+InputImage = inputArgs.IntensityImage;
+Nuclei = inputArgs.SeedImage;
 
 % Input arguments for object smoothing by median filtering
-doSmooth = input_args.Smooth;
-SmoothingFilterSize = input_args.SmoothingFilterSize;
+doSmooth = inputArgs.Smooth;
+SmoothingFilterSize = inputArgs.SmoothingFilterSize;
 
 % Input arguments for identifying objects by iterative intensity thresholding
-ThresholdCorrection = input_args.ThresholdCorrection;
-MinimumThreshold = input_args.MinimumThreshold;
+ThresholdCorrection = inputArgs.ThresholdCorrection;
+MinimumThreshold = inputArgs.MinimumThreshold;
 
 % Input arguments for saving segmented images
-do_SaveSegmentedImage = input_args.SaveSegmentedImage;
-InputImageFilename = input_args.InputImageFilename;
-SegmentationPath = input_args.SegmentationPath;
+do_SaveSegmentedImage = inputArgs.SaveSegmentedImage;
+InputImageFilename = inputArgs.InputImageFilename;
+SegmentationPath = inputArgs.SegmentationPath;
 
 
 %%%%%%%%%%%%%%
@@ -42,14 +42,14 @@ MaximumThreshold = 2^16;
 
 %% Smooth image
 if doSmooth
-    SmoothedImage = SmoothImage(InputImage, SmoothingFilterSize);
+    SmoothedImage = smoothImage(InputImage, SmoothingFilterSize);
 else
     SmoothedImage = InputImage;
 end
 
 %% Perform segmentation
 
-IdentifiedCells = SecondarySegmentation(SmoothedImage, ...
+IdentifiedCells = segmentSecondary(SmoothedImage, ...
                                         Nuclei, Nuclei, ...
                                         ThresholdCorrection, ...
                                         MinimumThreshold, ...
@@ -61,7 +61,7 @@ IdentifiedCells = SecondarySegmentation(SmoothedImage, ...
 CellCount = max(unique(IdentifiedCells));
 
 % Relate 'nuclei' to 'cells'
-[NucleiParentIds, ChildrenCount] = RelateObjects(IdentifiedCells, Nuclei);
+[NucleiParentIds, ChildrenCount] = relateObjects(IdentifiedCells, Nuclei);
 
 % Calculate cell centroids
 tmp = regionprops(logical(IdentifiedCells),'Centroid');
@@ -71,10 +71,10 @@ if isempty(CellCentroid)
 end
 
 % Calculate cell boundary
-CellBoundary = GetObjectBoundary(IdentifiedCells);
+CellBoundary = determineObjectBoundary(IdentifiedCells);
 
 % Get indices of cells at the border of images
-[BorderIds, BorderIx] = GetBorderObjects(IdentifiedCells);
+[BorderIds, BorderIx] = determineBorderObjects(IdentifiedCells);
 
 
 %%%%%%%%%%%%%%%%%%%

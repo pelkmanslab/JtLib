@@ -1,10 +1,10 @@
 import jtapi.*;
 import os.*;
-import jtlib.PrimarySegmentation;
-import jtlib.SmoothImage;
-import jtlib.GetObjectBoundary;
-import jtlib.RemoveSmallObjects;
-import jtlib.GetBorderObjects;
+import plia.segment.segmentPrimary;
+import plia.smoothImage;
+import plia.determineObjectBoundary;
+import plia.removeSmallObjects;
+import plia.determineBorderObjects;
 
 
 %%%%%%%%%%%%%%
@@ -13,35 +13,35 @@ import jtlib.GetBorderObjects;
 
 % jterator api
 handles = gethandles(STDIN);
-input_args = readinputargs(handles);
-input_args = checkinputargs(input_args);
+inputArgs = readinputargs(handles);
+inputArgs = checkinputargs(inputArgs);
 
-InputImage = input_args.IntensityImage;
+InputImage = inputArgs.IntensityImage;
 
 % Parameters for object smoothing by median filtering
-doSmooth = input_args.Smooth;
-SmoothingFilterSize = input_args.SmoothingFilterSize;
+doSmooth = inputArgs.Smooth;
+SmoothingFilterSize = inputArgs.SmoothingFilterSize;
 
 % Parameters for identifying objects by intensity threshold
-ThresholdCorrection = input_args.ThresholdCorrection;
-MinimumThreshold = input_args.MininumThreshold;
+ThresholdCorrection = inputArgs.ThresholdCorrection;
+MinimumThreshold = inputArgs.MininumThreshold;
 
 % Parameters for cutting clumped objects
-CuttingPasses = input_args.CuttingPasses;
-FilterSize = input_args.FilterSize;
-SlidingWindow = input_args.SlidingWindow;
-CircularSegment = input_args.CircularSegment;
-MaxConcaveRadius = input_args.MaxConcaveRadius;
-MaxArea = input_args.MaxArea;
-MaxSolidity = input_args.MaxSolidity;
-MinArea = input_args.MinArea;
-MinCutArea = input_args.MinCutArea;
-MinFormFactor = input_args.MinFormFactor;
+CuttingPasses = inputArgs.CuttingPasses;
+FilterSize = inputArgs.FilterSize;
+SlidingWindow = inputArgs.SlidingWindow;
+CircularSegment = inputArgs.CircularSegment;
+MaxConcaveRadius = inputArgs.MaxConcaveRadius;
+MaxArea = inputArgs.MaxArea;
+MaxSolidity = inputArgs.MaxSolidity;
+MinArea = inputArgs.MinArea;
+MinCutArea = inputArgs.MinCutArea;
+MinFormFactor = inputArgs.MinFormFactor;
 
 % Input arguments for saving segmented images
-do_SaveSegmentedImage = input_args.SaveSegmentedImage;
-InputImageFilename = input_args.IntensityImageFilename;
-SegmentationPath = input_args.SegmentationPath;
+do_SaveSegmentedImage = inputArgs.SaveSegmentedImage;
+InputImageFilename = inputArgs.IntensityImageFilename;
+SegmentationPath = inputArgs.SegmentationPath;
 
 
 %%%%%%%%%%%%%%
@@ -50,7 +50,7 @@ SegmentationPath = input_args.SegmentationPath;
 
 %% Smooth image
 if doSmooth
-    SmoothedImage = SmoothImage(InputImage, SmoothingFilterSize);
+    SmoothedImage = smoothImage(InputImage, SmoothingFilterSize);
 else
     SmoothedImage = InputImage;
 end
@@ -59,7 +59,7 @@ MaximumThreshold = 2^16;  % assume 16-bit image
 CircularSegment = degtorad(CircularSegment);
 
 %% Segment objects
-[IdentifiedNuclei, CutLines, SelectedObjects, ~, ~] = PrimarySegmentation(SmoothedImage, ...
+[IdentifiedNuclei, CutLines, SelectedObjects, ~, ~] = segmentPrimary(SmoothedImage, ...
                                                                          CuttingPasses, ...
                                                                          FilterSize, SlidingWindow, CircularSegment, MaxConcaveRadius, ...
                                                                          MaxSolidity, MinFormFactor, MinArea, MaxArea, MinCutArea, ...
@@ -67,7 +67,7 @@ CircularSegment = degtorad(CircularSegment);
 
 
 %% Remove small objects that fall below area threshold
-IdentifiedNuclei = RemoveSmallObjects(IdentifiedNuclei, MinCutArea);
+IdentifiedNuclei = removeSmallObjects(IdentifiedNuclei, MinCutArea);
 
 
 %% Make some default measurements
@@ -83,10 +83,10 @@ if isempty(NucleiCentroid)
 end
 
 % Calculate cell boundary
-NucleiBoundary = GetObjectBoundary(IdentifiedNuclei);
+NucleiBoundary = determineObjectBoundary(IdentifiedNuclei);
 
 % Get indices of nuclei at the border of images
-[BorderIds, BorderIx] = GetBorderObjects(IdentifiedNuclei);
+[BorderIds, BorderIx] = determineBorderObjects(IdentifiedNuclei);
 
 
 %%%%%%%%%%%%%%%%%%%

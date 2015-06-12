@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import mpld3
 from jtapi import *
-from jtlib import aligncycles
+from plia import aligncycles
 
 ##############
 # read input #

@@ -4,7 +4,7 @@ from skimage import filters, measure
 import matplotlib.pyplot as plt
 import mpld3
 from jtapi import *
-from jtlib import features, image_util
+from plia import features, image_util
 
 
 ##############
