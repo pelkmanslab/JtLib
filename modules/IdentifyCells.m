@@ -38,7 +38,9 @@ SegmentationPath = inputArgs.SegmentationPath;
 % processing %
 %%%%%%%%%%%%%%
 
-MaximumThreshold = 2^16;
+InputImage = InputImage ./ 2^16;
+MinimumThreshold = MinimumThreshold / 2^16;
+MaximumThreshold = 1;
 
 %% Smooth image
 if doSmooth
@@ -50,10 +52,10 @@ end
 %% Perform segmentation
 
 IdentifiedCells = segmentSecondary(SmoothedImage, ...
-                                        Nuclei, Nuclei, ...
-                                        ThresholdCorrection, ...
-                                        MinimumThreshold, ...
-                                        MaximumThreshold);                             
+                                    Nuclei, Nuclei, ...
+                                    ThresholdCorrection, ...
+                                    MinimumThreshold, ...
+                                    MaximumThreshold);                             
 
 %% Make some default measurements
 

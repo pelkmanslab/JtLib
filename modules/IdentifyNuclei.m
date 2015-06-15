@@ -25,6 +25,7 @@ SmoothingFilterSize = inputArgs.SmoothingFilterSize;
 % Parameters for identifying objects by intensity threshold
 ThresholdCorrection = inputArgs.ThresholdCorrection;
 MinimumThreshold = inputArgs.MininumThreshold;
+MaximumThreshold = inputArgs.MaximumThreshold;
 
 % Parameters for cutting clumped objects
 CuttingPasses = inputArgs.CuttingPasses;
@@ -48,6 +49,14 @@ SegmentationPath = inputArgs.SegmentationPath;
 % processing %
 %%%%%%%%%%%%%%
 
+InputImage = InputImage ./ 2^16;
+MinimumThreshold = MinimumThreshold / 2^16;
+MaximumThreshold = MaximumThreshold / 2^16;
+
+% %debugging
+% MinimumThreshold = 0.0019;
+% MaximumThreshold = 0.02;
+
 %% Smooth image
 if doSmooth
     SmoothedImage = smoothImage(InputImage, SmoothingFilterSize);
@@ -55,15 +64,14 @@ else
     SmoothedImage = InputImage;
 end
 
-MaximumThreshold = 2^16;  % assume 16-bit image
 CircularSegment = degtorad(CircularSegment);
 
 %% Segment objects
 [IdentifiedNuclei, CutLines, SelectedObjects, ~, ~] = segmentPrimary(SmoothedImage, ...
-                                                                         CuttingPasses, ...
-                                                                         FilterSize, SlidingWindow, CircularSegment, MaxConcaveRadius, ...
-                                                                         MaxSolidity, MinFormFactor, MinArea, MaxArea, MinCutArea, ...
-                                                                         ThresholdCorrection, MinimumThreshold, MaximumThreshold, 'Off');
+                                                                     CuttingPasses, ...
+                                                                     FilterSize, SlidingWindow, CircularSegment, MaxConcaveRadius, ...
+                                                                     MaxSolidity, MinFormFactor, MinArea, MaxArea, MinCutArea, ...
+                                                                     ThresholdCorrection, MinimumThreshold, MaximumThreshold, 'Off');
 
 
 %% Remove small objects that fall below area threshold
