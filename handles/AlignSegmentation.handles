@@ -3,22 +3,54 @@ input:
     - name: InputImage1
       class: hdf5_location
       value: 
-      help: 'Mask image that should be aligned.'
+      help: 'Segmentation image that should be aligned.'
+
+    - name: ObjectName1
+      class: parameter
+      value: 
+      type: str
+      help: 'Name of the objects in the segmentation image.'
 
     - name: InputImage2
       class: hdf5_location
       value: 
-      help: 'Mask image that should be aligned.'
+      help: 'Segmentation image that should be aligned.'
+
+    - name: ObjectName2
+      class: parameter
+      value: 
+      type: str
+      help: 'Name of the objects in the segmentation image.'
 
     - name: InputImage3
       class: hdf5_location
       value: 
-      help: 'Mask image that should be aligned.'
+      help: 'Segmentation image that should be aligned.'
+
+    - name: ObjectName3
+      class: parameter
+      value: 
+      type: str
+      help: 'Name of the objects in the segmentation image.'
 
     - name: InputImage4
       class: hdf5_location
       value: 
-      help: 'Mask image that should be aligned.'
+      help: 'Segmentation image that should be aligned.'
+
+    - name: ObjectName4
+      class: parameter
+      value: 
+      type: str
+      help: 'Name of the objects in the segmentation image.'
+
+    - name: ParentObjects
+      # Upon shifting and cropping of images, it can happen that some objects
+      # are removed, while others are still there.
+      class: parameter
+      value: 
+      type: str
+      help: Which of the objects represent the parent objects?
 
     - name: ShiftDescriptor
       class: parameter

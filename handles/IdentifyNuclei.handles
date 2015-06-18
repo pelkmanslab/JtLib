@@ -13,13 +13,13 @@ input:
     class: parameter
     value: true
     help: >
-      Do you want to smooth the intensity image before identifying cells?
-      Highly recommended!
+      Thresholding: Do you want to smooth the intensity image before identifying cells?
+      Recommended!
 
   - name: SmoothingFilterSize
     class: parameter
     value: 3
-    help: 'Size of the median smoothing filter.'
+    help: 'Thresholding: Size of the median smoothing filter.'
 
 
   # Identify objects by intensity thresholding
@@ -27,13 +27,18 @@ input:
 
   - name: ThresholdCorrection
     class: parameter
-    value: 1
-    help: 'Threshold correction factor to adjust thresholding.'
+    value: 0.98
+    help: 'Thresholding: Correction factor to adjust thresholding.'
 
   - name: MininumThreshold
     class: parameter
-    value: 120
-    help: 'Minimal allowed threshold value that can prevent recognition of background as objects.'
+    value: 125
+    help: 'Thresholding: Minimal allowed value. Can prevent recognition of background as objects.'
+
+  - name: MaximumThreshold
+    class: parameter
+    value: 1500
+    help: 'Thresholding: Maximal allowed value. Can prevent unrealistically high values in case of artifacts.'
 
 
 
@@ -43,16 +48,21 @@ input:
   - name: CuttingPasses
     class: parameter
     value: 2
-    help: 'Number of cutting passes (iterations) to break down clumped objects.'
+    help: 'Cutting: Number of cutting passes (iterations) to break down clumped objects.'
+
+  - name: MinCutArea
+    class: parameter
+    value: 2000
+    help: 'Cutting: Minimal area a potentially cut object must have. Prevents cutting off small fragments.'
 
   - name: MaxSolidity
     class: parameter
-    value: 0.91
+    value: 0.92
     help: 'Object selection: maximal solidity for an object to be selected for cutting.'
 
   - name: MinFormFactor
     class: parameter
-    value: 0.45
+    value: 0.40
     help: 'Object selection: minimal form factor for an object to be selected for cutting.'
 
   - name: MaxArea
@@ -62,22 +72,17 @@ input:
 
   - name: MinArea
     class: parameter
-    value: 7000
+    value: 5000
     help: 'Object selection: minimal area for an object to be selected for cutting.'
-
-  - name: MinCutArea
-    class: parameter
-    value: 2500
-    help: 'Minimal area a potentially cut object must have. Prevents cutting off small fragments.'
 
   - name: SlidingWindow
     class: parameter
-    value: 8
+    value: 9
     help: 'Perimeter analysis: sliding window size for detection of concave regions.'
 
   - name: FilterSize
     class: parameter
-    value: 1
+    value: 2
     help: 'Perimeter analysis: size of the smoothing filter applied to objects before perimeter analysis.'
 
   - name: MaxConcaveRadius
