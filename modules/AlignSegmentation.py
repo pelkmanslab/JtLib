@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import mpld3
-from jtapi import *
+import jtapi
 from plia import aligncycles
 
 
@@ -12,17 +12,24 @@ from plia import aligncycles
 # read input #
 ##############
 
-# jterator api
 handles_stream = sys.stdin
-handles = gethandles(handles_stream)
-input_args = readinputargs(handles)
-input_args = checkinputargs(input_args)
+handles = jtapi.gethandles(handles_stream)
+input_args = jtapi.readinputargs(handles)
+input_args = jtapi.checkinputargs(input_args)
 
 input_images = list()
 for i in range(1, 5):
     im_name = 'InputImage%d' % i
     if im_name in input_args:
         input_images.append(np.array(input_args[im_name], dtype='float64'))
+
+object_names = list()
+for i in range(1, 5):
+    currentObject = 'ObjectName%s' % i
+    if currentObject in input_args:
+        object_names.append(input_args[currentObject])
+
+parent = input_args['ParentObjects']
 
 shift_descriptor_filename = input_args['ShiftDescriptor']
 reference_filename = input_args['ReferenceFilename']
@@ -41,7 +48,8 @@ shift_descriptor = aligncycles.load_shift_descriptor(shift_descriptor_filename)
 index = aligncycles.get_index_from_shift_descriptor(shift_descriptor,
                                                     reference_filename)
 
-# align image (crop only - segmentation is based on reference cycle!)
+# align image
+# crop only (no shift required) since segmentation is based on reference cycle
 aligned_images = list()
 for image in input_images:
     cropped_image = aligncycles.shift_and_crop_image(image, shift_descriptor,
@@ -51,37 +59,61 @@ for image in input_images:
     else:
         aligned_images.append(cropped_image)
 
-# Cutting can result in inconsistent object counts, for example a nucleus
+# NOTE: Cutting can result in inconsistent object counts, for example a nucleus
 # can be removed, but there is still some part of the cell present in the image.
 # We have to correct for such cutting artifacts.
 
-# ensure that object counts are identical and that object ids match.
-object_ids = [np.unique(image[image != 0]) for image in aligned_images]
-object_counts = [len(objects) for objects in object_ids]
-ix = np.argsort(object_counts)
+# Assign new, continuous labels to the parent objects
+ix = [i for i, name in enumerate(object_names) if name == parent]
 
-# get common objects in image with highest object count and
-# image with second highest object count
-# (usually this corresponds to 'cells' and 'nuclei' objects, respectively)
-b = np.in1d(object_ids[ix[1]], object_ids[ix[0]])
-a = np.in1d(object_ids[ix[0]], object_ids[ix[1]][b])
+if len(ix) == 1:
+    ix = ix[0]
+elif len(ix) > 1:
+    raise ValueError('Name of parent objects "%s" matches more than one of '
+                     'the object names' % parent)
+else:
+    raise ValueError('Name of parent objects "%s" doesn\'t match any of '
+                     'the object names' % parent)
 
-# assign new common, continuous labels
-a_ix = object_ids[ix[1]][b]
-b_ix = object_ids[ix[0]][a]
+parent_image = np.zeros(aligned_images[ix].shape, dtype=aligned_images[ix].dtype)
+retained_parent_ids = np.unique(aligned_images[ix][aligned_images[ix] != 0])
+for j, retained_id in enumerate(retained_parent_ids):
+    # new one-based labels (background = 0)
+    parent_image[aligned_images[ix] == retained_id] = j + 1
+parent_ids = np.unique(parent_image[parent_image != 0])
+orig_parent_ids_num = len(np.unique(input_images[ix][input_images[ix] != 0]))
 
-if not all(a_ix == b_ix):
-    raise Exception('New object ids do not match.')
-
+# Remove child objects that have lost their parent and re-label the ones that
+# are left relative to the parent objects
 output_images = list()
-output_images.append(np.zeros(aligned_images[ix[0]].shape))
-output_images.append(np.zeros(aligned_images[ix[1]].shape))
-for i, label in enumerate(a_ix):
-    output_images[ix[1]][aligned_images[ix[1]] == a_ix[i]] = label
-    output_images[ix[0]][aligned_images[ix[0]] == b_ix[i]] = label
+original_ids = list()  # also keep track of original object labels
+for i, image in enumerate(aligned_images):
 
-# keep track of original object labels (of the uncropped images)
-original_ids = a_ix
+    if i == ix:
+        output_images.append(parent_image)
+        original_ids.append(retained_parent_ids)
+        continue
+
+    # Which child objects retained their parent?
+    stack = np.dstack((parent_image > 1, image > 1))
+    stack = np.array(np.sum(stack, axis=2), dtype=int)
+    retained_child_ids = np.unique(image[stack == 2])
+
+    # Assign new, continuous labels to child objects
+    child_image = np.zeros(image.shape, dtype=image.dtype)
+    orig_child_ids_num = len(np.unique(input_images[i][input_images[i] != 0]))
+    # If children had same number of objects as parent, re-label them the same
+    if orig_child_ids_num == orig_parent_ids_num:
+        for j, retained_id in enumerate(retained_child_ids):
+            child_image[image == retained_id] = parent_ids[j]
+    # If children had more objects than parent, re-label them independently
+    else:
+        for j, retained_id in enumerate(retained_child_ids):
+            # new one-based labels (background = 0)
+            child_image[image == retained_id] = j + 1
+
+    output_images.append(child_image)
+    original_ids.append(retained_child_ids)
 
 
 ###################
@@ -137,8 +169,8 @@ for i, image in enumerate(output_images):
     output_args['AlignedImage%d' % (i+1)] = image
 
 data = dict()
-data['OriginalObjectIds'] = original_ids
+for i, obj in enumerate(object_names):
+    data['%s_OriginalObjectIds' % obj] = original_ids[i]
 
-# jterator api
-writedata(handles, data)
-writeoutputargs(handles, output_args)
+jtapi.writedata(handles, data)
+jtapi.writeoutputargs(handles, output_args)
