@@ -3,18 +3,17 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import mpld3
-from jtapi import *
+import jtapi
 from plia import aligncycles
 
 ##############
 # read input #
 ##############
 
-# jterator api
 handles_stream = sys.stdin
-handles = gethandles(handles_stream)
-input_args = readinputargs(handles)
-input_args = checkinputargs(input_args)
+handles = jtapi.gethandles(handles_stream)
+input_args = jtapi.readinputargs(handles)
+input_args = jtapi.checkinputargs(input_args)
 
 input_image = np.array(input_args['InputImage'], dtype='float64')
 shift_descriptor_filename = input_args['ShiftDescriptor']
@@ -85,6 +84,5 @@ output_args['AlignedImage'] = aligned_image
 
 data = dict()
 
-# jterator api
-writedata(handles, data)
-writeoutputargs(handles, output_args)
+jtapi.writedata(handles, data)
+jtapi.writeoutputargs(handles, output_args)

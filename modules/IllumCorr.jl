@@ -19,13 +19,13 @@ mfilename = match(r"([^/]+)\.jl$", @__FILE__()).captures[1]
 handles_stream = readall(STDIN)
 
 ### retrieve handles from .YAML files
-handles = gethandles(handles_stream)
+handles = jtapi.gethandles(handles_stream)
 
 ### read input arguments from .HDF5 files
-input_args = readinputargs(handles)
+input_args = jtapi.readinputargs(handles)
 
 ### check whether input arguments are valid
-input_args = checkinputargs(input_args)
+input_args = jtapi.checkinputargs(input_args)
 
 ###############################################################################
 
@@ -139,9 +139,9 @@ data = Dict()
 ## jterator output
 
 ### write measurement data to HDF5
-writedata(handles, data)
+jtapi.writedata(handles, data)
 
 ### write temporary pipeline data to HDF5
-writeoutputargs(handles, output_args)
+jtapi.writeoutputargs(handles, output_args)
 
 ###############################################################################

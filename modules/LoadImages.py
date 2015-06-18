@@ -4,18 +4,17 @@ from scipy import misc
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import mpld3
-from jtapi import *
+import jtapi
 
 
 ##############
 # read input #
 ##############
 
-# jterator api
 handles_stream = sys.stdin
-handles = gethandles(handles_stream)
-input_args = readinputargs(handles)
-input_args = checkinputargs(input_args)
+handles = jtapi.gethandles(handles_stream)
+input_args = jtapi.readinputargs(handles)
+input_args = jtapi.checkinputargs(input_args)
 
 image_filenames = list()
 for i in range(1, 5):
@@ -79,6 +78,5 @@ for i, image in enumerate(images):
 
 data = dict()
 
-# jterator api
-writedata(handles, data)
-writeoutputargs(handles, output_args)
+jtapi.writedata(handles, data)
+jtapi.writeoutputargs(handles, output_args)

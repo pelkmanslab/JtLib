@@ -12,9 +12,9 @@ import plia.determineBorderObjects;
 %%%%%%%%%%%%%%
 
 % jterator api
-handles = gethandles(STDIN);
-inputArgs = readinputargs(handles);
-inputArgs = checkinputargs(inputArgs);
+handles = jtapi.gethandles(STDIN);
+inputArgs = jtapi.readinputargs(handles);
+inputArgs = jtapi.checkinputargs(inputArgs);
 
 InputImage = inputArgs.IntensityImage;
 
@@ -178,5 +178,5 @@ output_args = struct();
 output_args.Nuclei = IdentifiedNuclei;
 
 % jterator api
-writedata(handles, data);
-writeoutputargs(handles, output_args);
+jtapi.writedata(handles, data);
+jtapi.writeoutputargs(handles, output_args);

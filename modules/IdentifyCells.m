@@ -13,9 +13,9 @@ import plia.relateObjects;
 %%%%%%%%%%%%%%
 
 % jterator api
-handles = gethandles(STDIN);
-inputArgs = readinputargs(handles);
-inputArgs = checkinputargs(inputArgs);
+handles = jtapi.gethandles(STDIN);
+inputArgs = jtapi.readinputargs(handles);
+inputArgs = jtapi.checkinputargs(inputArgs);
 
 InputImage = inputArgs.IntensityImage;
 Nuclei = inputArgs.SeedImage;
@@ -147,5 +147,5 @@ output_args = struct();
 output_args.Cells = IdentifiedCells;
 
 % jterator api
-writedata(handles, data);
-writeoutputargs(handles, output_args);
+jtapi.writedata(handles, data);
+jtapi.writeoutputargs(handles, output_args);

@@ -3,7 +3,7 @@ import numpy as np
 from skimage import filters, measure
 import matplotlib.pyplot as plt
 import mpld3
-from jtapi import *
+import jtapi
 from plia import features, image_util
 
 
@@ -11,11 +11,10 @@ from plia import features, image_util
 # read input #
 ##############
 
-# jterator api
 handles_stream = sys.stdin
-handles = gethandles(handles_stream)
-input_args = readinputargs(handles)
-input_args = checkinputargs(input_args)
+handles = jtapi.gethandles(handles_stream)
+input_args = jtapi.readinputargs(handles)
+input_args = jtapi.checkinputargs(input_args)
 
 image = np.array(input_args['Image'], dtype='float64')
 image_name = input_args['ImageName']
@@ -109,6 +108,5 @@ for i, obj_image in enumerate(objects):
 
 output_args = dict()
 
-# jterator api
-writedata(handles, data)
-writeoutputargs(handles, output_args)
+jtapi.writedata(handles, data)
+jtapi.writeoutputargs(handles, output_args)

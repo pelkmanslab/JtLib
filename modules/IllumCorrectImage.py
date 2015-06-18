@@ -3,7 +3,7 @@ import numpy as np
 import os
 import pylab as plt
 import mpld3
-from jtapi import *
+import jtapi
 from plia import illumcorr
 
 
@@ -11,11 +11,10 @@ from plia import illumcorr
 # read input #
 ##############
 
-# jterator api
 handles_stream = sys.stdin
-handles = gethandles(handles_stream)
-input_args = readinputargs(handles)
-input_args = checkinputargs(input_args)
+handles = jtapi.gethandles(handles_stream)
+input_args = jtapi.readinputargs(handles)
+input_args = jtapi.checkinputargs(input_args)
 
 input_im = np.array(input_args['OriginalImage'], dtype='float64')
 reference_filename = input_args['ReferenceFilename']
@@ -109,6 +108,5 @@ output_args['CorrectedImage'] = corr_im
 
 data = dict()
 
-# jterator api
-writedata(handles, data)
-writeoutputargs(handles, output_args)
+jtapi.writedata(handles, data)
+jtapi.writeoutputargs(handles, output_args)

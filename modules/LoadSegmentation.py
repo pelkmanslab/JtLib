@@ -1,15 +1,12 @@
-import os
 import sys
 import re
 import glob
 from os.path import join
-# import numpy as np
-# from scipy import misc
 import matplotlib.pyplot as plt
 import mahotas as mh
 # from mpl_toolkits.axes_grid1 import make_axes_locatable
 import mpld3
-from jtapi import *
+import jtapi
 from plia import file_util, aligncycles
 
 
@@ -17,11 +14,10 @@ from plia import file_util, aligncycles
 # read input #
 ##############
 
-# jterator api
 handles_stream = sys.stdin
-handles = gethandles(handles_stream)
-input_args = readinputargs(handles)
-input_args = checkinputargs(input_args)
+handles = jtapi.gethandles(handles_stream)
+input_args = jtapi.readinputargs(handles)
+input_args = jtapi.checkinputargs(input_args)
 
 object_names = list()
 for i in range(1, 4+1):
@@ -78,7 +74,6 @@ for f in segmentation_filenames:
     if not f:
         segmentations.append(None)
         continue
-    # segmentations.append(np.array(misc.imread(f), dtype='int'))
     segmentations.append(mh.imread(f))
 
 
@@ -115,6 +110,5 @@ for i, image in enumerate(segmentations):
         continue
     output_args['Objects%d' % (i+1)] = image
 
-# jterator api
-writedata(handles, data)
-writeoutputargs(handles, output_args)
+jtapi.writedata(handles, data)
+jtapi.writeoutputargs(handles, output_args)
