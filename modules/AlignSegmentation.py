@@ -6,7 +6,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import mpld3
 import jtapi
 from plia import aligncycles
-from tmt.illuminati import segment
+import tmt.imageutil
 
 
 ##############
@@ -119,8 +119,6 @@ for i, image in enumerate(aligned_images):
             # And store the retained ids
             original_ids[ix] += retained_child_ids
 
-    # If there were more children objects than parent objects we don't care
-
     output_images[i] = child_image
     original_ids[i] = retained_child_ids
 
@@ -183,9 +181,11 @@ if handles['plot']:
 output_args = dict()
 data = dict()
 for i, image in enumerate(output_images):
+    obj_name = object_names[i]
     output_args['AlignedImage%d' % (i+1)] = image
-    data['%s_OriginalObjectIds' % object_names[i]] = original_ids[i]
-    data['%s_BorderIx' % object_names[i]] = segment.find_border_objects(image)
+    data['%s_OriginalObjectIds' % obj_name] = original_ids[i]
+    # We also need to re-assign border indices after alignment
+    data['%s_BorderIx' % obj_name] = tmt.imageutil.find_border_objects(image)
 
 jtapi.writedata(handles, data)
 jtapi.writeoutputargs(handles, output_args)
