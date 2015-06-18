@@ -6,6 +6,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import mpld3
 import jtapi
 from plia import aligncycles
+from tmt.illuminati import segment
 
 
 ##############
@@ -75,45 +76,60 @@ else:
     raise ValueError('Name of parent objects "%s" doesn\'t match any of '
                      'the object names' % parent)
 
-parent_image = np.zeros(aligned_images[ix].shape, dtype=aligned_images[ix].dtype)
-retained_parent_ids = np.unique(aligned_images[ix][aligned_images[ix] != 0])
-for j, retained_id in enumerate(retained_parent_ids):
-    # new one-based labels (background = 0)
-    parent_image[aligned_images[ix] == retained_id] = j + 1
-parent_ids = np.unique(parent_image[parent_image != 0])
-orig_parent_ids_num = len(np.unique(input_images[ix][input_images[ix] != 0]))
 
-# Remove child objects that have lost their parent and re-label the ones that
-# are left relative to the parent objects
-output_images = list()
-original_ids = list()  # also keep track of original object labels
+orig_parent_im = input_images[ix]
+orig_parent_ids = np.unique(orig_parent_im[orig_parent_im != 0]).astype(int)
+
+aligned_parent_im = aligned_images[ix]
+
+# Remove parent objects that have lost their children and re-label the ones that
+# are left in a continuous way
+output_images = [np.empty(x.shape, dtype=x.dtype) for x in input_images]
+original_ids = [0 for x in range(len(input_images))]
 for i, image in enumerate(aligned_images):
 
     if i == ix:
-        output_images.append(parent_image)
-        original_ids.append(retained_parent_ids)
         continue
 
-    # Which child objects retained their parent?
-    stack = np.dstack((parent_image > 1, image > 1))
+    # Which parent objects lost their children?
+    stack = np.dstack((aligned_parent_im > 1, image > 1))
     stack = np.array(np.sum(stack, axis=2), dtype=int)
-    retained_child_ids = np.unique(image[stack == 2])
+    retained_child_ids = np.unique(image[stack == 2]).astype(int)
 
     # Assign new, continuous labels to child objects
-    child_image = np.zeros(image.shape, dtype=image.dtype)
-    orig_child_ids_num = len(np.unique(input_images[i][input_images[i] != 0]))
-    # If children had same number of objects as parent, re-label them the same
-    if orig_child_ids_num == orig_parent_ids_num:
-        for j, retained_id in enumerate(retained_child_ids):
-            child_image[image == retained_id] = parent_ids[j]
-    # If children had more objects than parent, re-label them independently
-    else:
-        for j, retained_id in enumerate(retained_child_ids):
-            # new one-based labels (background = 0)
-            child_image[image == retained_id] = j + 1
 
-    output_images.append(child_image)
-    original_ids.append(retained_child_ids)
+    # NOTE: Skimage and Mahotas assign object labels from top to bottom,
+    # while Matlab assigns them from left to right. Therefore, we re-label
+    # "manually" to avoid unnecessary permutations of the data.
+
+    child_image = np.zeros(image.shape, dtype=image.dtype)
+    for j, retained_id in enumerate(retained_child_ids):
+        child_image[image == retained_id] = j + 1  # one-based
+
+    orig_child_im = input_images[i]
+    orig_child_ids = np.unique(orig_child_im[orig_child_im != 0]).astype(int)
+
+    # If children objects and parent objects had the same label,
+    # remove parent objects which have lost their child
+    if len(orig_child_ids) == len(orig_parent_ids):
+        lost_child_ids = [v for v in orig_child_ids
+                          if v not in retained_child_ids]
+        for j, lost_id in enumerate(lost_child_ids):
+            aligned_parent_im[aligned_parent_im == lost_id] = 0
+            # And store the retained ids
+            original_ids[ix] += retained_child_ids
+
+    # If there were more children objects than parent objects we don't care
+
+    output_images[i] = child_image
+    original_ids[i] = retained_child_ids
+
+# Re-label parent image after objects with missing children were removed
+original_ids[ix] = sorted(np.unique(original_ids[ix]))
+output_images[ix] = np.zeros(aligned_parent_im.shape,
+                             dtype=aligned_parent_im.dtype)
+for j, retained_id in enumerate(original_ids[ix]):
+    output_images[ix][aligned_parent_im == retained_id] = j + 1
 
 
 ###################
@@ -165,12 +181,11 @@ if handles['plot']:
 ################
 
 output_args = dict()
+data = dict()
 for i, image in enumerate(output_images):
     output_args['AlignedImage%d' % (i+1)] = image
-
-data = dict()
-for i, obj in enumerate(object_names):
-    data['%s_OriginalObjectIds' % obj] = original_ids[i]
+    data['%s_OriginalObjectIds' % object_names[i]] = original_ids[i]
+    data['%s_BorderIx' % object_names[i]] = segment.find_border_objects(image)
 
 jtapi.writedata(handles, data)
 jtapi.writeoutputargs(handles, output_args)
