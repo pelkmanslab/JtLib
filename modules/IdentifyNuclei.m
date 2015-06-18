@@ -81,7 +81,7 @@ IdentifiedNuclei = removeSmallObjects(IdentifiedNuclei, MinCutArea);
 %% Make some default measurements
 
 % Calculate object counts
-NucleiCount = max(unique(IdentifiedNuclei));
+ObjectIds = unique(IdentifiedNuclei(IdentifiedNuclei > 0));
 
 % Calculate cell centroids
 tmp = regionprops(logical(IdentifiedNuclei), 'Centroid');
@@ -168,15 +168,14 @@ end
 %%%%%%%%%%%%%%%%
 
 data = struct();
-data.Nuclei_Count = NucleiCount;
 data.Nuclei_Centroids = NucleiCentroid;
 data.Nuclei_Boundary = NucleiBoundary;
 data.Nuclei_BorderIds = BorderIds;
 data.Nuclei_BorderIx = BorderIx;
+data.Nuclei_OriginalObjectIds = ObjectIds;
 
 output_args = struct();
 output_args.Nuclei = IdentifiedNuclei;
 
-% jterator api
 jtapi.writedata(handles, data);
 jtapi.writeoutputargs(handles, output_args);

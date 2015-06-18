@@ -12,7 +12,6 @@ import plia.relateObjects;
 % read input %
 %%%%%%%%%%%%%%
 
-% jterator api
 handles = jtapi.gethandles(STDIN);
 inputArgs = jtapi.readinputargs(handles);
 inputArgs = jtapi.checkinputargs(inputArgs);
@@ -59,8 +58,8 @@ IdentifiedCells = segmentSecondary(SmoothedImage, ...
 
 %% Make some default measurements
 
-% Calculate object counts
-CellCount = max(unique(IdentifiedCells));
+% Calculate object ids
+ObjectIds = unique(IdentifiedCells(IdentifiedCells > 0));
 
 % Relate 'nuclei' to 'cells'
 [NucleiParentIds, ChildrenCount] = relateObjects(IdentifiedCells, Nuclei);
@@ -135,17 +134,15 @@ end
 %%%%%%%%%%%%%%%%
 
 data = struct();
-data.Cells_Count = CellCount;
 data.Cells_Centroids = CellCentroid;
 data.Cells_Boundary = CellBoundary;
 data.Cells_BorderIds = BorderIds;
 data.Cells_BorderIx = BorderIx;
 data.Nuclei_ParentIds = NucleiParentIds;
-% Cells - Nuclei relationship hard-coded for now
+data.Cells_OriginalObjectIds = ObjectIds;
 
 output_args = struct();
 output_args.Cells = IdentifiedCells;
 
-% jterator api
 jtapi.writedata(handles, data);
 jtapi.writeoutputargs(handles, output_args);
