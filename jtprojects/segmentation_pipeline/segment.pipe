@@ -1,0 +1,43 @@
+project:
+
+  name: Segmentation
+  libpath: ~/jtlib
+
+jobs:
+
+  folder: ../TIFF
+
+  pattern:
+
+  - expression: DAPI
+    name: DAPI
+
+  - expression: Cy5
+    name: CY5
+
+pipeline:
+
+- active: true
+  interpreter: python
+  handles: handles/LoadImages.handles
+  module: '{libpath}/modules/LoadImages.py'
+
+- active: true
+  interpreter: python
+  handles: handles/IllumCorrectImage_DAPI.handles
+  module: '{libpath}/modules/IllumCorrectImage.py'
+
+- active: true
+  interpreter: Mscript
+  handles: handles/IdentifyNuclei.handles
+  module: '{libpath}/modules/IdentifyNuclei.m'
+
+- active: true
+  interpreter: python
+  handles: handles/IllumCorrectImage_CY5.handles
+  module: '{libpath}/modules/IllumCorrectImage.py'
+
+- active: true
+  interpreter: Mscript
+  handles: handles/IdentifyCells.handles
+  module: '{libpath}/modules/IdentifyCells.m'

@@ -1,0 +1,43 @@
+input:
+
+- help: Image that should be corrected.
+  type: float64
+  class: hdf5_location
+  value: Images/DAPI
+  name: OriginalImage
+
+- help: Filename of the image that should be corrected.
+  class: hdf5_location
+  value: DAPI
+  name: ReferenceFilename
+
+- help: Relative path to the folder containing the illumination statistics files.
+  class: parameter
+  value: ../stats
+  name: StatsDirectory
+
+- help: Globbing pattern to determine statistics files corresponding to different
+    channels.
+  class: parameter
+  value: Measurements_batch_illcor_channel%.3d_*.mat
+  name: StatsFilenamePattern
+
+- help: Do you want to smooth the statistics mask image prior to correction? This
+    may be useful to prevent overcorrection artifacts at the border of the image.
+  class: parameter
+  value: false
+  name: Smooth
+
+- help: If you want to smooth, whath should be the size of the Gaussian filter?
+  class: parameter
+  value: 10
+  name: FilterSize
+
+output:
+
+- isDuplicate: false
+  class: hdf5_location
+  value: Images/CorrDAPI
+  name: CorrectedImage
+
+plot: false

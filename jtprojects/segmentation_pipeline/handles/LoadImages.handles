@@ -1,0 +1,41 @@
+input:
+
+- help: Name of the image file.
+  class: hdf5_location
+  value: DAPI
+  name: ImageFilename1
+
+- help: Name of the image file.
+  class: hdf5_location
+  value: CY5
+  name: ImageFilename2
+
+- help: Name of the image file.
+  class: hdf5_location
+  value:
+  name: ImageFilename3
+
+- help: Name of the image file.
+  class: hdf5_location
+  value:
+  name: ImageFilename4
+
+output:
+
+- class: hdf5_location
+  value: Images/DAPI
+  name: LoadedImage1
+
+- class: hdf5_location
+  value: Images/CY5
+  name: LoadedImage2
+
+- class: hdf5_location
+  value:
+  name: LoadedImage3
+  
+- class: hdf5_location
+  value:
+  name: LoadedImage4
+
+plot: true

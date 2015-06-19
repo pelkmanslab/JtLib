@@ -1,0 +1,18 @@
+input:
+- value: Images/CorrGFP
+  class: hdf5_location
+  name: InputImage
+  help: Intensity image that should be aligned.
+- value: ../ALIGNCYCLES/shiftDescriptor.json
+  class: parameter
+  name: ShiftDescriptor
+  help: Relative path to the shiftDescriptor.json file.
+- value: GFP
+  class: hdf5_location
+  name: ReferenceFilename
+  help: Filename of the image, which was used for image registration.
+output:
+- class: hdf5_location
+  value: Images/AlignGFP
+  name: AlignedImage
+plot: false

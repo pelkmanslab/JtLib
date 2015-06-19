@@ -1,0 +1,112 @@
+input:
+
+- name: IntensityImage
+  type: double
+  class: hdf5_location
+  value: Images/CorrDAPI
+  help: Intensity image that should be used for nuclei identification.
+
+- help: Do you want to smooth the intensity image before identifying cells? Highly
+    recommended!
+  class: parameter
+  value: true
+  name: Smooth
+
+- help: Size of the median smoothing filter.
+  class: parameter
+  value: 3
+  name: SmoothingFilterSize
+
+- help: Threshold correction factor to adjust thresholding.
+  class: parameter
+  value: 0.98
+  name: ThresholdCorrection
+
+- help: Minimal allowed threshold value that can prevent recognition of background
+    as objects.
+  class: parameter
+  value: 125
+  name: MininumThreshold
+
+- help: Maximal allowed threshold value that may be necessary to limit the automatically
+    calculated threshold level.
+  class: parameter
+  value: 1500
+  name: MaximumThreshold
+
+- help: Number of cutting passes (iterations) to break down clumped objects.
+  class: parameter
+  value: 3
+  name: CuttingPasses
+
+- help: Object selection: maximal solidity for an object to be selected for cutting.
+  class: parameter
+  value: 0.92
+  name: MaxSolidity
+
+- help: Object selection: minimal form factor for an object to be selected for cutting.
+  class: parameter
+  value: 0.4
+  name: MinFormFactor
+
+- help: Object selection: maximal area for an object to be selected for cutting.
+  class: parameter
+  value: 50000
+  name: MaxArea
+
+- help: Object selection: minimal area for an object to be selected for cutting.
+  class: parameter
+  value: 5000
+  name: MinArea
+
+- help: Minimal area a potentially cut object must have. Prevents cutting off small
+    fragments.
+  class: parameter
+  value: 2000
+  name: MinCutArea
+
+- help: Perimeter analysis: sliding window size for detection of concave regions.
+  class: parameter
+  value: 9
+  name: SlidingWindow
+
+- help: Perimeter analysis: size of the smoothing filter applied to objects before
+    perimeter analysis.
+  class: parameter
+  value: 2
+  name: FilterSize
+
+- help: Perimeter analysis: maximum equivalent radius for a region to be considered
+    concave.
+  class: parameter
+  value: 30
+  name: MaxConcaveRadius
+
+- help: Perimeter analysis: equivalent circular segment for a region to be considered
+    concave.
+  class: parameter
+  value: 6
+  name: CircularSegment
+
+- help: Do you want to save segmented nuclei as mask images?
+  class: parameter
+  value: true
+  name: SaveSegmentedImage
+
+- help: Relative path to the folder were these mask images should be saved.
+  class: parameter
+  value: ../SEGMENTATION
+  name: SegmentationPath
+
+- help: Name of the intensity image file.
+  class: hdf5_location
+  value: DAPI
+  name: IntensityImageFilename
+
+output:
+
+- class: hdf5_location
+  value: Objects/Nuclei
+  name: Nuclei
+
+plot: true

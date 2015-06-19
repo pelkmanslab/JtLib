@@ -1,0 +1,86 @@
+project:
+
+  name: Measurement
+  libpath: ~/jtlib
+
+jobs:
+
+  folder: ../TIFF
+
+  pattern:
+
+  - expression: DAPI
+    name: DAPI
+
+  - expression: RFP
+    name: RFP
+
+  - expression: GFP
+    name: GFP
+
+pipeline:
+
+- active: true
+  interpreter: python
+  handles: handles/LoadImages.handles
+  module: '{libpath}/modules/LoadImages.py'
+
+- active: true
+  interpreter: python
+  handles: handles/IllumCorrectImage_DAPI.handles
+  module: '{libpath}/modules/IllumCorrectImage.py'
+
+- active: true
+  interpreter: python
+  handles: handles/AlignImage_DAPI.handles
+  module: '{libpath}/modules/AlignImage.py'
+
+- active: true
+  interpreter: python
+  handles: handles/IllumCorrectImage_RFP.handles
+  module: '{libpath}/modules/IllumCorrectImage.py'
+
+- active: true
+  interpreter: python
+  handles: handles/AlignImage_RFP.handles
+  module: '{libpath}/modules/AlignImage.py'
+
+- active: true
+  interpreter: python
+  handles: handles/IllumCorrectImage_GFP.handles
+  module: '{libpath}/modules/IllumCorrectImage.py'
+
+- active: true
+  interpreter: python
+  handles: handles/AlignImage_GFP.handles
+  module: '{libpath}/modules/AlignImage.py'
+
+- active: true
+  interpreter: python
+  handles: handles/LoadSegmentation.handles
+  module: '{libpath}/modules/LoadSegmentation.py'
+
+- active: true
+  interpreter: python
+  handles: handles/AlignSegmentation.handles
+  module: '{libpath}/modules/AlignSegmentation.py'
+
+- active: true
+  interpreter: python
+  handles: handles/MeasureAreaShape.handles
+  module: '{libpath}/modules/MeasureAreaShape.py'
+
+- active: true
+  interpreter: python
+  handles: handles/MeasureIntensity_DAPI.handles
+  module: '{libpath}/modules/MeasureIntensity.py'
+
+- active: true
+  interpreter: python
+  handles: handles/MeasureIntensity_RFP.handles
+  module: '{libpath}/modules/MeasureIntensity.py'
+
+- active: true
+  interpreter: python
+  handles: handles/MeasureIntensity_GFP.handles
+  module: '{libpath}/modules/MeasureIntensity.py'

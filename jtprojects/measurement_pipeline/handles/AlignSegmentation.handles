@@ -1,0 +1,60 @@
+input:
+- value: Objects/OrigNuclei
+  class: hdf5_location
+  name: InputImage1
+  help: Segmentation image that should be aligned.
+- value: Nuclei
+  class: parameter
+  name: ObjectName1
+  help: Name of the objects in the segmentation image.
+- value: Objects/OrigCells
+  class: hdf5_location
+  name: InputImage2
+  help: Segmentation image that should be aligned.
+- value: Cells
+  class: parameter
+  name: ObjectName2
+  help: Name of the objects in the segmentation image.
+- value:
+  class: hdf5_location
+  name: InputImage3
+  help: Segmentation image that should be aligned.
+- value: 
+  class: parameter
+  name: ObjectName3
+  help: Name of the objects in the segmentation image.
+- value:
+  class: hdf5_location
+  name: InputImage4
+  help: Segmentation image that should be aligned.
+- value: 
+  class: parameter
+  name: ObjectName4
+  help: Name of the objects in the segmentation image.
+- value: Cells
+  class: parameter
+  name: ParentObjects
+  help: Which of the objects represent the parent objects?
+- value: ../ALIGNCYCLES/shiftDescriptor.json
+  type: str
+  class: parameter
+  name: ShiftDescriptor
+  help: Relative path to the shiftDescriptor.json file.
+- value: DAPI
+  class: hdf5_location
+  name: ReferenceFilename
+  help: Filename of the image, which was used for image registration.
+output:
+- class: hdf5_location
+  value: Objects/AlignNuclei
+  name: AlignedImage1
+- class: hdf5_location
+  value: Objects/AlignCells
+  name: AlignedImage2
+- class: hdf5_location
+  value:
+  name: AlignedImage3
+- class: hdf5_location
+  value:
+  name: AlignedImage4
+plot: false

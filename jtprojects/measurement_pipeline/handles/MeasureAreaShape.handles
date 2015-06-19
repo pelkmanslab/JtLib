@@ -1,0 +1,43 @@
+input:
+- value: Objects/AlignNuclei
+  class: hdf5_location
+  name: Object1
+  help: Mask image that should be used for the measurements.
+- value: Nuclei
+  type: str
+  class: parameter
+  name: ObjectName1
+  help: Name of the objects in the measurement output.
+- value: Objects/AlignCells
+  class: hdf5_location
+  name: Object2
+  help: Mask image that should be used for the measurements.
+- value: Cells
+  type: str
+  class: parameter
+  name: ObjectName2
+  help: Name of the objects in the measurement output.
+- value:
+  class: hdf5_location
+  name: Object3
+  help: Mask image that should be used for the measurements.
+- value:
+  type: str
+  class: parameter
+  name: ObjectName3
+  help: Name of the objects in the measurement output.
+- value:
+  class: hdf5_location
+  name: Object4
+  help: Mask image that should be used for the measurements.
+- value:
+  type: str
+  class: parameter
+  name: ObjectName4
+  help: Name of the objects in the measurement output.
+- value: true
+  class: parameter
+  name: Zernike
+  help: Do you want to measure Zernike moments?
+output:
+plot: false

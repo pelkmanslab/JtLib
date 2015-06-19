@@ -1,0 +1,50 @@
+input:
+- value: Nuclei
+  class: parameter
+  name: ObjectName1
+  help: Name of the objects in the segmentation image.
+- value: Cells
+  class: parameter
+  name: ObjectName2
+  help: Name of the objects in the segmentation image.
+- value:
+  class: parameter
+  name: ObjectName3
+  help: Name of the objects in the segmentation image.
+- value:
+  class: parameter
+  name: ObjectName4
+  help: Name of the objects in the segmentation image.
+- value: ../SEGMENTATION
+  class: parameter
+  name: SegmentationDirectory
+  help: Relative path to the folder containing the segmentation images.
+- value: DAPI
+  type: str
+  class: hdf5_location
+  name: ReferenceFilename
+  help: Name of the reference file to identify the correct segmentation image.
+- value: true
+  class: parameter
+  name: Shift
+  help: Do you want to rather determine the segmentation directory from a shift descriptor
+    file?
+- value: ../ALIGNCYCLES/shiftDescriptor.json
+  type: str
+  class: parameter
+  name: ShiftDescriptor
+  help: Relative path to the shift descriptor file.
+output:
+- class: hdf5_location
+  value: Objects/OrigNuclei
+  name: Objects1
+- class: hdf5_location
+  value: Objects/OrigCells
+  name: Objects2
+- class: hdf5_location
+  value:
+  name: Objects3
+- class: hdf5_location
+  value:
+  name: Objects4
+plot: false
